@@ -1,4 +1,3 @@
-
 # Created by https://www.toptal.com/developers/gitignore/api/web,node,vscode,sublimetext,windows,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=web,node,vscode,sublimetext,windows,macos
 
@@ -86,6 +85,9 @@ typings/
 
 # Optional eslint cache
 .eslintcache
+
+# eslint configuration
+.eslintrc.json
 
 # Optional stylelint cache
 .stylelintcache
