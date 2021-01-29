@@ -1,0 +1,20 @@
+#%RAML 1.0
+title: RTI API
+types:
+  Comp: !include types/Comp.raml
+
+/comps:
+  get:
+    description: Gets a list of the saved raid squad compositions.
+    queryParameters: 
+      category:
+        type: string
+        description: A URI-safe, comma-separated list of composition categories
+        example: "Generic,Other,Wing%205"
+    responses:
+      200:
+        body:
+          application/json:
+            description: A list of compositions.
+            type: Comp[]
+            example: !include examples/list-comps.json
