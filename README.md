@@ -1,4 +1,4 @@
-# RTI Bot API
+# RTI API
 
 ## Overview
 This is a repository for the API that exposes the data of [RTI Bot](https://github.com/Daniel123643/RTIBot) for use within web interfaces and other third-party applications.
