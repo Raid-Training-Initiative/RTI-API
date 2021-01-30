@@ -1,0 +1,3 @@
+[submodule "RTIBot-DB"]
+	path = RTIBot-DB
+	url = https://github.com/Krhomv/RTIBot-DB
