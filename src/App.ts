@@ -3,7 +3,7 @@ import { IConfig } from "./Config";
 import express = require("express");
 import { Document } from "mongoose";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
-import { IRaidCompositionPopulatedDocument } from "@RTIBot-DB/documents/IRaidCompositionDocument";
+import { Comps } from "./endpoints/Comps";
 
 export interface IUserDocument extends Document {
     name: string;
@@ -36,23 +36,8 @@ export class App {
 
         // define a route handler for the default home page
         server.get("/comps", async (req, res) => {
-            const documents = (await db.raidCompositionModel.find().populate("categories")) as IRaidCompositionPopulatedDocument[];
-            const formattedDocuments = documents.map(document => {
-                return {
-                    name: document.name,
-                    categories: document.categories.map(category => {
-                        return category.name
-                    }),
-                    roles: document.roles.map(role => {
-                        return {
-                            name: role.name,
-                            requiredParticipants: role.requiredParticipants
-                        }
-                    })
-                };
-            });
             res.set("Content-Type", "application/json");
-            res.send(JSON.stringify(formattedDocuments));
+            res.send(await Comps.list_payload(db));
         });
 
         server.get("/test2", (req, res) => {
