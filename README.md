@@ -22,7 +22,7 @@ npm install
 ## Restoring Data
 If there is a database already created and backed up into a dump folder, then you can restore this data for use within the API.
 
-* Step 1: [Install Mongo Tools])(https://docs.mongodb.com/database-tools/installation/installation-windows/) and add its `bin` folder to your PATH.
+* Step 1: [Install Mongo Tools](https://docs.mongodb.com/database-tools/installation/installation-windows/) and add its `bin` folder to your PATH.
 * Step 2: Connect to MongoDB (this can be done via running `mongo` in a terminal or via a GUI like [Robo 3T](https://robomongo.org/download)).
 * Step 3: Navigate to the directory containing your MongoDB dump folder in a terminal and run `mongorestore`:
 ```bash
