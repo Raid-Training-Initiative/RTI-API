@@ -1,0 +1,31 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "A REST api for RTI data.",
+  "main": "dist/App.js",
+  "dependencies": {
+    "@types/async-lock": "^1.1.1",
+    "@types/node": "^13.1.6",
+    "async-lock": "^1.2.2",
+    "discord.js": "^12.5.1",
+    "express": "^4.17.1",
+    "module-alias": "^2.2.2",
+    "mongoose": "^5.11.0",
+    "ts-mongoose": "0.0.21"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "eslint": "^6.8.0",
+    "eslint-config-google": "^0.14.0",
+    "typescript": "^3.9.7"
+  },
+  "scripts": {
+    "tsc": "tsc"
+  },
+  "_moduleAliases": {
+    "@RTIBot-DB": "dist/RTIBot-DB"
+  },
+  "author": "Stephan Wells",
+  "license": "ISC"
+}
