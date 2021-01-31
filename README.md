@@ -5,17 +5,28 @@ This is a repository for the API that exposes the RTI data used by [RTI Bot](htt
 
 ## Installation
 * Step 1: [Install Node.js](https://nodejs.org/en/download/) if you haven't already.
-* Step 2: Clone the repo:
+* Step 2: [Install MongoDB](https://www.mongodb.com/try/download/community?tck=docs_server) and add its `bin` folder to your PATH.
+* Step 3: Clone the repo:
 ```bash
 git clone https://github.com/StephanWells/RTI-API.git
 ```
-* Step 3: Initialise and update the database submodule:
+* Step 4: Initialise and update the database submodule:
 ```bash
 git submodule update --init --recursive
 ```
-* Step 4: Open the terminal at the root folder and install Node dependencies:
+* Step 5: Open the terminal at the root folder and install Node dependencies:
 ```bash
 npm install
+```
+
+## Restoring Data
+If there is a database already created and backed up into a dump folder, then you can restore this data for use within the API.
+
+* Step 1: [Install Mongo Tools])(https://docs.mongodb.com/database-tools/installation/installation-windows/) and add its `bin` folder to your PATH.
+* Step 2: Connect to MongoDB (this can be done via running `mongo` in a terminal or via a GUI like [Robo 3T](https://robomongo.org/download)).
+* Step 3: Navigate to the directory containing your MongoDB dump folder in a terminal and run `mongorestore`:
+```bash
+mongorestore
 ```
 
 ## Running
