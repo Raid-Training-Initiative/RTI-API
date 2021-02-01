@@ -1,15 +1,14 @@
 import "module-alias/register";
 import { IConfig } from "./Config";
 import express = require("express");
-import { Document } from "mongoose";
+import { Request, Response, NextFunction } from "express";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { Comps } from "./endpoints/Comps";
-
-export interface IUserDocument extends Document {
-    name: string;
-}
+import errorMiddleware from "./middleware/error.middleware";
 
 export class App {
+    private static _app: App | undefined;
+    
     public static initiate(config: IConfig) {
         if (!this._app) {
             this._app = new App(config);
@@ -23,24 +22,27 @@ export class App {
         return this._app;
     }
 
-    private static _app: App | undefined;
-
     constructor(private readonly config: IConfig) {
     }
 
+    /**
+     * This function runs the API and listens for the different endpoints.
+     */
     public async run() {
-        const server = new express();
+        const server = express();
         const port = 8080;
         const db = new MongoDatabase(this.config.db, this.config.guildId);
+
         await db.connect();
 
         // define a route handler for the default home page
-        server.get("/comps", async (req, res) => {
-            res.set("Content-Type", "application/json");
-            res.send(await Comps.list_payload(db));
+        server.get("/comps", async (req: Request, res: Response, next: NextFunction) => {
+            if (await Comps.validate_request(req, res, next)) {
+                await Comps.send_response(req, res, next, db);
+            }
         });
 
-        server.get("/test2", (req, res) => {
+        server.get("/test2", (req: Request, res: Response) => {
             res.send("Hello test 2!");
         });
 
@@ -48,17 +50,26 @@ export class App {
         server.listen(port, () => {
             console.log(`server started at http://localhost:${ port }`);
         });
+
+        server.use(errorMiddleware);
     }
 }
 
+/**
+ * This function loads the correct config file depending on the argument passed / environemnt property value.
+ * @returns Returns the config file that will be in use.
+ */
 function load_configuration(): IConfig | null {
     let config: string | undefined = process.argv[2];
-    if (!config) { config = process.env.CONFIG; }
+    if (!config) {
+        config = process.env.CONFIG;
+    }
     if (!config) {
         console.log("No configuration specified.");
         return null;
     }
     console.log(`Using config '${config}'.`);
+
     let confFile: string;
     switch (config) {
         case "Release":
@@ -71,6 +82,7 @@ function load_configuration(): IConfig | null {
             console.log("Invalid configuration name.");
             return null;
     }
+
     return require(confFile);
 }
 
