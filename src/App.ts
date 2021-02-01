@@ -3,7 +3,7 @@ import { IConfig } from "./Config";
 import express = require("express");
 import { Request, Response, NextFunction } from "express";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
-import { Comps } from "./endpoints/Comps";
+import { GetComp, ListComps } from "./requests/Comps";
 import errorMiddleware from "./middleware/error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
 
@@ -36,22 +36,21 @@ export class App {
 
         await db.connect();
 
-        // define a route handler for the default home page
         server.get("/comps", async (req: Request, res: Response, next: NextFunction) => {
-            if (await Comps.validate_request(req, res, next)) {
-                await Comps.send_response(req, res, next, db);
-            }
+            const listComps = new ListComps(req, res, next, db);
+            listComps.run();
         });
 
-        server.get("/test2", async (req: Request, res: Response) => {
-            res.send("Hello test 2!");
+        server.get("/comps/:comp", async (req: Request, res: Response, next: NextFunction) => {
+            const getComp = new GetComp(req, res, next, db);
+            getComp.run();
         });
 
         server.get("*", async (req: Request, res: Response, next: NextFunction) => {
             next(new ResourceNotFoundException(req.url))
         });
 
-        // start the Express server
+        // Start the Express server.
         server.listen(port, () => {
             console.log(`server started at http://localhost:${ port }`);
         });
