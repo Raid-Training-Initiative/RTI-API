@@ -5,6 +5,7 @@ import { Request, Response, NextFunction } from "express";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { Comps } from "./endpoints/Comps";
 import errorMiddleware from "./middleware/error.middleware";
+import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
 
 export class App {
     private static _app: App | undefined;
@@ -42,8 +43,12 @@ export class App {
             }
         });
 
-        server.get("/test2", (req: Request, res: Response) => {
+        server.get("/test2", async (req: Request, res: Response) => {
             res.send("Hello test 2!");
+        });
+
+        server.get("*", async (req: Request, res: Response, next: NextFunction) => {
+            next(new ResourceNotFoundException(req.url))
         });
 
         // start the Express server
