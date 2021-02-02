@@ -5,13 +5,9 @@ import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import HTTPRequest from "./HTTPRequest";
 
 export class ListComps extends HTTPRequest {
-    validRequestQueryParameters: string[] = [
+    public validRequestQueryParameters: string[] = [
         "categories"
     ];
-    req: Request;
-    res: Response;
-    next: NextFunction;
-    db: MongoDatabase;
 
     constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
         super(req, res, next, db);
@@ -49,12 +45,7 @@ export class ListComps extends HTTPRequest {
 }
 
 export class GetComp extends HTTPRequest {
-    // A list of query parameters that this endpoint takes.
     public validRequestQueryParameters: string[] = [];
-    req: Request;
-    res: Response;
-    next: NextFunction;
-    db: MongoDatabase;
 
     constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
         super(req, res, next, db);
@@ -84,8 +75,7 @@ export class GetComp extends HTTPRequest {
             };
         }
         else {
-            this.next(new ResourceNotFoundException(this.req.params["comp"]));
-            return;
+            throw new ResourceNotFoundException(this.req.params["comp"]);
         }
         
         this.res.set("Content-Type", "application/json");

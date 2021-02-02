@@ -1,14 +1,15 @@
 /**
  * Base class for HTTP exceptions.
  */
-export default class HTTPException {
+export default class HTTPException extends Error {
     status: number;
-    errorCode: string;
+    name: string;
     message: string;
 
-    constructor(status: number, errorCode: string, message: string) {
+    constructor(status: number, name: string, message: string) {
+        super(message);
         this.status = status;
-        this.errorCode = errorCode;
+        this.name = name;
         this.message = message;
     }
 }

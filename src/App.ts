@@ -6,6 +6,7 @@ import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { GetComp, ListComps } from "./requests/Comps";
 import errorMiddleware from "./middleware/error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
+import Auth from "./Auth";
 
 export class App {
     private static _app: App | undefined;
@@ -33,7 +34,8 @@ export class App {
         const server = express();
         const port = 8080;
         const db = new MongoDatabase(this.config.db, this.config.guildId);
-
+        
+        Auth.Instance;
         await db.connect();
 
         server.get("/comps", async (req: Request, res: Response, next: NextFunction) => {
