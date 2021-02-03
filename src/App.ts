@@ -34,18 +34,18 @@ export class App {
         const server = express();
         const port = 8080;
         const db = new MongoDatabase(this.config.db, this.config.guildId);
-        
-        Auth.Instance;
+
         await db.connect();
+        await Auth.create();
 
         server.get("/comps", async (req: Request, res: Response, next: NextFunction) => {
             const listComps = new ListComps(req, res, next, db);
-            listComps.run();
+            await listComps.run();
         });
 
         server.get("/comps/:comp", async (req: Request, res: Response, next: NextFunction) => {
             const getComp = new GetComp(req, res, next, db);
-            getComp.run();
+            await getComp.run();
         });
 
         server.get("*", async (req: Request, res: Response, next: NextFunction) => {
