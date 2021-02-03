@@ -38,7 +38,7 @@ export default abstract class HTTPRequest {
      * @throws {UnauthorizedException} When the Authorization header is empty or contains an invalid client secret.
      */
     private async validate_authentication() {
-        const auth: Auth = await Auth.instance();
+        const auth: Auth = Auth.instance();
         const client_secret: string = (this.req.headers.authorization || "").split(" ")[1] || "";
         this._client_id = auth.return_client_id(client_secret);
 
