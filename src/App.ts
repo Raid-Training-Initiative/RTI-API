@@ -7,6 +7,7 @@ import { GetComp, ListComps } from "./requests/Comps";
 import errorMiddleware from "./middleware/error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
 import Auth from "./Auth";
+import { Logger, Severity } from "./Logger";
 
 export class App {
     private static _app: App | undefined;
@@ -31,6 +32,7 @@ export class App {
      * This function runs the API and listens for the different endpoints.
      */
     public async run() {
+        
         const server = express();
         const port = 8080;
         const db = new MongoDatabase(this.config.db, this.config.guildId);

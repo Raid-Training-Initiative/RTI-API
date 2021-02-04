@@ -1,11 +1,11 @@
-enum Severity {
+export enum Severity {
     Debug = "Debug",
     Info = "Info",
     Warn = "Warn",
     Error = "Error",
 }
 
-export default class Logger {
+export class Logger {
     public static Log(severity: Severity, msg: string) {
         const timeStr = new Date().toISOString().replace(/T/, " ").replace(/\..+/, "");
         const formattedMsg = `[${timeStr}][${severity}] ${msg}`;
