@@ -15,6 +15,7 @@ export default abstract class HTTPRequest {
     protected res: Response;
     protected next: NextFunction;
     protected db: MongoDatabase;
+    protected timestamp: string;
     protected _client_id;
 
     constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
@@ -22,6 +23,7 @@ export default abstract class HTTPRequest {
         this.res = res;
         this.next = next;
         this.db = db;
+        this.timestamp = Date.now().toString();
     }
 
     /**
@@ -51,7 +53,7 @@ export default abstract class HTTPRequest {
             throw new UnauthorizedException();
         }
 
-        Logger.Log(Severity.Debug, `Request called by: ${this._client_id}`)
+        Logger.LogRequest(Severity.Debug, this.timestamp, `Request called by: ${this._client_id}`)
     }
 
     /**
@@ -75,13 +77,13 @@ export default abstract class HTTPRequest {
      */
     public async run() {
         try {
-            Logger.Log(Severity.Debug, `Request: ${this.req.method} ${this.req.url}`);
+            Logger.LogRequest(Severity.Debug, this.timestamp, `Request: ${this.req.method} ${this.req.url}`);
             await this.validate_request();
             await this.send_response();
         }
         catch (exception) {
             if (exception instanceof HTTPException) {
-                Logger.LogHTTPError(Severity.Warn, exception);
+                Logger.LogHTTPError(Severity.Warn, this.timestamp, exception);
                 this.next(exception);
             } else {
                 Logger.LogError(Severity.Error, exception);

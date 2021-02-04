@@ -2,9 +2,9 @@
  * Base class for HTTP exceptions.
  */
 export default class HTTPException extends Error {
-    status: number;
-    name: string;
-    message: string;
+    public status: number;
+    public name: string;
+    public message: string;
 
     constructor(status: number, name: string, message: string) {
         super(message);
