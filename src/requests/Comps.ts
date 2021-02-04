@@ -1,6 +1,7 @@
 import { IRaidCompositionPopulatedDocument } from "@RTIBot-DB/documents/IRaidCompositionDocument";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { NextFunction, Request, Response } from "express";
+import { Logger, Severity } from "../Logger";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import HTTPRequest from "./HTTPRequest";
 
@@ -38,7 +39,7 @@ export class ListComps extends HTTPRequest {
                 })
             };
         });
-        
+        Logger.Log(Severity.Debug, `Sending ${formattedDocuments.length} comps in payload with filter: ${this.req.query["categories"] ? this.req.query["categories"] : "none"}`);
         this.res.set("Content-Type", "application/json");
         this.res.send(JSON.stringify(formattedDocuments));
     }
@@ -77,7 +78,7 @@ export class GetComp extends HTTPRequest {
         else {
             throw new ResourceNotFoundException(this.req.params["comp"]);
         }
-        
+        Logger.Log(Severity.Debug, `Sending one comp in payload with name ${this.req.params["comp"]}`);
         this.res.set("Content-Type", "application/json");
         this.res.send(JSON.stringify(formattedDocument));
     }

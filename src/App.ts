@@ -31,32 +31,37 @@ export class App {
     /**
      * This function runs the API and listens for the different endpoints.
      */
-    public async run() {
-        
+    public async run() { 
         const server = express();
         const port = 8080;
         const db = new MongoDatabase(this.config.db, this.config.guildId);
+        Logger.Log(Severity.Info, `Initialising API with DB ${this.config.db}`);
 
         await db.connect();
         await Auth.create();
 
         server.get("/comps", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.Log(Severity.Info, `GET /comps request initiated`);
             const listComps = new ListComps(req, res, next, db);
             await listComps.run();
+            Logger.Log(Severity.Info, `GET /comps request completed`);
         });
 
         server.get("/comps/:comp", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.Log(Severity.Info, `GET /comps/:comp request initiated`);
             const getComp = new GetComp(req, res, next, db);
             await getComp.run();
+            Logger.Log(Severity.Info, `GET /comps/:comp request completed`);
         });
 
         server.get("*", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.Log(Severity.Info, `Request made to nonexistent resource`);
             next(new ResourceNotFoundException(req.url))
         });
 
         // Start the Express server.
         server.listen(port, () => {
-            console.log(`server started at http://localhost:${ port }`);
+            Logger.Log(Severity.Info, `Server started at http://localhost:${port}`);
         });
 
         server.use(errorMiddleware);
@@ -64,7 +69,7 @@ export class App {
 }
 
 /**
- * This function loads the correct config file depending on the argument passed / environemnt property value.
+ * This function loads the correct config file depending on the argument passed / environment property value.
  * @returns Returns the config file that will be in use.
  */
 function load_configuration(): IConfig | null {
@@ -73,10 +78,10 @@ function load_configuration(): IConfig | null {
         config = process.env.CONFIG;
     }
     if (!config) {
-        console.log("No configuration specified.");
+        Logger.Log(Severity.Error, "No configuration specified");
         return null;
     }
-    console.log(`Using config '${config}'.`);
+    Logger.Log(Severity.Info, `Using config '${config}'.`);
 
     let confFile: string;
     switch (config) {
@@ -87,14 +92,14 @@ function load_configuration(): IConfig | null {
             confFile = "../../ConfigDebug.json";
             break;
         default:
-            console.log("Invalid configuration name.");
+            Logger.Log(Severity.Error, "Invalid configuration name");
             return null;
     }
 
     return require(confFile);
 }
 
-process.on("uncaughtException", (error) => console.log(error));
+process.on("uncaughtException", (error) => Logger.LogError(Severity.Error, error));
 const conf = load_configuration();
 if (conf) {
     App.initiate(conf);

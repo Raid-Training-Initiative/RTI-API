@@ -5,6 +5,7 @@ import ServerErrorException from "../exceptions/ServerErrorException";
 import InvalidQueryParametersException from "../exceptions/InvalidQueryParametersException";
 import Auth from "../Auth";
 import UnauthorizedException from "../exceptions/UnauthorizedException";
+import { Logger, Severity } from "../Logger";
 
 export default abstract class HTTPRequest {
     public abstract validRequestQueryParameters: string[]; // A list of query parameters that this endpoint takes.
@@ -39,12 +40,18 @@ export default abstract class HTTPRequest {
      */
     private async validate_authentication() {
         const auth: Auth = Auth.instance();
-        const client_secret: string = (this.req.headers.authorization || "").split(" ")[1] || "";
-        this._client_id = auth.return_client_id(client_secret);
+        const auth_header: string[] = (this.req.headers.authorization || "").split(" ");
+        if (auth_header[0] != "Basic") {
+            throw new UnauthorizedException();
+        }
 
+        const client_secret: string = auth_header[1] || "";
+        this._client_id = auth.return_client_id(client_secret);
         if (this._client_id == undefined) {
             throw new UnauthorizedException();
         }
+
+        Logger.Log(Severity.Debug, `Request called by: ${this._client_id}`)
     }
 
     /**
@@ -68,13 +75,16 @@ export default abstract class HTTPRequest {
      */
     public async run() {
         try {
-            await this.validate_request() 
-            this.send_response();
+            Logger.Log(Severity.Debug, `Request: ${this.req.method} ${this.req.url}`);
+            await this.validate_request();
+            await this.send_response();
         }
         catch (exception) {
             if (exception instanceof HTTPException) {
+                Logger.LogHTTPError(Severity.Warn, exception);
                 this.next(exception);
             } else {
+                Logger.LogError(Severity.Error, exception);
                 this.next(new ServerErrorException(exception.message));
             }
         }

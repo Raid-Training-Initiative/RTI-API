@@ -1,18 +1,39 @@
+import HTTPException from "./exceptions/HTTPException";
+
 export enum Severity {
-    Debug = "Debug",
-    Info = "Info",
-    Warn = "Warn",
-    Error = "Error",
+    Debug = "Debug", // For fine-grained information that is useful to debug the API.
+    Info = "Info", // For high-level logs that show the progress/flow of the API.
+    Warn = "Warn", // For potentially harmful situations or malformed requests to the API.
+    Error = "Error", // For errors that indicate that something went wrong within the API.
 }
 
 export class Logger {
-    public static Log(severity: Severity, msg: string) {
+    /**
+     * The main logging method which appends a log message with a date and severity.
+     * @param severity The type of severity of the log.
+     * @param message The message to output in the log.
+     */
+    public static Log(severity: Severity, message: string) {
         const timeStr = new Date().toISOString().replace(/T/, " ").replace(/\..+/, "");
-        const formattedMsg = `[${timeStr}][${severity}] ${msg}`;
+        const formattedMsg = `[${timeStr}][${severity}] ${message}`;
         console.log(formattedMsg);
     }
     
+    /**
+     * Helper logger specifically for HTTP errors.
+     * @param severity The severity of the error.
+     * @param error The error to output in the log.
+     */
+    public static LogHTTPError(severity: Severity, error: HTTPException) {
+        Logger.Log(severity, `Error: ${error.name} - ${error.message} | Status code: ${error.status}`);
+    }
+
+    /**
+     * Helper logger for errors not caught as HTTP errors.
+     * @param severity The severity of the error.
+     * @param error The error to output in the log.
+     */
     public static LogError(severity: Severity, error: Error) {
-        Logger.Log(severity, `err: ${error.name} - ${error.message} | ${error.stack}`);
+        Logger.Log(severity, `Error: ${error.name} - ${error.message} | ${error.stack}`);
     }
 }
