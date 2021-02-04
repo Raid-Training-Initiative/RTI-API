@@ -17,7 +17,7 @@ export class ListComps extends HTTPRequest {
     /**
      * This method returns the JSON string payload of a list of comps after making a GET /comps request.
      */
-    public async send_response() {
+    public async send_response(): Promise<void> {
         const documents = (await this.db.raidCompositionModel.find().populate("categories")) as IRaidCompositionPopulatedDocument[];
         const formattedDocuments = documents.filter(document =>{
                 if (this.req.query["categories"]) { // If there are categories to filter with.

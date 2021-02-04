@@ -9,7 +9,7 @@ import { Logger, Severity } from "../Logger";
 
 export default abstract class HTTPRequest {
     public abstract validRequestQueryParameters: string[]; // A list of query parameters that this endpoint takes.
-    public abstract send_response(): void;
+    public abstract send_response(): Promise<void>;
 
     protected req: Request;
     protected res: Response;
