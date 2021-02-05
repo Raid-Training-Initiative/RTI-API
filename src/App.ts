@@ -40,7 +40,8 @@ export class App {
 
         await db.connect();
         await Auth.create();
-
+        
+        // =========### Comps ###=========
         server.get("/comps", async (req: Request, res: Response, next: NextFunction) => {
             Logger.Log(Severity.Info, `GET /comps request initiated`);
             const listComps = new ListComps(req, res, next, db);
@@ -55,6 +56,7 @@ export class App {
             Logger.Log(Severity.Info, `GET /comps/:comp request completed`);
         });
 
+        // =========### Categories ###=========
         server.get("/categories", async (req: Request, res: Response, next: NextFunction) => {
             Logger.Log(Severity.Info, `GET /categories request initiated`);
             const listComps = new ListCategories(req, res, next, db);
@@ -69,6 +71,7 @@ export class App {
             Logger.Log(Severity.Info, `GET /categories/:category request completed`);
         });
 
+        // =========### Other ###=========
         server.get("*", async (req: Request, res: Response, next: NextFunction) => {
             Logger.Log(Severity.Info, `Request made to nonexistent resource`);
             next(new ResourceNotFoundException(req.url))
