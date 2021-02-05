@@ -1,0 +1,46 @@
+[
+    {
+        "name": "DoubleChrono",
+        "categories": [
+            "Generic"
+        ],
+        "roles": [
+            {
+                "name": "🔴 DPS",
+                "requiredParticipants": 5
+            },
+            {
+                "name": "🟡 BS",
+                "requiredParticipants": 1
+            },
+            {
+                "name": "🟢 Druid",
+                "requiredParticipants": 1
+            },
+            {
+                "name": "💚 Off-Heal",
+                "requiredParticipants": 1
+            },
+            {
+                "name": "🟪 Chrono (Tank)",
+                "requiredParticipants": 1
+            },
+            {
+                "name": "🟣 Chrono",
+                "requiredParticipants": 1
+            }
+        ]
+    },
+    {
+        "name": "Workshop",
+        "categories": [
+            "Other"
+        ],
+        "roles": [
+            {
+                "name": "🔹 Blue Class",
+                "requiredParticipants": 10
+            }
+        ]
+    }
+]

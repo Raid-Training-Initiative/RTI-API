@@ -1,0 +1,20 @@
+#%RAML 1.0 DataType
+description: Data type for a raid composition.
+
+uses:
+  Types: Types.raml
+
+properties:
+  name:
+    type: string
+    description: The name of the comp.
+    example: "DoubleChrono"
+  categories:
+    type: string[]
+    description: The name of the comp's category.
+    example: [
+      "Generic"
+    ]
+  roles:
+    type: Types.Role[]
+    description: A list of roles that this comp is comprised of.
