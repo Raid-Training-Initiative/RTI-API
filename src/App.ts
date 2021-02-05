@@ -8,6 +8,7 @@ import errorMiddleware from "./middleware/error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
 import Auth from "./Auth";
 import { Logger, Severity } from "./Logger";
+import { GetCategory, ListCategories } from "./requests/Categories";
 
 export class App {
     private static _app: App | undefined;
@@ -52,6 +53,20 @@ export class App {
             const getComp = new GetComp(req, res, next, db);
             await getComp.run();
             Logger.Log(Severity.Info, `GET /comps/:comp request completed`);
+        });
+
+        server.get("/categories", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.Log(Severity.Info, `GET /categories request initiated`);
+            const listComps = new ListCategories(req, res, next, db);
+            await listComps.run();
+            Logger.Log(Severity.Info, `GET /categories request completed`);
+        });
+
+        server.get("/categories/:category", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.Log(Severity.Info, `GET /categories/:category request initiated`);
+            const getComp = new GetCategory(req, res, next, db);
+            await getComp.run();
+            Logger.Log(Severity.Info, `GET /categories/:category request completed`);
         });
 
         server.get("*", async (req: Request, res: Response, next: NextFunction) => {
