@@ -1,3 +1,7 @@
+/**
+ * File for classes that handle requests for compositions.
+ */
+
 import { IRaidCompositionPopulatedDocument } from "@RTIBot-DB/documents/IRaidCompositionDocument";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { NextFunction, Request, Response } from "express";

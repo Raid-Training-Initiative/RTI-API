@@ -1,5 +1,5 @@
 /**
- * Fike
+ * File for classes that handle requests for composition categories.
  */
 
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
