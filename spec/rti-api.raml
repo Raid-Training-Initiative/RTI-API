@@ -77,26 +77,26 @@ types:
             example: !include examples/errors/unauthorized.json
   /{category}:
     get:
-       description: Gets a single raid squad composition category.
-        responses:
-          200:
-            body:
-              application/json:
-                description: A category.
-                type: Category
-                example: !include examples/responses/get-category.json
-          400:
-            body:
-              application/json:
-                description: Error response when syntax is invalid.
-                example: !include examples/errors/invalid-query-parameters.json
-          401:
-            body:
-              application/json:
-                description: Error response when authentication failed.
-                example: !include examples/errors/unauthorized.json   
-          404:
-            body:
-              application/json:
-                description: Error response when the requested comp could not be found.
-                example: !include examples/errors/resource-not-found.json
+      description: Gets a single raid squad composition category.
+      responses:
+        200:
+          body:
+            application/json:
+              description: A category.
+              type: Category
+              example: !include examples/responses/get-category.json
+        400:
+          body:
+            application/json:
+              description: Error response when syntax is invalid.
+              example: !include examples/errors/invalid-query-parameters.json
+        401:
+          body:
+            application/json:
+              description: Error response when authentication failed.
+              example: !include examples/errors/unauthorized.json   
+        404:
+          body:
+            application/json:
+              description: Error response when the requested comp could not be found.
+              example: !include examples/errors/resource-not-found.json
