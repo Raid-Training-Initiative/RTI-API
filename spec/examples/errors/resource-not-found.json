@@ -1,0 +1,5 @@
+{
+    "status": 404,
+    "name": "ResourceNotFound",
+    "message": "Resource DoubleChron not found."
+}

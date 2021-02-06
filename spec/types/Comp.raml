@@ -1,9 +1,6 @@
 #%RAML 1.0 DataType
 description: Data type for a raid composition.
 
-uses:
-  Types: Types.raml
-
 properties:
   name:
     type: string
@@ -16,5 +13,15 @@ properties:
       "Generic"
     ]
   roles:
-    type: Types.Role[]
+    type: array
     description: A list of roles that this comp is comprised of.
+    items:
+      properties:
+        name:
+          type: string
+          description: The name of the role.
+          example: "🟣 Chrono"
+        requiredParticipants:
+          type: number
+          description: The max number of participants that can sign up to that role.
+          example: 2

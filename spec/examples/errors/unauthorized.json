@@ -1,0 +1,5 @@
+{
+    "status": 401,
+    "name": "Unauthorized",
+    "message": "Invalid authentication. Please provide a valid Authorization header."
+}

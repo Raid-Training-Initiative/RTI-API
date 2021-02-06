@@ -2,6 +2,7 @@
 title: RTI API
 types:
   Comp: !include types/Comp.raml
+  Category: !include types/Category.raml
 
 /comps:
   get:
@@ -17,4 +18,85 @@ types:
           application/json:
             description: A list of compositions.
             type: Comp[]
-            example: !include examples/list-comps.json
+            example: !include examples/responses/list-comps.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json
+      401:
+        body:
+          application/json:
+            description: Error response when authentication failed.
+            example: !include examples/errors/unauthorized.json
+  /{comp}:
+    get:
+      description: Gets a single raid squad composition.
+      responses:
+        200:
+          body:
+            application/json:
+              description: A composition.
+              type: Comp
+              example: !include examples/responses/get-comp.json
+        400:
+          body:
+            application/json:
+              description: Error response when syntax is invalid.
+              example: !include examples/errors/invalid-query-parameters.json
+        401:
+          body:
+            application/json:
+              description: Error response when authentication failed.
+              example: !include examples/errors/unauthorized.json   
+        404:
+          body:
+            application/json:
+              description: Error response when the requested comp could not be found.
+              example: !include examples/errors/resource-not-found.json
+
+/categories:
+  get:
+    description: Gets a list of the saved raid squad composition categories.
+    responses:
+      200:
+        body:
+          application/json:
+            description: A list of categories.
+            type: Category[]
+            example: !include examples/responses/list-categories.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json
+      401:
+        body:
+          application/json:
+            description: Error response when authentication failed.
+            example: !include examples/errors/unauthorized.json
+  /{category}:
+    get:
+       description: Gets a single raid squad composition category.
+        responses:
+          200:
+            body:
+              application/json:
+                description: A category.
+                type: Category
+                example: !include examples/responses/get-category.json
+          400:
+            body:
+              application/json:
+                description: Error response when syntax is invalid.
+                example: !include examples/errors/invalid-query-parameters.json
+          401:
+            body:
+              application/json:
+                description: Error response when authentication failed.
+                example: !include examples/errors/unauthorized.json   
+          404:
+            body:
+              application/json:
+                description: Error response when the requested comp could not be found.
+                example: !include examples/errors/resource-not-found.json

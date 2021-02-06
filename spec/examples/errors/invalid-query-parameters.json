@@ -1,0 +1,5 @@
+{
+    "status": 400,
+    "name": "InvalidQueryParameters",
+    "message": "Incorrect query parameter: categoris"
+}
