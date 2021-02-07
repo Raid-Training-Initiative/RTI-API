@@ -22,7 +22,7 @@ export class ListCategories extends HTTPRequest {
      * This method returns the JSON string payload of a list of categories after making a GET /categories request.
      */
     public async send_response(): Promise<void> {
-        const documents = (await this.db.raidCompositionCategoryModel.find()) as IRaidCompositionCategoryDocument[];
+        const documents = (await this.db.raidCompositionCategoryModel.find().exec()) as IRaidCompositionCategoryDocument[];
         const formattedDocuments = documents.map(document => { return { name: document.name } });
         Logger.LogRequest(Severity.Debug, this.timestamp, `Sending ${formattedDocuments.length} categories in payload`);
         this.res.set("Content-Type", "application/json");
@@ -41,7 +41,7 @@ export class GetCategory extends HTTPRequest {
      * This method returns the JSON string payload of a list of comps after making a GET /comps request.
      */
     public async send_response() {
-        const documents = (await this.db.raidCompositionCategoryModel.find()) as IRaidCompositionCategoryDocument[];
+        const documents = (await this.db.raidCompositionCategoryModel.find().exec()) as IRaidCompositionCategoryDocument[];
         const filteredDocuments = documents.filter(document => { return document.name == this.req.params["category"]; });
         let formattedDocument = {};
         if (filteredDocuments.length > 0) {

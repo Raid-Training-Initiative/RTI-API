@@ -22,14 +22,14 @@ export class ListComps extends HTTPRequest {
      * This method returns the JSON string payload of a list of comps after making a GET /comps request.
      */
     public async send_response(): Promise<void> {
-        const documents = (await this.db.raidCompositionModel.find().populate("categories")) as IRaidCompositionPopulatedDocument[];
+        const documents = (await this.db.raidCompositionModel.find().populate("categories").exec()) as IRaidCompositionPopulatedDocument[];
         const formattedDocuments = documents.filter(document => {
-                if (this.req.query["categories"]) { // If there are categories to filter with.
-                    const filterCategories = (this.req.query["categories"] as string).split(",");
-                    return document.categories.filter(category => filterCategories.includes(category.name)).length > 0;
-                }
-                else return true;
-            }).map(document => {
+            if (this.req.query["categories"]) { // If there are categories to filter with.
+                const filterCategories = (this.req.query["categories"] as string).split(",");
+                return document.categories.filter(category => filterCategories.includes(category.name)).length > 0;
+            }
+            else return true;
+        }).map(document => {
             return {
                 name: document.name,
                 categories: document.categories.map(category => {
@@ -60,7 +60,7 @@ export class GetComp extends HTTPRequest {
      * This method returns the JSON string payload of a comp after making a GET /comps request.
      */
     public async send_response() {
-        const documents = (await this.db.raidCompositionModel.find().populate("categories")) as IRaidCompositionPopulatedDocument[];
+        const documents = (await this.db.raidCompositionModel.find().populate("categories").exec()) as IRaidCompositionPopulatedDocument[];
         const filteredDocuments = documents.filter(document =>{ return document.name == this.req.params["comp"]; });
         let formattedDocument = {};
         if (filteredDocuments.length > 0) {
