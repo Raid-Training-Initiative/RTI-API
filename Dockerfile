@@ -15,6 +15,6 @@ WORKDIR /usr/src/app
 RUN npm install --silent --global pm2
 RUN mkdir /data
 COPY --from=builder /build .
-COPY ["Config.json", "ConfigDebug.json", "./"]
+COPY ["Config.json", "ConfigDebug.json", "clients.json", "./"]
 
 CMD [ "pm2-runtime", "dist/src/App.js" ]
