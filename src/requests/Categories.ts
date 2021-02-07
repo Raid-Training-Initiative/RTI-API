@@ -38,7 +38,7 @@ export class GetCategory extends HTTPRequest {
     }
 
     /**
-     * This method returns the JSON string payload of a list of comps after making a GET /comps request.
+     * This method returns the JSON string payload of a category after making a GET /categories/:category request.
      */
     public async send_response() {
         const documents = (await this.db.raidCompositionCategoryModel.find().exec()) as IRaidCompositionCategoryDocument[];
