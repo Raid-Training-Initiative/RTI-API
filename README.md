@@ -3,6 +3,8 @@
 ## Overview
 This is a repository for the API that exposes the RTI data used by [RTI Bot](https://github.com/Daniel123643/RTIBot) for use within web interfaces and other third-party applications.
 
+`spec` is a folder containing a RAML specification to easily view the API design and what requests you can make. `src` is a folder containing the code for this API, with `App.ts` being the executable file.
+
 ## Installation
 * Step 1: [Install Node.js](https://nodejs.org/en/download/) if you haven't already.
 * Step 2: [Install MongoDB](https://www.mongodb.com/try/download/community?tck=docs_server) and add its `bin` folder to your PATH.
