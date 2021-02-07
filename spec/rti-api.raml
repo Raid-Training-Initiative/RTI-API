@@ -3,10 +3,25 @@ title: RTI API
 types:
   Comp: !include types/Comp.raml
   Category: !include types/Category.raml
+traits:
+  requiresAuthentication:
+    headers:
+      Authorization:
+        description: Basic authentication with a 64-character client secret.
+        type: string
+        required: true
+        example: "Basic 22AB6BsFYJgqqclNbknmUr7gG0nn5qtiXgdxJP7G0dTnkUjSN5nZNFca3M8Wfe3k"
+    responses:
+      401:
+        body:
+          application/json:
+            description: Error response when authentication failed.
+            example: !include examples/errors/unauthorized.json
 
 /comps:
   get:
     description: Gets a list of the saved raid squad compositions.
+    is: ["requiresAuthentication"]
     queryParameters: 
       category:
         type: string
@@ -24,14 +39,10 @@ types:
           application/json:
             description: Error response when syntax is invalid.
             example: !include examples/errors/invalid-query-parameters.json
-      401:
-        body:
-          application/json:
-            description: Error response when authentication failed.
-            example: !include examples/errors/unauthorized.json
   /{comp}:
     get:
       description: Gets a single raid squad composition.
+      is: ["requiresAuthentication"]
       responses:
         200:
           body:
@@ -43,12 +54,7 @@ types:
           body:
             application/json:
               description: Error response when syntax is invalid.
-              example: !include examples/errors/invalid-query-parameters.json
-        401:
-          body:
-            application/json:
-              description: Error response when authentication failed.
-              example: !include examples/errors/unauthorized.json   
+              example: !include examples/errors/invalid-query-parameters.json 
         404:
           body:
             application/json:
@@ -58,6 +64,7 @@ types:
 /categories:
   get:
     description: Gets a list of the saved raid squad composition categories.
+    is: ["requiresAuthentication"]
     responses:
       200:
         body:
@@ -70,14 +77,10 @@ types:
           application/json:
             description: Error response when syntax is invalid.
             example: !include examples/errors/invalid-query-parameters.json
-      401:
-        body:
-          application/json:
-            description: Error response when authentication failed.
-            example: !include examples/errors/unauthorized.json
   /{category}:
     get:
       description: Gets a single raid squad composition category.
+      is: ["requiresAuthentication"]
       responses:
         200:
           body:
@@ -89,12 +92,7 @@ types:
           body:
             application/json:
               description: Error response when syntax is invalid.
-              example: !include examples/errors/invalid-query-parameters.json
-        401:
-          body:
-            application/json:
-              description: Error response when authentication failed.
-              example: !include examples/errors/unauthorized.json   
+              example: !include examples/errors/invalid-query-parameters.json 
         404:
           body:
             application/json:
