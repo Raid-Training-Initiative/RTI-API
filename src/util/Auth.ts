@@ -1,5 +1,5 @@
 import { promises as filepromises, watch as filewatch } from "fs";
-import ServerErrorException from "./exceptions/ServerErrorException";
+import ServerErrorException from "../exceptions/ServerErrorException";
 
 const clientFile = "./clients.json"; // A JSON object of key/value pairs, where the key is the client secret and the value is the client ID. 
 

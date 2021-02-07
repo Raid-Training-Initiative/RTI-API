@@ -3,9 +3,9 @@ import { NextFunction, Request, Response } from "express";
 import HTTPException from "../exceptions/HTTPException";
 import ServerErrorException from "../exceptions/ServerErrorException";
 import InvalidQueryParametersException from "../exceptions/InvalidQueryParametersException";
-import Auth from "../Auth";
+import Auth from "../util/Auth";
 import UnauthorizedException from "../exceptions/UnauthorizedException";
-import { Logger, Severity } from "../Logger";
+import { Logger, Severity } from "../util/Logger";
 
 export default abstract class HTTPRequest {
     public abstract validRequestQueryParameters: string[]; // A list of query parameters that this endpoint takes.

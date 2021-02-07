@@ -1,13 +1,13 @@
 import "module-alias/register";
-import { IConfig } from "./Config";
+import { IConfig } from "./util/Config";
 import express = require("express");
 import { Request, Response, NextFunction } from "express";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { GetComp, ListComps } from "./requests/Comps";
-import errorMiddleware from "./middleware/error.middleware";
+import errorMiddleware from "./util/Error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
-import Auth from "./Auth";
-import { Logger, Severity } from "./Logger";
+import Auth from "./util/Auth";
+import { Logger, Severity } from "./util/Logger";
 import { GetCategory, ListCategories } from "./requests/Categories";
 
 export class App {
