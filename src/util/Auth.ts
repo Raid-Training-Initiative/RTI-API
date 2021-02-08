@@ -1,14 +1,13 @@
 import { promises as filepromises, watch as filewatch } from "fs";
 import ServerErrorException from "../exceptions/ServerErrorException";
-
-const clientFile = "./clients.json"; // A JSON object of key/value pairs, where the key is the client secret and the value is the client ID. 
+import { IConfig } from "./Config";
 
 export default class Auth {
     private static _instance: Auth;
     private clients: Map<string, string>;
 
-    private constructor() {
-        filewatch(clientFile, (eventType, filename) => {
+    private constructor(private readonly _config: IConfig) {
+        filewatch(this._config.clientsFile, (eventType, filename) => {
             if (eventType == "change") {
                 this.import_clients();
             }
@@ -20,7 +19,8 @@ export default class Auth {
      */
     private async import_clients() {
         try {
-            const fileContent = await filepromises.readFile(clientFile, "utf-8");
+            // The clients file contains a JSON object of key/value pairs, where the key is the client secret and the value is the client ID. 
+            const fileContent = await filepromises.readFile(this._config.clientsFile, "utf-8");
             this.clients = JSON.parse(fileContent.toString());
         }
         catch (error) {
@@ -37,9 +37,9 @@ export default class Auth {
         return this.clients[client_secret];
     }
 
-    public static async create() {
+    public static async create(config: IConfig) {
         if (!this._instance) {
-            this._instance = new this()
+            this._instance = new this(config)
             await this._instance.import_clients();
         } else {
             throw new ServerErrorException("Attempted to create duplicate authentication instance.");

@@ -27,7 +27,7 @@ export class App {
         return this._app;
     }
 
-    constructor(private readonly config: IConfig) {
+    constructor(private readonly _config: IConfig) {
     }
 
     /**
@@ -36,11 +36,11 @@ export class App {
     public async run() { 
         const server = express();
         const port = 8080;
-        const db = new MongoDatabase(this.config.db, this.config.guildId);
-        Logger.Log(Severity.Info, `Initialising API with DB ${this.config.db}`);
+        const db = new MongoDatabase(this._config.db, this._config.guildId);
+        Logger.Log(Severity.Info, `Initialising API with DB ${this._config.db}`);
 
         await db.connect();
-        await Auth.create();
+        await Auth.create(this._config);
         
         // =========### Comps ###=========
         server.get("/comps", async (req: Request, res: Response, next: NextFunction) => {
