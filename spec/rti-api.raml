@@ -40,13 +40,21 @@ traits:
         type: string
         description: A case-insensitive string with all numbers and dots and hashtags removed to filter the raids by leader name.
         example: Step
+      format:
+        type: string
+        description: A case-insensitive string to define whether to return a JSON or CSV response.
+        enum: ["csv", "json"]
+
     responses:
       200:
         body:
           application/json:
-            description: A list of compositions.
+            description: A list of raids in JSON format.
             type: RaidSummary[]
             example: !include examples/responses/list-raids.json
+          application/csv:
+            description: A list of raids in CSV format.
+            example: !include examples/responses/list-raids.csv
       400:
         body:
           application/json:
@@ -62,7 +70,7 @@ traits:
   get:
     description: Gets a list of the saved raid squad compositions.
     is: ["requiresAuthentication"]
-    queryParameters: 
+    queryParameters:
       category:
         type: string
         description: A URI-safe, comma-separated list of composition categories
