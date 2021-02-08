@@ -1,0 +1,5 @@
+{
+    "status": 400,
+    "name": "BadSyntax",
+    "message": "Query parameter status must be either draft, published, or archived."
+}

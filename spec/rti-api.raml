@@ -1,6 +1,7 @@
 #%RAML 1.0
 title: RTI API
 types:
+  RaidSummary: !include types/RaidSummary.raml
   Comp: !include types/Comp.raml
   Category: !include types/Category.raml
 traits:
@@ -17,6 +18,45 @@ traits:
           application/json:
             description: Error response when authentication failed.
             example: !include examples/errors/unauthorized.json
+
+/raids:
+  get:
+    description: Gets a list of the saved raids. Each raid is summarised and certain fields are left out for a cleaner view.
+    is: ["requiresAuthentication"]
+    queryParameters:
+      status:
+        type: string
+        description: A case-insensitive string to filter the raids by status.
+        enum: ["Published", "Draft", "Archived"]
+      name:
+        type: string
+        description: A case-insensitive string to filter the raids by name. Returns raids whose name contains the filter query string as a substring.
+        example: "continuation"
+      comp:
+        type: string
+        description: A case-insensitive string to filter the raids by comp name.
+        example: "DoubleChrono"
+      leader:
+        type: string
+        description: A case-insensitive string with all numbers and dots and hashtags removed to filter the raids by leader name.
+        example: Step
+    responses:
+      200:
+        body:
+          application/json:
+            description: A list of compositions.
+            type: RaidSummary[]
+            example: !include examples/responses/list-raids.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/bad-syntax-bad-status.json
+      404:
+        body:
+          application/json:
+            description: Error response when the comp name in the query parameter does not exist.
+            example: !include examples/errors/resource-not-found.json
 
 /comps:
   get:
@@ -96,5 +136,5 @@ traits:
         404:
           body:
             application/json:
-              description: Error response when the requested comp could not be found.
+              description: Error response when the requested category could not be found.
               example: !include examples/errors/resource-not-found.json

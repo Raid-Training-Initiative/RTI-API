@@ -1,0 +1,29 @@
+[
+    {
+        "id": "6013693f614b415d9c3c7dfa",
+        "name": "Wing 5 B123 Training",
+        "status": "Published",
+        "startTime": "2021-01-28T19:00:00",
+        "endTime": "2021-01-28T22:00:00",
+        "leader": "Bob Brown#6293",
+        "comp": "SoullessHorror-CondiRen"
+    },
+    {
+        "id": "6013693f614b415d9c3c7e24",
+        "name": "Dhuum Continuation 2",
+        "status": "Archived",
+        "startTime": "2021-01-29T18:00:00",
+        "endTime": "2021-01-29T20:00:00",
+        "leader": "John#1562",
+        "comp": "Dhuum-RR"
+    },
+    {
+        "id": "6013693f614b415d9c3c7e3d",
+        "name": "Wing 4 Continuation",
+        "status": "Draft",
+        "startTime": "2021-01-29T19:00:00",
+        "endTime": "2021-01-29T22:00:00",
+        "leader": "Step#1937",
+        "comp": "Deimos"
+    }
+]

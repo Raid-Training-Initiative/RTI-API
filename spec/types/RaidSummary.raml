@@ -1,0 +1,32 @@
+#%RAML 1.0 DataType
+description: Data type for a raid.
+
+properties:
+  id:
+    type: string
+    description: The internal ID of the raid as a 12-byte hexadecimal string.
+    example: "6013693f614b415d9c3c7e3d"
+  name:
+    type: string
+    description: The name of the raid.
+    example: "Wing 4 Continuation"
+  status:
+    type: string
+    description: Whether the raid is published (currently live), draft (currently unpublished), or archived (removed).
+    enum: ["Published", "Draft", "Archived"]
+  startTime:
+    type: datetime-only
+    description: The date and time that the raid is scheduled to start. In the format yyyy-MM-ddTHH:mm:ss.
+    example: "2021-01-29T19:00:00"
+  endTime:
+    type: datetime-only
+    description: The date and time that the raid is scheduled to finish. In the format yyyy-MM-ddTHH:mm:ss.
+    example: "2021-01-29T22:00:00"
+  leader:
+    type: string
+    description: The Discord name of the leader of the raid.
+    example: "Step#1937"
+  comp:
+    type: string
+    description: The name of the comp used for the raid.
+    example: "Deimos"
