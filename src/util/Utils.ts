@@ -24,14 +24,39 @@ export default class Utils {
     }
 
     /**
-     * Maps discord IDs to names.
+     * Returns a list of Discord names resolved from discord IDs.
      * @param ids A string array of discord IDs.
      * @param db The database.
-     * @returns A map with the keys being discord IDs and the values being names.
+     * @returns An array of objects with a name and id value.
      */
-    public static async getIdMap(ids: string[], db: MongoDatabase): Promise<Map<string, string>> {
+    public static async getDiscordNamesFromIds(ids: string[], db: MongoDatabase): Promise<Object[]> {
+        const documents = (await db.memberModel.find({userId: {$in: ids}}).exec()) as IMemberDocument[];
+        return documents.map(document => { return { name: document.gw2Name, id: document.userId }} );
+    }
+
+    /**
+     * Maps discord IDs to GW2 names.
+     * @param ids A string array of discord IDs.
+     * @param db The database.
+     * @returns A map with the keys being discord IDs and the values being GW2 names.
+     */
+    public static async getGW2IdMap(ids: string[], db: MongoDatabase): Promise<Map<string, string>> {
         const idMap = new Map<string, string>();
         const idNames = await this.getGW2NamesFromIds(ids, db);
+        idNames.forEach(idName => idMap.set(idName["id"], idName["name"]));
+
+        return idMap;
+    }
+
+    /**
+     * Maps discord IDs to Discord names.
+     * @param ids A string array of discord IDs.
+     * @param db The database.
+     * @returns A map with the keys being discord IDs and the values being Discord names.
+     */
+    public static async getDiscordIdMap(ids: string[], db: MongoDatabase): Promise<Map<string, string>> {
+        const idMap = new Map<string, string>();
+        const idNames = await this.getDiscordNamesFromIds(ids, db);
         idNames.forEach(idName => idMap.set(idName["id"], idName["name"]));
 
         return idMap;
