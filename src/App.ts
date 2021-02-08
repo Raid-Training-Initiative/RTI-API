@@ -9,7 +9,7 @@ import Auth from "./util/Auth";
 import { Logger, Severity } from "./util/Logger";
 import { GetComp, ListComps } from "./requests/Comps";
 import { GetCategory, ListCategories } from "./requests/Categories";
-import { GetRaid, ListRaids } from "./requests/Raids";
+import { GetRaid, ListRaids, GetRaidLog } from "./requests/Raids";
 
 export class App {
     private static _app: App | undefined;
@@ -85,6 +85,13 @@ export class App {
             const getRaid = new GetRaid(req, res, next, db);
             await getRaid.run();
             Logger.Log(Severity.Info, `GET /raids/:id request completed`);
+        });
+
+        server.get("/raids/:id/log", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.Log(Severity.Info, `GET /raids/:id/log request initiated`);
+            const getRaidLog = new GetRaidLog(req, res, next, db);
+            await getRaidLog.run();
+            Logger.Log(Severity.Info, `GET /raids/:id/log request completed`);
         });
 
         // =========### Other ###=========

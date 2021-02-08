@@ -164,6 +164,10 @@ export class GetRaid extends HTTPRequest {
         super(req, res, next, db);
     }
 
+    /**
+     * Perform specific validation for this endpoint.
+     * @throws When the names query parameter exists and it's not a supported value.
+     */
     public async validate_request() {
         await super.validate_request();
 
@@ -177,19 +181,10 @@ export class GetRaid extends HTTPRequest {
 
     /**
      * Returns the JSON string payload of a raid after making a GET /raids/:id request.
+     * @throws {ResourceNotFoundException} When the raid cannot be found.
      */
     public async send_response() {
-        let document: any = new Object;
-        try {
-            document = (await this.db.raidEventModel.findOne({_id: this.req.params["id"]}).exec()) as IRaidEventDocument;
-        }
-        catch (exception) {
-            if (exception.kind == "ObjectId") { // If the object ID cast failed
-                Logger.LogError(Severity.Error, exception);
-                throw new ResourceNotFoundException(this.req.params["id"])
-            }
-            return;
-        }
+        const document = (await this.db.raidEventModel.findOne({_id: this.req.params["id"]}).exec()) as IRaidEventDocument;
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["id"])
         }
@@ -209,36 +204,95 @@ export class GetRaid extends HTTPRequest {
         }
         const leaderDiscordName = await Utils.getDiscordNameFromId(document.leaderId, this.db);
 
-        let formattedDocument = {};
-        if (document != undefined) {
-            formattedDocument = {
-                id: document._id,
-                name: document.name,
-                description: document.description,
-                status: document.status,
-                startTime: document.startTime.toJSON().toString().replace(/\.\d+Z/, ""),
-                endTime: document.endTime.toJSON().toString().replace(/\.\d+Z/, ""),
-                leader: leaderDiscordName,
-                comp: document.compositionName,
-                channelId: document.channelId,
-                participants: document.roles.map(role => {
-                    return {
-                        role: role.name,
-                        requiredParticipants: role.requiredParticipants,
-                        members: role.participants.map(participant => idMap.get(participant))
-                    };
-                }),
-                reserves: document.roles.map(role => {
-                    return {
-                        role: role.name,
-                        members: role.reserves.map(reserve => idMap.get(reserve))
-                    };
-                })
-            };
+        const formattedDocument = {
+            id: document._id,
+            name: document.name,
+            description: document.description,
+            status: document.status,
+            startTime: document.startTime.toJSON().toString().replace(/\.\d+Z/, ""),
+            endTime: document.endTime.toJSON().toString().replace(/\.\d+Z/, ""),
+            leader: leaderDiscordName,
+            comp: document.compositionName,
+            channelId: document.channelId,
+            participants: document.roles.map(role => {
+                return {
+                    role: role.name,
+                    requiredParticipants: role.requiredParticipants,
+                    members: role.participants.map(participant => idMap.get(participant))
+                };
+            }),
+            reserves: document.roles.map(role => {
+                return {
+                    role: role.name,
+                    members: role.reserves.map(reserve => idMap.get(reserve))
+                };
+            })
+        };
+
+        Logger.LogRequest(Severity.Debug, this.timestamp, `Sending one raid in payload with ID ${this.req.params["id"]}`);
+        const payload = JSON.stringify(formattedDocument);
+        this.res.set("Content-Type", "application/json");
+        this.res.send(payload);
+    }
+}
+
+export class GetRaidLog extends HTTPRequest {
+    public validRequestQueryParameters: string[] = [
+        "names"
+    ];
+
+    constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
+        super(req, res, next, db);
+    }
+
+    /**
+     * Perform specific validation for this endpoint.
+     * @throws {BadSyntaxException} When the names query parameter exists and it's not a supported value.
+     */
+    public async validate_request() {
+        await super.validate_request();
+
+        if (this.req.query["names"]) {
+            const nameString: string = this.req.query["names"]?.toString().toUpperCase();
+            if (nameString != "DISCORD" && nameString != "GW2") {
+                throw new BadSyntaxException("Query parameter names must be either discord or gw2.");
+            }
+        }
+    }
+
+    /**
+     * Returns the JSON string payload of a raid log after making a GET /raids/:id.log request.
+     */
+    public async send_response() {
+        const document = (await this.db.raidEventModel.findOne({_id: this.req.params["id"]}).exec()) as IRaidEventDocument;
+        if (document == undefined) {
+            throw new ResourceNotFoundException(this.req.params["id"])
+        }
+
+        // Resolve the IDs to names.
+        const idArray: string[] = [];
+        document.log.forEach(log => {
+            idArray.push(log.data.user ? log.data.user : log.data);
+        });
+        let idMap: Map<string, string> = new Map<string, string>();
+        if (this.req.query["names"] && this.req.query["names"].toString().toUpperCase() == "GW2") {
+            idMap = await Utils.getGW2IdMap(idArray, this.db);
         }
         else {
-            throw new ResourceNotFoundException(this.req.params["comp"]);
+            idMap = await Utils.getDiscordIdMap(idArray, this.db);
         }
+
+        const formattedDocument = document.log.map(log => {
+            return {
+                date: log.date,
+                type: log.type,
+                data: {
+                    user: idMap.get(log.data.user ? log.data.user : log.data),
+                    roleName: log.data.roleName,
+                    isReserve: log.data.isReserve
+                }
+            }
+        });
 
         Logger.LogRequest(Severity.Debug, this.timestamp, `Sending one raid in payload with ID ${this.req.params["id"]}`);
         const payload = JSON.stringify(formattedDocument);

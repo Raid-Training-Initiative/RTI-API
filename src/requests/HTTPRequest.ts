@@ -6,6 +6,7 @@ import InvalidQueryParametersException from "../exceptions/InvalidQueryParameter
 import Auth from "../util/Auth";
 import UnauthorizedException from "../exceptions/UnauthorizedException";
 import { Logger, Severity } from "../util/Logger";
+import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 
 export default abstract class HTTPRequest {
     public abstract validRequestQueryParameters: string[]; // A list of query parameters that this endpoint takes.
@@ -73,7 +74,7 @@ export default abstract class HTTPRequest {
     }
 
     /**
-     * Executes the request.
+     * Executes the request and handles errors.
      */
     public async run() {
         try {
@@ -85,6 +86,10 @@ export default abstract class HTTPRequest {
             if (exception instanceof HTTPException) {
                 Logger.LogHTTPError(Severity.Warn, this.timestamp, exception);
                 this.next(exception);
+            } else if (exception.kind == "ObjectId") { // If the object ID cast failed
+                const notFound: ResourceNotFoundException = new ResourceNotFoundException(exception.value);
+                Logger.LogHTTPError(Severity.Warn, this.timestamp, notFound);
+                this.next(notFound);
             } else {
                 Logger.LogError(Severity.Error, exception);
                 this.next(new ServerErrorException(exception.message));
