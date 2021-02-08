@@ -179,11 +179,23 @@ export class GetRaid extends HTTPRequest {
      * Returns the JSON string payload of a raid after making a GET /raids/:id request.
      */
     public async send_response() {
-        const document = (await this.db.raidEventModel.findOne({_id: this.req.params["id"]}).exec()) as IRaidEventDocument;
-        
+        let document: any = new Object;
+        try {
+            document = (await this.db.raidEventModel.findOne({_id: this.req.params["id"]}).exec()) as IRaidEventDocument;
+        }
+        catch (exception) {
+            if (exception.kind == "ObjectId") { // If the object ID cast failed
+                Logger.LogError(Severity.Error, exception);
+                throw new ResourceNotFoundException(this.req.params["id"])
+            }
+            return;
+        }
+        if (document == undefined) {
+            throw new ResourceNotFoundException(this.req.params["id"])
+        }
+
         // Resolve the IDs to names.
         const idArray: string[] = [];
-        idArray.push(document.leaderId);
         document.roles.forEach(role => {
             role.participants.forEach(participant => idArray.push(participant));
             role.reserves.forEach(reserve => idArray.push(reserve));
@@ -195,6 +207,7 @@ export class GetRaid extends HTTPRequest {
         else {
             idMap = await Utils.getDiscordIdMap(idArray, this.db);
         }
+        const leaderDiscordName = await Utils.getDiscordNameFromId(document.leaderId, this.db);
 
         let formattedDocument = {};
         if (document != undefined) {
@@ -205,16 +218,22 @@ export class GetRaid extends HTTPRequest {
                 status: document.status,
                 startTime: document.startTime.toJSON().toString().replace(/\.\d+Z/, ""),
                 endTime: document.endTime.toJSON().toString().replace(/\.\d+Z/, ""),
-                leader: idMap.get(document.leaderId),
+                leader: leaderDiscordName,
                 comp: document.compositionName,
                 channelId: document.channelId,
                 participants: document.roles.map(role => {
                     return {
-                        role: `${role.name} [${role.participants.length}/${role.requiredParticipants}]`,
+                        role: role.name,
+                        requiredParticipants: role.requiredParticipants,
                         members: role.participants.map(participant => idMap.get(participant))
-                    }
+                    };
                 }),
-                reserves: document.roles.flatMap(role => role.reserves.map(reserve => `${idMap.get(reserve)} (${role.name})`))
+                reserves: document.roles.map(role => {
+                    return {
+                        role: role.name,
+                        members: role.reserves.map(reserve => idMap.get(reserve))
+                    };
+                })
             };
         }
         else {
