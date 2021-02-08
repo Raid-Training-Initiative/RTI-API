@@ -1,4 +1,5 @@
 {
     "db": "mongodb://db:27017/",
-    "guildId": "156175293055369216"
+    "guildId": "156175293055369216",
+    "clientsFile": "/clients/clients.json"
 }

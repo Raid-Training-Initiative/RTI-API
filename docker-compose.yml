@@ -6,6 +6,8 @@ services:
     build: .
     environment:
       NODE_ENV: production
+    volumes:
+      - ./clients:/clients      
     ports:
       - 8080:8080      
     networks:
