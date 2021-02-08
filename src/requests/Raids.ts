@@ -64,7 +64,9 @@ export class ListRaids extends HTTPRequest {
         let formattedDocuments: Object[];
         if ((this.req.query["format"]) && (this.req.query["format"].toString().toUpperCase() == "CSV")) {
             formattedDocuments = filteredDocuments.map(document => {
-                return leaderMap.get(document.leaderId) + "," + document.name + "," + document.startTime;
+                return leaderMap.get(document.leaderId) + "," + document.name + ","
+                    + document.startTime.toISOString().split("T")[0] + ","
+                    + document.startTime.toISOString().split("T")[1].replace(/:\d+\.\d+Z/, "");
             });
             payload = formattedDocuments.join("\n");
         }
