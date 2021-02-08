@@ -72,25 +72,24 @@ export class GetComp extends HTTPRequest {
      */
     public async send_response() {
         const document = (await this.db.raidCompositionModel.findOne({name: this.req.params["comp"]}).populate("categories").exec()) as IRaidCompositionPopulatedDocument;
-        let formattedDocument = {};
-        if (document != undefined) {
-            formattedDocument = {
-                name: document.name,
-                categories: document.categories.map(category => {
-                    return category.name
-                }),
-                roles: document.roles.map(role => {
-                    return {
-                        name: role.name,
-                        requiredParticipants: role.requiredParticipants
-                    }
-                })
-            };
-        }
-        else {
+        if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["comp"]);
         }
 
+        let formattedDocument = {};
+        formattedDocument = {
+            name: document.name,
+            categories: document.categories.map(category => {
+                return category.name
+            }),
+            roles: document.roles.map(role => {
+                return {
+                    name: role.name,
+                    requiredParticipants: role.requiredParticipants
+                }
+            })
+        };
+        
         Logger.LogRequest(Severity.Debug, this.timestamp, `Sending one comp in payload with name ${this.req.params["comp"]}`);
         const payload = JSON.stringify(formattedDocument);
         this.res.set("Content-Type", "application/json");

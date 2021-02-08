@@ -44,14 +44,13 @@ export class GetCategory extends HTTPRequest {
      */
     public async send_response() {
         const document = (await this.db.raidCompositionCategoryModel.findOne({name: this.req.params["category"]}).exec()) as IRaidCompositionCategoryDocument;
-        let formattedDocument = {};
-        if (document != undefined) {
-            formattedDocument = { name: document.name };
-        }
-        else {
+        if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["category"]);
         }
 
+        let formattedDocument = {};
+        formattedDocument = { name: document.name };
+        
         Logger.LogRequest(Severity.Debug, this.timestamp, `Sending one category in payload with name ${this.req.params["category"]}`);
         const payload = JSON.stringify(formattedDocument);
         this.res.set("Content-Type", "application/json");
