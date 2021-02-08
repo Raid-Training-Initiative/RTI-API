@@ -27,7 +27,7 @@ export default abstract class HTTPRequest {
     }
 
     /**
-     * This method validates the request and returns an error payload if validation fails.
+     * VSalidates the request and returns an error payload if validation fails.
      * @throws {UnauthorizedException} When the Authorization header is empty or contains an invalid client secret.
      * @throws {InvalidQueryParametersException} When a query parameter was specified that is not part of the accepted list of parameters.
      */
@@ -37,7 +37,7 @@ export default abstract class HTTPRequest {
     }
 
     /**
-     * This method checks if the authentication is valid (i.e. Authorization header contains a valid client secret).
+     * Checks if the authentication is valid (i.e. Authorization header contains a valid client secret).
      * @throws {UnauthorizedException} When the Authorization header is empty or contains an invalid client secret.
      */
     private async validate_authentication() {
@@ -57,7 +57,7 @@ export default abstract class HTTPRequest {
     }
 
     /**
-     * This method checks if the query parameters entered into the request are valid or not.
+     * Checks if the query parameters entered into the request are valid or not.
      * @throws {InvalidQueryParametersException} When a query parameter was specified that is not part of the accepted list of parameters.
      */
     private async validate_query_parameters() {
@@ -73,7 +73,7 @@ export default abstract class HTTPRequest {
     }
 
     /**
-     * This method executes the request.
+     * Executes the request.
      */
     public async run() {
         try {
