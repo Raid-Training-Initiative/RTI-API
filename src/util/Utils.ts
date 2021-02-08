@@ -3,11 +3,21 @@ import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 
 export default class Utils {
     /**
-     * 
-     * @param ids A string array of discord IDs.
+     * Returns a GW2 name from a discord ID.
+     * @param id A string of a discord ID.
      * @param db The database.
      */
     public static async getGW2NameFromId(id: string, db: MongoDatabase): Promise<string> {
+        const document = (await db.memberModel.findOne({userId: id}).exec()) as IMemberDocument;
+        return document.gw2Name;
+    }
+
+    /**
+     * Returns a discord name from a discord ID.
+     * @param ids A string array of discord IDs.
+     * @param db The database.
+     */
+    public static async getDiscordNameFromId(id: string, db: MongoDatabase): Promise<string> {
         const document = (await db.memberModel.findOne({userId: id}).exec()) as IMemberDocument;
         return document.gw2Name;
     }
@@ -24,7 +34,7 @@ export default class Utils {
     }
 
     /**
-     * Returns a list of Discord names resolved from discord IDs.
+     * Returns a list of discord names resolved from discord IDs.
      * @param ids A string array of discord IDs.
      * @param db The database.
      * @returns An array of objects with a name and id value.
@@ -49,10 +59,10 @@ export default class Utils {
     }
 
     /**
-     * Maps discord IDs to Discord names.
+     * Maps discord IDs to discord names.
      * @param ids A string array of discord IDs.
      * @param db The database.
-     * @returns A map with the keys being discord IDs and the values being Discord names.
+     * @returns A map with the keys being discord IDs and the values being discord names.
      */
     public static async getDiscordIdMap(ids: string[], db: MongoDatabase): Promise<Map<string, string>> {
         const idMap = new Map<string, string>();
