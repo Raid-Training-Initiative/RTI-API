@@ -43,11 +43,10 @@ export class GetCategory extends HTTPRequest {
      * Returns the JSON string payload of a category after making a GET /categories/:category request.
      */
     public async send_response() {
-        const documents = (await this.db.raidCompositionCategoryModel.find().exec()) as IRaidCompositionCategoryDocument[];
-        const filteredDocuments = documents.filter(document => { return document.name == this.req.params["category"]; });
+        const document = (await this.db.raidCompositionCategoryModel.findOne({name: this.req.params["category"]}).exec()) as IRaidCompositionCategoryDocument;
         let formattedDocument = {};
-        if (filteredDocuments.length > 0) {
-            formattedDocument = { name: filteredDocuments[0].name };
+        if (document != undefined) {
+            formattedDocument = { name: document.name };
         }
         else {
             throw new ResourceNotFoundException(this.req.params["category"]);

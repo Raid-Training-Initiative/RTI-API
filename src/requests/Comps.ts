@@ -71,16 +71,15 @@ export class GetComp extends HTTPRequest {
      * Returns the JSON string payload of a comp after making a GET /comps/:comp request.
      */
     public async send_response() {
-        const documents = (await this.db.raidCompositionModel.find().populate("categories").exec()) as IRaidCompositionPopulatedDocument[];
-        const filteredDocuments = documents.filter(document =>{ return document.name == this.req.params["comp"]; });
+        const document = (await this.db.raidCompositionModel.findOne({name: this.req.params["comp"]}).populate("categories").exec()) as IRaidCompositionPopulatedDocument;
         let formattedDocument = {};
-        if (filteredDocuments.length > 0) {
+        if (document != undefined) {
             formattedDocument = {
-                name: filteredDocuments[0].name,
-                categories: filteredDocuments[0].categories.map(category => {
+                name: document.name,
+                categories: document.categories.map(category => {
                     return category.name
                 }),
-                roles: filteredDocuments[0].roles.map(role => {
+                roles: document.roles.map(role => {
                     return {
                         name: role.name,
                         requiredParticipants: role.requiredParticipants
