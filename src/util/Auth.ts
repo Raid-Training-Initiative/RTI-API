@@ -16,7 +16,7 @@ export default class Auth {
     }
 
     /**
-     * This method reads the clients.json file and imports it into the clients object.
+     * Reads the clients.json file and imports it into the clients object.
      */
     private async import_clients() {
         try {
