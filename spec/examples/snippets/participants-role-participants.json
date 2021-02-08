@@ -1,0 +1,24 @@
+[
+    {
+        "role": "🔴 DPS",
+        "requiredParticipants": 8,
+        "members": [
+            "Mark#1561",
+            "Tom#6520",
+            "Sarah#5692",
+            "Johnny T#2048",
+            "Jane#7732",
+            "Mervin#2206",
+            "Florence#2415",
+            "Steven#9518"
+        ]
+    },
+    {
+        "role": "🟪 Chrono (Tank)",
+        "requiredParticipants": 2,
+        "members": [
+            "Erlich#8476",
+            "Richard#0062"
+        ]
+    }
+]

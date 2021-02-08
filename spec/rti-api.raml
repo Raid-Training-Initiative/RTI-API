@@ -2,6 +2,7 @@
 title: RTI API
 types:
   RaidSummary: !include types/RaidSummary.raml
+  Raid: !include types/Raid.raml
   Comp: !include types/Comp.raml
   Category: !include types/Category.raml
 traits:
@@ -65,6 +66,28 @@ traits:
           application/json:
             description: Error response when the comp name in the query parameter does not exist.
             example: !include examples/errors/resource-not-found.json
+  /{id}:
+    get:
+      description: Gets a single raid.
+      is: ["requiresAuthentication"]
+      queryParameters:
+        names:
+          type: string
+          description: A case-insensitive string specifying what values the names should be.
+          enum: ["gw2", "discord"]
+      responses:
+        200:
+          body:
+            application/json:
+              description: A raid.
+              type: Raid
+              example: !include examples/responses/get-raid.json
+        400:
+          body:
+            application/json:
+              description: Error response when syntax is invalid.
+              example: !include examples/errors/bad-syntax-bad-names.json
+
 
 /comps:
   get:
