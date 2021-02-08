@@ -41,6 +41,7 @@ export class GetCategory extends HTTPRequest {
 
     /**
      * Returns the JSON string payload of a category after making a GET /categories/:category request.
+     * @throws {ResourceNotFoundException} When the category cannot be found.
      */
     public async send_response() {
         const document = (await this.db.raidCompositionCategoryModel.findOne({name: this.req.params["category"]}).exec()) as IRaidCompositionCategoryDocument;

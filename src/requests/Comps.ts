@@ -69,6 +69,7 @@ export class GetComp extends HTTPRequest {
 
     /**
      * Returns the JSON string payload of a comp after making a GET /comps/:comp request.
+     * @throws {ResourceNotFoundException} When the comp cannot be found.
      */
     public async send_response() {
         const document = (await this.db.raidCompositionModel.findOne({name: this.req.params["comp"]}).populate("categories").exec()) as IRaidCompositionPopulatedDocument;
