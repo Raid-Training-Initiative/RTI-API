@@ -56,15 +56,15 @@ export class ListRaids extends HTTPRequest {
         const filteredDocuments = await this.filter_documents(documents);
 
         // Resolve the IDs to names.
-        const leaderIds = new Array<string>();
-        filteredDocuments.forEach(document => leaderIds.push(document.leaderId));
-        const leaderMap: Map<string, string> = await Utils.getIdMap(leaderIds, this.db);
+        const idArray = new Array<string>();
+        filteredDocuments.forEach(document => idArray.push(document.leaderId));
+        const idMap: Map<string, string> = await Utils.getDiscordIdMap(idArray, this.db);
         
         let payload: string = "";
         let formattedDocuments: Object[];
         if ((this.req.query["format"]) && (this.req.query["format"].toString().toUpperCase() == "CSV")) {
             formattedDocuments = filteredDocuments.map(document => {
-                return leaderMap.get(document.leaderId) + "," + document.name + ","
+                return idMap.get(document.leaderId) + "," + document.name + ","
                     + document.startTime.toISOString().split("T")[0] + ","
                     + document.startTime.toISOString().split("T")[1].replace(/:\d+\.\d+Z/, "");
             });
@@ -78,7 +78,7 @@ export class ListRaids extends HTTPRequest {
                     status: document.status,
                     startTime: document.startTime.toJSON().toString().replace(/\.\d+Z/, ""),
                     endTime: document.endTime.toJSON().toString().replace(/\.\d+Z/, ""),
-                    leader: leaderMap.get(document.leaderId),
+                    leader: idMap.get(document.leaderId),
                     comp: document.compositionName
                 };
             });
@@ -104,8 +104,8 @@ export class ListRaids extends HTTPRequest {
      */
     private async filter_documents(documents: IRaidEventDocument[]): Promise<IRaidEventDocument[]> {
         let comps: string[] = [];
-        const leaderIds = new Array<string>();
-        let leaderMap = new Map<string, string>();
+        const idArray = new Array<string>();
+        let idMap = new Map<string, string>();
         if (this.req.query["comp"]) {
             const compDocuments = (await this.db.raidCompositionModel.find()) as IRaidCompositionCategoryDocument[];
 
@@ -116,9 +116,9 @@ export class ListRaids extends HTTPRequest {
 
         if (this.req.query["leader"]) {
             const raidDocuments = (await this.db.raidEventModel.find()) as IRaidEventDocument[];
-            raidDocuments.forEach(document => leaderIds.push(document.leaderId));
+            raidDocuments.forEach(document => idArray.push(document.leaderId));
         }
-        leaderMap = await Utils.getIdMap(leaderIds, this.db);
+        idMap = await Utils.getDiscordIdMap(idArray, this.db);
         
         const filteredDocuments = documents.filter(document => {
             let filter: boolean = true;
@@ -139,7 +139,7 @@ export class ListRaids extends HTTPRequest {
             }
             if (this.req.query["leader"] && filter) { // If there is a leader filter in the query parameters and filter is still true.
                 const regex: RegExp = /[#.\d]+/;
-                const leader = leaderMap.get(document.leaderId);
+                const leader = idMap.get(document.leaderId);
                 if (leader != undefined) {
                     filter = leader.replace(regex, "").toUpperCase() ==
                     this.req.query["leader"].toString().replace(regex, "").toUpperCase();
@@ -156,16 +156,74 @@ export class ListRaids extends HTTPRequest {
 }
 
 export class GetRaid extends HTTPRequest {
-    public validRequestQueryParameters: string[] = [];
+    public validRequestQueryParameters: string[] = [
+        "names"
+    ];
 
     constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
         super(req, res, next, db);
+    }
+
+    public async validate_request() {
+        await super.validate_request();
+
+        if (this.req.query["names"]) {
+            const nameString: string = this.req.query["names"]?.toString().toUpperCase();
+            if (nameString != "DISCORD" && nameString != "GW2") {
+                throw new BadSyntaxException("Query parameter names must be either discord or gw2.");
+            }
+        }
     }
 
     /**
      * Returns the JSON string payload of a raid after making a GET /raids/:id request.
      */
     public async send_response() {
+        const document = (await this.db.raidEventModel.findOne({_id: this.req.params["id"]}).exec()) as IRaidEventDocument;
         
+        // Resolve the IDs to names.
+        const idArray: string[] = [];
+        idArray.push(document.leaderId);
+        document.roles.forEach(role => {
+            role.participants.forEach(participant => idArray.push(participant));
+            role.reserves.forEach(reserve => idArray.push(reserve));
+        });
+        let idMap: Map<string, string> = new Map<string, string>();
+        if (this.req.query["names"] && this.req.query["names"].toString().toUpperCase() == "GW2") {
+            idMap = await Utils.getGW2IdMap(idArray, this.db);
+        }
+        else {
+            idMap = await Utils.getDiscordIdMap(idArray, this.db);
+        }
+
+        let formattedDocument = {};
+        if (document != undefined) {
+            formattedDocument = {
+                id: document._id,
+                name: document.name,
+                description: document.description,
+                status: document.status,
+                startTime: document.startTime.toJSON().toString().replace(/\.\d+Z/, ""),
+                endTime: document.endTime.toJSON().toString().replace(/\.\d+Z/, ""),
+                leader: idMap.get(document.leaderId),
+                comp: document.compositionName,
+                channelId: document.channelId,
+                participants: document.roles.map(role => {
+                    return {
+                        role: `${role.name} [${role.participants.length}/${role.requiredParticipants}]`,
+                        members: role.participants.map(participant => idMap.get(participant))
+                    }
+                }),
+                reserves: document.roles.flatMap(role => role.reserves.map(reserve => `${idMap.get(reserve)} (${role.name})`))
+            };
+        }
+        else {
+            throw new ResourceNotFoundException(this.req.params["comp"]);
+        }
+
+        Logger.LogRequest(Severity.Debug, this.timestamp, `Sending one raid in payload with ID ${this.req.params["id"]}`);
+        const payload = JSON.stringify(formattedDocument);
+        this.res.set("Content-Type", "application/json");
+        this.res.send(payload);
     }
 }
