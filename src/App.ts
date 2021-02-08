@@ -3,12 +3,13 @@ import { IConfig } from "./util/Config";
 import express = require("express");
 import { Request, Response, NextFunction } from "express";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
-import { GetComp, ListComps } from "./requests/Comps";
 import errorMiddleware from "./util/Error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
 import Auth from "./util/Auth";
 import { Logger, Severity } from "./util/Logger";
+import { GetComp, ListComps } from "./requests/Comps";
 import { GetCategory, ListCategories } from "./requests/Categories";
+import { GetRaid, ListRaids } from "./requests/Raids";
 
 export class App {
     private static _app: App | undefined;
@@ -30,7 +31,7 @@ export class App {
     }
 
     /**
-     * This function runs the API and listens for the different endpoints.
+     * Runs the API and listens for the different endpoints.
      */
     public async run() { 
         const server = express();
@@ -71,6 +72,21 @@ export class App {
             Logger.Log(Severity.Info, `GET /categories/:category request completed`);
         });
 
+        // =========### Raids ###=========
+        server.get("/raids", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.Log(Severity.Info, `GET /raids request initiated`);
+            const listRaids = new ListRaids(req, res, next, db);
+            await listRaids.run();
+            Logger.Log(Severity.Info, `GET /raids request completed`);
+        });
+
+        server.get("/raids/:id", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.Log(Severity.Info, `GET /raids/:id request initiated`);
+            const getRaid = new GetRaid(req, res, next, db);
+            await getRaid.run();
+            Logger.Log(Severity.Info, `GET /raids/:id request completed`);
+        });
+
         // =========### Other ###=========
         server.get("*", async (req: Request, res: Response, next: NextFunction) => {
             Logger.Log(Severity.Info, `Request made to nonexistent resource`);
@@ -87,7 +103,7 @@ export class App {
 }
 
 /**
- * This function loads the correct config file depending on the argument passed / environment property value.
+ * Loads the correct config file depending on the argument passed / environment property value.
  * @returns Returns the config file that will be in use.
  */
 function load_configuration(): IConfig | null {
