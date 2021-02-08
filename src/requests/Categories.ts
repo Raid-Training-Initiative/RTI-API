@@ -19,14 +19,16 @@ export class ListCategories extends HTTPRequest {
     }
 
     /**
-     * This method returns the JSON string payload of a list of categories after making a GET /categories request.
+     * Returns the JSON string payload of a list of categories after making a GET /categories request.
      */
     public async send_response(): Promise<void> {
         const documents = (await this.db.raidCompositionCategoryModel.find().exec()) as IRaidCompositionCategoryDocument[];
         const formattedDocuments = documents.map(document => { return { name: document.name } });
+
         Logger.LogRequest(Severity.Debug, this.timestamp, `Sending ${formattedDocuments.length} categories in payload`);
+        const payload = JSON.stringify(formattedDocuments);
         this.res.set("Content-Type", "application/json");
-        this.res.send(JSON.stringify(formattedDocuments));
+        this.res.send(payload);
     }
 }
 
@@ -38,7 +40,7 @@ export class GetCategory extends HTTPRequest {
     }
 
     /**
-     * This method returns the JSON string payload of a category after making a GET /categories/:category request.
+     * Returns the JSON string payload of a category after making a GET /categories/:category request.
      */
     public async send_response() {
         const documents = (await this.db.raidCompositionCategoryModel.find().exec()) as IRaidCompositionCategoryDocument[];
@@ -52,7 +54,8 @@ export class GetCategory extends HTTPRequest {
         }
 
         Logger.LogRequest(Severity.Debug, this.timestamp, `Sending one category in payload with name ${this.req.params["category"]}`);
+        const payload = JSON.stringify(formattedDocument);
         this.res.set("Content-Type", "application/json");
-        this.res.send(JSON.stringify(formattedDocument));
+        this.res.send(payload);
     }
 }

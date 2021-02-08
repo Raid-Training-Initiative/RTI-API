@@ -19,17 +19,12 @@ export class ListComps extends HTTPRequest {
     }
 
     /**
-     * This method returns the JSON string payload of a list of comps after making a GET /comps request.
+     * Returns the JSON string payload of a list of comps after making a GET /comps request.
      */
     public async send_response(): Promise<void> {
         const documents = (await this.db.raidCompositionModel.find().populate("categories").exec()) as IRaidCompositionPopulatedDocument[];
-        const formattedDocuments = documents.filter(document => {
-            if (this.req.query["categories"]) { // If there are categories to filter with.
-                const filterCategories = (this.req.query["categories"] as string).split(",");
-                return document.categories.filter(category => filterCategories.includes(category.name)).length > 0;
-            }
-            else return true;
-        }).map(document => {
+        const filteredDocuments = await this.filter_documents(documents);
+        const formattedDocuments = filteredDocuments.map(document => {
             return {
                 name: document.name,
                 categories: document.categories.map(category => {
@@ -44,8 +39,24 @@ export class ListComps extends HTTPRequest {
             };
         });
         Logger.LogRequest(Severity.Debug, this.timestamp, `Sending ${formattedDocuments.length} comps in payload with filter: ${this.req.query["categories"] ? this.req.query["categories"] : "none"}`);
+        const payload = JSON.stringify(formattedDocuments);
         this.res.set("Content-Type", "application/json");
-        this.res.send(JSON.stringify(formattedDocuments));
+        this.res.send(payload);
+    }
+
+    /**
+     * Filters the documents according to the filters specified in the query parameters.
+     * @param documents The unfiltered list of database documents returned from the database.
+     * @returns A list of documents filtered by the request's query parameters.
+     */
+    private async filter_documents(documents: IRaidCompositionPopulatedDocument[]): Promise<IRaidCompositionPopulatedDocument[]> {
+        return documents.filter(document => {
+            if (this.req.query["categories"]) { // If there are categories to filter with.
+                const filterCategories = (this.req.query["categories"] as string).split(",");
+                return document.categories.filter(category => filterCategories.includes(category.name)).length > 0;
+            }
+            else return true;
+        });
     }
 }
 
@@ -57,7 +68,7 @@ export class GetComp extends HTTPRequest {
     }
 
     /**
-     * This method returns the JSON string payload of a comp after making a GET /comps request.
+     * Returns the JSON string payload of a comp after making a GET /comps/:comp request.
      */
     public async send_response() {
         const documents = (await this.db.raidCompositionModel.find().populate("categories").exec()) as IRaidCompositionPopulatedDocument[];
@@ -82,7 +93,8 @@ export class GetComp extends HTTPRequest {
         }
 
         Logger.LogRequest(Severity.Debug, this.timestamp, `Sending one comp in payload with name ${this.req.params["comp"]}`);
+        const payload = JSON.stringify(formattedDocument);
         this.res.set("Content-Type", "application/json");
-        this.res.send(JSON.stringify(formattedDocument));
+        this.res.send(payload);
     }
 }
