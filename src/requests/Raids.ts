@@ -194,7 +194,7 @@ export class GetRaid extends HTTPRequest {
             endTime: Utils.formatDateString(document.endTime),
             leader: leaderDiscordName,
             comp: document.compositionName,
-            publishedDate: document.publishedDate?.toISOString().replace(/\.\d+Z/, ""),
+            publishedDate: Utils.formatDateString(document.publishedDate),
             channelId: document.channelId,
             participants: document.roles.map(role => {
                 return {
