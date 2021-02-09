@@ -2,7 +2,6 @@
  * File for classes that handle requests for raids.
  */
 
-import { IRaidEventDocument } from "@RTIBot-DB/documents/IRaidEventDocument";
 import { NextFunction, Request, Response } from "express";
 import { Logger, Severity } from "../util/Logger";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
@@ -247,7 +246,7 @@ export class GetRaidLog extends HTTPRequest {
      * Returns the JSON string payload of a raid log after making a GET /raids/:id.log request.
      */
     public async send_response() {
-        const document = (await this.db.raidEventModel.findOne({_id: this.req.params["id"]}).exec()) as IRaidEventDocument;
+        const document = await DB.queryRaid(this.req.params["id"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["id"])
         }
