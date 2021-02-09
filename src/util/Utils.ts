@@ -1,74 +1,51 @@
 import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
-import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
+import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
+import escapeStringRegexp = require("escape-string-regexp");
+import DB from "./DB";
 
 export default class Utils {
     /**
-     * Returns a GW2 name from a discord ID.
-     * @param id A string of a discord ID.
-     * @param db The database.
-     */
-    public static async getGW2NameFromId(id: string, db: MongoDatabase): Promise<string> {
-        const document = (await db.memberModel.findOne({userId: id}).exec()) as IMemberDocument;
-        return document.gw2Name;
-    }
-
-    /**
-     * Returns a discord name from a discord ID.
-     * @param ids A string array of discord IDs.
-     * @param db The database.
-     */
-    public static async getDiscordNameFromId(id: string, db: MongoDatabase): Promise<string> {
-        const document = (await db.memberModel.findOne({userId: id}).exec()) as IMemberDocument;
-        return document.gw2Name;
-    }
-
-    /**
-     * Returns a list of GW2 names resolved from discord IDs.
-     * @param ids A string array of discord IDs.
-     * @param db The database.
-     * @returns An array of objects with a name and id value.
-     */
-    public static async getGW2NamesFromIds(ids: string[], db: MongoDatabase): Promise<Object[]> {
-        const documents = (await db.memberModel.find({userId: {$in: ids}}).exec()) as IMemberDocument[];
-        return documents.map(document => { return { name: document.gw2Name, id: document.userId }} );
-    }
-
-    /**
-     * Returns a list of discord names resolved from discord IDs.
-     * @param ids A string array of discord IDs.
-     * @param db The database.
-     * @returns An array of objects with a name and id value.
-     */
-    public static async getDiscordNamesFromIds(ids: string[], db: MongoDatabase): Promise<Object[]> {
-        const documents = (await db.memberModel.find({userId: {$in: ids}}).exec()) as IMemberDocument[];
-        return documents.map(document => { return { name: document.gw2Name, id: document.userId }} );
-    }
-
-    /**
      * Maps discord IDs to GW2 names.
      * @param ids A string array of discord IDs.
-     * @param db The database.
-     * @returns A map with the keys being discord IDs and the values being GW2 names.
+     * @param returnGW2Names A boolean specifying whether to return GW2 names (true) or discord names (false).
+     * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
-    public static async getGW2IdMap(ids: string[], db: MongoDatabase): Promise<Map<string, string>> {
+    public static async getMemberIdMap(ids: string[], returnGW2Names?: boolean): Promise<Map<string, string>> {
         const idMap = new Map<string, string>();
-        const idNames = await this.getGW2NamesFromIds(ids, db);
-        idNames.forEach(idName => idMap.set(idName["id"], idName["name"]));
+        const documents: IMemberDocument[] = await DB.queryMembers({userId: {$in: ids}});
+        documents.forEach(document => idMap.set(document.userId, returnGW2Names ? document.gw2Name : document.gw2Name));
 
         return idMap;
     }
 
     /**
-     * Maps discord IDs to discord names.
-     * @param ids A string array of discord IDs.
-     * @param db The database.
-     * @returns A map with the keys being discord IDs and the values being discord names.
+     * Returns a map for all members matching the passed name.
+     * @param name The discord name to query the database with.
+     * @param returnGW2Names A boolean specifying whether to return GW2 names (true) or discord names (false).
+     * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
-    public static async getDiscordIdMap(ids: string[], db: MongoDatabase): Promise<Map<string, string>> {
+    public static async matchesNameIdMap(name: string, returnGW2Names?: boolean): Promise<Map<string, string>> {
         const idMap = new Map<string, string>();
-        const idNames = await this.getDiscordNamesFromIds(ids, db);
-        idNames.forEach(idName => idMap.set(idName["id"], idName["name"]));
+        const escapedName = escapeStringRegexp(name);
+        const strippedName = escapedName.replace(/[#.]\d{4}/gi, "");
+        const regex: RegExp = new RegExp(strippedName, "gi");
+        const documents: IMemberDocument[] = await DB.queryMembers({gw2Name: regex});
+        documents.forEach(document => idMap.set(document.userId, returnGW2Names ? document.gw2Name : document.gw2Name));
 
+        return idMap;
+    }
+
+    /**
+     * Returns a map containing the database IDs for all categories passed in the parameter.
+     * @param categories A list of strings representing the categories to get the database IDs of.
+     * @returns A map with the keys being the lowercased category names and the values being the database IDs.
+     */
+    public static async getCategoryIdsMapFromCategories(categories: string[]): Promise<Map<string, string>> {
+        const idMap = new Map<string, string>();
+        const categoriesRegex: RegExp[] = categories.map(category => new RegExp(category, "gi"));
+        const documents: IRaidCompositionCategoryDocument[] = await DB.queryCategories({name: {$in: categoriesRegex}});
+        documents.forEach(document => idMap.set(document.name.toLowerCase(), document._id));
+        
         return idMap;
     }
 }

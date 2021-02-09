@@ -2,29 +2,28 @@
  * File for classes that handle requests for compositions.
  */
 
-import { IRaidCompositionPopulatedDocument } from "@RTIBot-DB/documents/IRaidCompositionDocument";
-import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { NextFunction, Request, Response } from "express";
 import { Logger, Severity } from "../util/Logger";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import HTTPRequest from "./HTTPRequest";
+import DB from "../util/DB";
+import Utils from "../util/Utils";
 
 export class ListComps extends HTTPRequest {
     public validRequestQueryParameters: string[] = [
         "categories"
     ];
 
-    constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
-        super(req, res, next, db);
+    constructor(req: Request, res: Response, next: NextFunction) {
+        super(req, res, next);
     }
 
     /**
      * Returns the JSON string payload of a list of comps after making a GET /comps request.
      */
     public async send_response(): Promise<void> {
-        const documents = (await this.db.raidCompositionModel.find().populate("categories").exec()) as IRaidCompositionPopulatedDocument[];
-        const filteredDocuments = await this.filter_documents(documents);
-        const formattedDocuments = filteredDocuments.map(document => {
+        const documents = await DB.queryComps(await this.db_filter());
+        const formattedDocuments = documents.map(document => {
             return {
                 name: document.name,
                 categories: document.categories.map(category => {
@@ -46,25 +45,31 @@ export class ListComps extends HTTPRequest {
 
     /**
      * Filters the documents according to the filters specified in the query parameters.
-     * @param documents The unfiltered list of database documents returned from the database.
-     * @returns A list of documents filtered by the request's query parameters.
+     * @returns A filter to pass into the database query.
      */
-    private async filter_documents(documents: IRaidCompositionPopulatedDocument[]): Promise<IRaidCompositionPopulatedDocument[]> {
-        return documents.filter(document => {
-            if (this.req.query["categories"]) { // If there are categories to filter with.
-                const filterCategories = (this.req.query["categories"] as string).split(",");
-                return document.categories.filter(category => filterCategories.includes(category.name)).length > 0;
-            }
-            else return true;
-        });
+    private async db_filter(): Promise<Object> {
+        const filters: Object[] = [];
+        if (this.req.query["categories"]) {
+            const filterCategories: string[] = this.req.query["categories"]?.toString().toLowerCase().split(",");
+            const filterCategoryIds: Map<string, string> = await Utils.getCategoryIdsMapFromCategories(filterCategories);
+            filterCategories.forEach(filterCategory => {
+                if (filterCategoryIds.has(filterCategory)) {
+                    filters.push({"categories": filterCategoryIds.get(filterCategory)});
+                } else {
+                    throw new ResourceNotFoundException(filterCategory);
+                }
+            });
+        }
+
+        return filters.length > 0 ? { $or: filters } : {};
     }
 }
 
 export class GetComp extends HTTPRequest {
     public validRequestQueryParameters: string[] = [];
 
-    constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
-        super(req, res, next, db);
+    constructor(req: Request, res: Response, next: NextFunction) {
+        super(req, res, next);
     }
 
     /**
@@ -72,7 +77,7 @@ export class GetComp extends HTTPRequest {
      * @throws {ResourceNotFoundException} When the comp cannot be found.
      */
     public async send_response() {
-        const document = (await this.db.raidCompositionModel.findOne({name: this.req.params["comp"]}).populate("categories").exec()) as IRaidCompositionPopulatedDocument;
+        const document = await DB.queryComp(this.req.params["comp"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["comp"]);
         }

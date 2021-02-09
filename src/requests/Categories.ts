@@ -2,27 +2,24 @@
  * File for classes that handle requests for composition categories.
  */
 
-import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
-import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { NextFunction, Request, Response } from "express";
 import { Logger, Severity } from "../util/Logger";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import HTTPRequest from "./HTTPRequest";
+import DB from "../util/DB";
 
 export class ListCategories extends HTTPRequest {
-    public validRequestQueryParameters: string[] = [
-        "categories"
-    ];
+    public validRequestQueryParameters: string[] = [];
 
-    constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
-        super(req, res, next, db);
+    constructor(req: Request, res: Response, next: NextFunction) {
+        super(req, res, next);
     }
 
     /**
      * Returns the JSON string payload of a list of categories after making a GET /categories request.
      */
     public async send_response(): Promise<void> {
-        const documents = (await this.db.raidCompositionCategoryModel.find().exec()) as IRaidCompositionCategoryDocument[];
+        const documents = await DB.queryCategories();
         const formattedDocuments = documents.map(document => { return { name: document.name } });
 
         Logger.LogRequest(Severity.Debug, this.timestamp, `Sending ${formattedDocuments.length} categories in payload`);
@@ -35,8 +32,8 @@ export class ListCategories extends HTTPRequest {
 export class GetCategory extends HTTPRequest {
     public validRequestQueryParameters: string[] = [];
 
-    constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
-        super(req, res, next, db);
+    constructor(req: Request, res: Response, next: NextFunction) {
+        super(req, res, next);
     }
 
     /**
@@ -44,7 +41,7 @@ export class GetCategory extends HTTPRequest {
      * @throws {ResourceNotFoundException} When the category cannot be found.
      */
     public async send_response() {
-        const document = (await this.db.raidCompositionCategoryModel.findOne({name: this.req.params["category"]}).exec()) as IRaidCompositionCategoryDocument;
+        const document = await DB.queryCategory(this.req.params["category"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["category"]);
         }

@@ -3,14 +3,14 @@
  */
 
 import { IRaidEventDocument } from "@RTIBot-DB/documents/IRaidEventDocument";
-import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { NextFunction, Request, Response } from "express";
 import { Logger, Severity } from "../util/Logger";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
 import HTTPRequest from "./HTTPRequest";
-import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import Utils from "../util/Utils";
+import escapeStringRegexp = require("escape-string-regexp");
+import DB from "../util/DB";
 
 export class ListRaids extends HTTPRequest {
     public validRequestQueryParameters: string[] = [
@@ -18,11 +18,12 @@ export class ListRaids extends HTTPRequest {
         "name",
         "comp",
         "leader",
+        "published",
         "format"
     ];
 
-    constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
-        super(req, res, next, db);
+    constructor(req: Request, res: Response, next: NextFunction) {
+        super(req, res, next);
     }
 
     /**
@@ -33,15 +34,20 @@ export class ListRaids extends HTTPRequest {
         await super.validate_request();
 
         if (this.req.query["status"]) {
-            const statusString: string = this.req.query["status"]?.toString().toUpperCase();
-            if (statusString != "DRAFT" && statusString != "PUBLISHED" && statusString != "ARCHIVED") {
+            const statusString: string = this.req.query["status"]?.toString().toLowerCase();
+            if (statusString != "draft" && statusString != "published" && statusString != "archived") {
                 throw new BadSyntaxException("Query parameter status must be either draft, published, or archived.");
             }
         }
-
+        if (this.req.query["published"]) {
+            const publishedString: string = this.req.query["published"]?.toString().toLowerCase();
+            if (publishedString != "true" && publishedString != "false") {
+                throw new BadSyntaxException("Query parameter published must be either true or false.");
+            }
+        }
         if (this.req.query["format"]) {
-            const formatString: string = this.req.query["format"]?.toString().toUpperCase();
-            if (formatString != "CSV" && formatString != "JSON") {
+            const formatString: string = this.req.query["format"]?.toString().toLowerCase();
+            if (formatString != "csv" && formatString != "json") {
                 throw new BadSyntaxException("Query parameter format must be either csv or json.");
             }
         }
@@ -52,18 +58,17 @@ export class ListRaids extends HTTPRequest {
      * @throws {ResourceNotFoundException} When a comp specified in the comp query parameter does not exist.
      */
     public async send_response(): Promise<void> {
-        const documents = (await this.db.raidEventModel.find().exec()) as IRaidEventDocument[];
-        const filteredDocuments = await this.filter_documents(documents);
+        const documents = await DB.queryRaids(await this.db_filter());
 
         // Resolve the IDs to names.
         const idArray = new Array<string>();
-        filteredDocuments.forEach(document => idArray.push(document.leaderId));
-        const idMap: Map<string, string> = await Utils.getDiscordIdMap(idArray, this.db);
+        documents.forEach(document => idArray.push(document.leaderId));
+        const idMap: Map<string, string> = await Utils.getMemberIdMap(idArray);
         
         let payload: string = "";
         let formattedDocuments: Object[];
-        if ((this.req.query["format"]) && (this.req.query["format"].toString().toUpperCase() == "CSV")) {
-            formattedDocuments = filteredDocuments.map(document => {
+        if ((this.req.query["format"]) && (this.req.query["format"].toString().toLowerCase() == "csv")) {
+            formattedDocuments = documents.map(document => {
                 return idMap.get(document.leaderId) + "," + document.name + ","
                     + document.startTime.toISOString().split("T")[0] + ","
                     + document.startTime.toISOString().split("T")[1].replace(/:\d+\.\d+Z/, "");
@@ -71,15 +76,16 @@ export class ListRaids extends HTTPRequest {
             payload = formattedDocuments.join("\n");
         }
         else {
-            formattedDocuments = filteredDocuments.map(document => {
+            formattedDocuments = documents.map(document => {
                 return {
-                    id: document._id,
                     name: document.name,
                     status: document.status,
                     startTime: document.startTime.toJSON().toString().replace(/\.\d+Z/, ""),
                     endTime: document.endTime.toJSON().toString().replace(/\.\d+Z/, ""),
                     leader: idMap.get(document.leaderId),
-                    comp: document.compositionName
+                    comp: document.compositionName,
+                    publishedDate: document.publishedDate,
+                    id: document._id
                 };
             });
             payload = JSON.stringify(formattedDocuments);
@@ -98,60 +104,36 @@ export class ListRaids extends HTTPRequest {
 
     /**
      * Filters the documents according to the filters specified in the query parameters.
-     * @param documents The unfiltered list of database documents returned from the database.
-     * @throws {ResourceNotFoundException} When a comp specified in the comp query parameter does not exist.
-     * @returns A list of documents filtered by the request's query parameters.
+     * @returns A filter to pass into the database query.
      */
-    private async filter_documents(documents: IRaidEventDocument[]): Promise<IRaidEventDocument[]> {
-        let comps: string[] = [];
-        const idArray = new Array<string>();
-        let idMap = new Map<string, string>();
+    private async db_filter(): Promise<Object> {
+        const filters: Object[] = [];
+        if (this.req.query["status"]) {
+            const escapedStatus: string = escapeStringRegexp(this.req.query["status"].toString());
+            const regex: RegExp = new RegExp(escapedStatus, "gi");
+            filters.push({ status: regex });
+        }
+        if (this.req.query["name"]) {
+            const regex: RegExp = /[-!$%^&*()_+|~=`{}[\]:";'<>?,./\s]+/gi;
+            const escapedName: string = escapeStringRegexp(this.req.query["name"].toString());
+            const strippedName: string = escapedName.replace(regex, "").toLowerCase();
+            filters.push({ $where: `this.name.replace(/${regex.source}/gi, '').toLowerCase().includes('${strippedName}')` });
+        }
         if (this.req.query["comp"]) {
-            const compDocuments = (await this.db.raidCompositionModel.find()) as IRaidCompositionCategoryDocument[];
-
-            if (this.req.query["comp"]) {
-                comps = compDocuments.map(comp => { return comp.name.toUpperCase(); });
-            }
+            const escapedComp: string = escapeStringRegexp(this.req.query["comp"].toString());
+            const regex: RegExp = new RegExp(escapedComp, "gi");
+            filters.push({ compositionName: regex });
         }
-
         if (this.req.query["leader"]) {
-            const raidDocuments = (await this.db.raidEventModel.find()) as IRaidEventDocument[];
-            raidDocuments.forEach(document => idArray.push(document.leaderId));
+            const idMap = await Utils.matchesNameIdMap(this.req.query["leader"].toString());
+            filters.push({ leaderId: { $in: Array.from(idMap.keys()) }});
         }
-        idMap = await Utils.getDiscordIdMap(idArray, this.db);
+        if (this.req.query["published"]) {
+            const publishedString = this.req.query["published"].toString().toLowerCase();
+            filters.push({ publishedDate: { "$exists" : publishedString == "true" }});
+        }
         
-        const filteredDocuments = documents.filter(document => {
-            let filter: boolean = true;
-
-            if (this.req.query["status"] && filter) { // If there is a status filter in the query parameters and filter is still true.
-                filter = document.status.toUpperCase() == this.req.query["status"].toString().toUpperCase();
-            }
-            if (this.req.query["name"] && filter) { // If there is a name filter in the query parameters and filter is still true.
-                const regex: RegExp = /[-!$%^&*()_+|~=`{}[\]:";'<>?,./\s]+/;
-                filter = document.name.replace(regex, "").toUpperCase()
-                    .includes(this.req.query["name"].toString().replace(regex, "").toUpperCase());
-            }
-            if (this.req.query["comp"] && filter) { // If there is a comp filter in the query parameters and filter is still true.
-                if (comps.indexOf(this.req.query["comp"].toString().toUpperCase()) == -1) {
-                    throw new ResourceNotFoundException(this.req.query["comp"].toString());
-                }
-                filter = document.compositionName.toUpperCase() == this.req.query["comp"].toString().toUpperCase();
-            }
-            if (this.req.query["leader"] && filter) { // If there is a leader filter in the query parameters and filter is still true.
-                const regex: RegExp = /[#.\d]+/;
-                const leader = idMap.get(document.leaderId);
-                if (leader != undefined) {
-                    filter = leader.replace(regex, "").toUpperCase() ==
-                    this.req.query["leader"].toString().replace(regex, "").toUpperCase();
-                } else {
-                    filter = false;
-                }
-            }
-
-            return filter;
-        });
-
-        return filteredDocuments;
+        return filters.length > 0 ? { "$and": filters } : {};
     }
 }
 
@@ -160,8 +142,8 @@ export class GetRaid extends HTTPRequest {
         "names"
     ];
 
-    constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
-        super(req, res, next, db);
+    constructor(req: Request, res: Response, next: NextFunction) {
+        super(req, res, next);
     }
 
     /**
@@ -172,8 +154,8 @@ export class GetRaid extends HTTPRequest {
         await super.validate_request();
 
         if (this.req.query["names"]) {
-            const nameString: string = this.req.query["names"]?.toString().toUpperCase();
-            if (nameString != "DISCORD" && nameString != "GW2") {
+            const nameString: string = this.req.query["names"]?.toString().toLowerCase();
+            if (nameString != "discord" && nameString != "gw2") {
                 throw new BadSyntaxException("Query parameter names must be either discord or gw2.");
             }
         }
@@ -184,7 +166,7 @@ export class GetRaid extends HTTPRequest {
      * @throws {ResourceNotFoundException} When the raid cannot be found.
      */
     public async send_response() {
-        const document = (await this.db.raidEventModel.findOne({_id: this.req.params["id"]}).exec()) as IRaidEventDocument;
+        const document = await DB.queryRaid(this.req.params["id"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["id"])
         }
@@ -196,13 +178,13 @@ export class GetRaid extends HTTPRequest {
             role.reserves.forEach(reserve => idArray.push(reserve));
         });
         let idMap: Map<string, string> = new Map<string, string>();
-        if (this.req.query["names"] && this.req.query["names"].toString().toUpperCase() == "GW2") {
-            idMap = await Utils.getGW2IdMap(idArray, this.db);
+        if (this.req.query["names"] && this.req.query["names"].toString().toLowerCase() == "GW2") {
+            idMap = await Utils.getMemberIdMap(idArray, true);
         }
         else {
-            idMap = await Utils.getDiscordIdMap(idArray, this.db);
+            idMap = await Utils.getMemberIdMap(idArray);
         }
-        const leaderDiscordName = await Utils.getDiscordNameFromId(document.leaderId, this.db);
+        const leaderDiscordName = (await Utils.getMemberIdMap([document.leaderId])).get(document.leaderId);
 
         const formattedDocument = {
             id: document._id,
@@ -241,8 +223,8 @@ export class GetRaidLog extends HTTPRequest {
         "names"
     ];
 
-    constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
-        super(req, res, next, db);
+    constructor(req: Request, res: Response, next: NextFunction) {
+        super(req, res, next);
     }
 
     /**
@@ -253,7 +235,7 @@ export class GetRaidLog extends HTTPRequest {
         await super.validate_request();
 
         if (this.req.query["names"]) {
-            const nameString: string = this.req.query["names"]?.toString().toUpperCase();
+            const nameString: string = this.req.query["names"]?.toString().toLowerCase();
             if (nameString != "DISCORD" && nameString != "GW2") {
                 throw new BadSyntaxException("Query parameter names must be either discord or gw2.");
             }
@@ -275,11 +257,11 @@ export class GetRaidLog extends HTTPRequest {
             idArray.push(log.data.user ? log.data.user : log.data);
         });
         let idMap: Map<string, string> = new Map<string, string>();
-        if (this.req.query["names"] && this.req.query["names"].toString().toUpperCase() == "GW2") {
-            idMap = await Utils.getGW2IdMap(idArray, this.db);
+        if (this.req.query["names"] && this.req.query["names"].toString().toLowerCase() == "GW2") {
+            idMap = await Utils.getMemberIdMap(idArray, true);
         }
         else {
-            idMap = await Utils.getDiscordIdMap(idArray, this.db);
+            idMap = await Utils.getMemberIdMap(idArray);
         }
 
         const formattedDocument = document.log.map(log => {

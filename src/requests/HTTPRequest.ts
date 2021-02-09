@@ -19,11 +19,10 @@ export default abstract class HTTPRequest {
     protected timestamp: string;
     protected _client_id;
 
-    constructor(req: Request, res: Response, next: NextFunction, db: MongoDatabase) {
+    constructor(req: Request, res: Response, next: NextFunction) {
         this.req = req;
         this.res = res;
         this.next = next;
-        this.db = db;
         this.timestamp = Date.now().toString();
     }
 
