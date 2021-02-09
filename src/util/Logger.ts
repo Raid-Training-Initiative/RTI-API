@@ -36,7 +36,7 @@ export class Logger {
      * @param error The error to output in the log.
      */
     public static LogHTTPError(severity: Severity, requestTimestamp: string, error: HTTPException) {
-        Logger.LogRequest(severity, requestTimestamp, `Error: ${error.name} - ${error.message} | Status code: ${error.status}`);
+        Logger.LogRequest(severity, requestTimestamp, `${error.name} - ${error.message} | Status code: ${error.status}`);
     }
 
     /**
