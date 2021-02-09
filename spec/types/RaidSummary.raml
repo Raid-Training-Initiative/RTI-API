@@ -2,10 +2,6 @@
 description: Data type for a raid.
 
 properties:
-  id:
-    type: string
-    description: The internal ID of the raid as a 12-byte hexadecimal string.
-    example: "6013693f614b415d9c3c7e3d"
   name:
     type: string
     description: The name of the raid.
@@ -30,3 +26,11 @@ properties:
     type: string
     description: The name of the comp used for the raid.
     example: "Deimos"
+  publishedDate:
+    type: datetime-only
+    description: The date and time that the raid is scheduled to start. In the format yyyy-MM-ddTHH:mm:ss.
+    example: "2021-01-31T14:37:21"
+  id:
+    type: string
+    description: The internal ID of the raid as a 12-byte hexadecimal string.
+    example: "6013693f614b415d9c3c7e3d"
