@@ -80,11 +80,11 @@ export class ListRaids extends HTTPRequest {
                 return {
                     name: document.name,
                     status: document.status,
-                    startTime: document.startTime.toJSON().toString().replace(/\.\d+Z/, ""),
-                    endTime: document.endTime.toJSON().toString().replace(/\.\d+Z/, ""),
+                    startTime: document.startTime.toISOString().replace(/\.\d+Z/, ""),
+                    endTime: document.endTime.toISOString().replace(/\.\d+Z/, ""),
                     leader: idMap.get(document.leaderId),
                     comp: document.compositionName,
-                    publishedDate: document.publishedDate,
+                    publishedDate: document.publishedDate?.toISOString().replace(/\.\d+Z/, ""),
                     id: document._id
                 };
             });
@@ -191,10 +191,11 @@ export class GetRaid extends HTTPRequest {
             name: document.name,
             description: document.description,
             status: document.status,
-            startTime: document.startTime.toJSON().toString().replace(/\.\d+Z/, ""),
-            endTime: document.endTime.toJSON().toString().replace(/\.\d+Z/, ""),
+            startTime: document.startTime.toISOString().replace(/\.\d+Z/, ""),
+            endTime: document.endTime.toISOString().replace(/\.\d+Z/, ""),
             leader: leaderDiscordName,
             comp: document.compositionName,
+            publishedDate: document.publishedDate?.toISOString().replace(/\.\d+Z/, ""),
             channelId: document.channelId,
             participants: document.roles.map(role => {
                 return {
