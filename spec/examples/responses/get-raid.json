@@ -1,5 +1,4 @@
 {
-    "id": "6013693f614b415d9c3c7dfa",
     "name": "Wing 5 B123 Training",
     "description": "Training for the first 3 bosses of Hall of Chains!",
     "status": "Published",
@@ -45,5 +44,6 @@
             "members": [
             ]
         }
-    ]
+    ],
+    "id": "6013693f614b415d9c3c7dfa"
 }

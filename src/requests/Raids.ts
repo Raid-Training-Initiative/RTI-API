@@ -186,7 +186,6 @@ export class GetRaid extends HTTPRequest {
         const leaderDiscordName = (await Utils.getMemberIdMap([document.leaderId])).get(document.leaderId);
 
         const formattedDocument = {
-            id: document._id,
             name: document.name,
             description: document.description,
             status: document.status,
@@ -208,7 +207,8 @@ export class GetRaid extends HTTPRequest {
                     role: role.name,
                     members: role.reserves.map(reserve => idMap.get(reserve))
                 };
-            })
+            }),
+            id: document._id
         };
 
         Logger.LogRequest(Severity.Debug, this.timestamp, `Sending one raid in payload with ID ${this.req.params["id"]}`);
