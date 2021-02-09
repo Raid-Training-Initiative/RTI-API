@@ -79,11 +79,11 @@ export class ListRaids extends HTTPRequest {
                 return {
                     name: document.name,
                     status: document.status,
-                    startTime: document.startTime.toISOString().replace(/\.\d+Z/, ""),
-                    endTime: document.endTime.toISOString().replace(/\.\d+Z/, ""),
+                    startTime: Utils.formatDateString(document.startTime),
+                    endTime: Utils.formatDateString(document.endTime),
                     leader: idMap.get(document.leaderId),
                     comp: document.compositionName,
-                    publishedDate: document.publishedDate?.toISOString().replace(/\.\d+Z/, ""),
+                    publishedDate: Utils.formatDateString(document.publishedDate),
                     id: document._id
                 };
             });
@@ -190,8 +190,8 @@ export class GetRaid extends HTTPRequest {
             name: document.name,
             description: document.description,
             status: document.status,
-            startTime: document.startTime.toISOString().replace(/\.\d+Z/, ""),
-            endTime: document.endTime.toISOString().replace(/\.\d+Z/, ""),
+            startTime: Utils.formatDateString(document.startTime),
+            endTime: Utils.formatDateString(document.endTime),
             leader: leaderDiscordName,
             comp: document.compositionName,
             publishedDate: document.publishedDate?.toISOString().replace(/\.\d+Z/, ""),
@@ -236,7 +236,7 @@ export class GetRaidLog extends HTTPRequest {
 
         if (this.req.query["names"]) {
             const nameString: string = this.req.query["names"]?.toString().toLowerCase();
-            if (nameString != "DISCORD" && nameString != "GW2") {
+            if (nameString != "discord" && nameString != "gw2") {
                 throw new BadSyntaxException("Query parameter names must be either discord or gw2.");
             }
         }
@@ -266,7 +266,7 @@ export class GetRaidLog extends HTTPRequest {
 
         const formattedDocument = document.log.map(log => {
             return {
-                date: log.date,
+                date: Utils.formatDateString(log.date),
                 type: log.type,
                 data: {
                     user: idMap.get(log.data.user ? log.data.user : log.data),

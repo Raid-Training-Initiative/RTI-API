@@ -48,4 +48,8 @@ export default class Utils {
         
         return idMap;
     }
+
+    public static formatDateString(date: Date | undefined): string | undefined {
+        return date?.toISOString().replace(/\.\d+Z/, "");
+    }
 }
