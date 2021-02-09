@@ -3,6 +3,7 @@ title: RTI API
 types:
   RaidSummary: !include types/RaidSummary.raml
   Raid: !include types/Raid.raml
+  Log: !include types/Log.raml
   Comp: !include types/Comp.raml
   Category: !include types/Category.raml
 traits:
@@ -96,6 +97,31 @@ traits:
             application/json:
               description: Error response when the raid ID being requested is not found.
               example: !include examples/errors/resource-not-found.json
+    /log:
+      get:
+        description: Gets the event log of a raid.
+        is: ["requiresAuthentication"]
+        queryParameters:
+          names:
+            type: string
+            description: A case-insensitive string specifying what values the names should be.
+            enum: ["gw2", "discord"]
+        responses:
+          200:
+            body:
+              application/json:
+                description: A list of raid event logs.
+                type: Log[]
+          400:
+            body:
+              application/json:
+                description: Error response when syntax is invalid.
+                example: !include examples/errors/bad-syntax-bad-names.json
+          404:
+            body:
+              application/json:
+                description: Error response when the raid ID being requested is not found.
+                example: !include examples/errors/resource-not-found.json
 
 /comps:
   get:
