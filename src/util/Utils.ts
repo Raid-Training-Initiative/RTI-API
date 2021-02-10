@@ -24,11 +24,11 @@ export default class Utils {
      * @param returnGW2Names A boolean specifying whether to return GW2 names (true) or discord names (false).
      * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
-    public static async matchesNameIdMap(name: string, returnGW2Names?: boolean): Promise<Map<string, string>> {
+    public static async matchesNameIdMap(name: string, returnGW2Names?: boolean, fuzzyMatch?: boolean): Promise<Map<string, string>> {
         const idMap = new Map<string, string>();
-        const escapedName = escapeStringRegexp(name);
-        const strippedName = escapedName.replace(/[#.]\d{4}/gi, "");
-        const regex: RegExp = new RegExp(strippedName, "gi");
+        let escapedName = escapeStringRegexp(name);
+        if (fuzzyMatch) escapedName = escapedName.replace(/[#.]\d{4}/gi, "");
+        const regex: RegExp = new RegExp(escapedName, "gi");
         const documents: IMemberDocument[] = await DB.queryMembers({gw2Name: regex});
         documents.forEach(document => idMap.set(document.userId, returnGW2Names ? document.gw2Name : document.gw2Name));
 
