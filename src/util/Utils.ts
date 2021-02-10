@@ -44,11 +44,16 @@ export default class Utils {
         const idMap = new Map<string, string>();
         const categoriesRegex: RegExp[] = categories.map(category => new RegExp(category, "gi"));
         const documents: IRaidCompositionCategoryDocument[] = await DB.queryCategories({name: {$in: categoriesRegex}});
-        documents.forEach(document => idMap.set(document.name.toLowerCase(), document._id));
+        documents.forEach(document => idMap.set(document.name.toLowerCase(), document._id.toHexString()));
         
         return idMap;
     }
 
+    /**
+     * Takes a date and formats it to a consistent format (yyyy/MM/ddTHH:mm:ss).
+     * @param date The date to format.
+     * @returns The formatted date as a string.
+     */
     public static formatDateString(date: Date | undefined): string | undefined {
         return date?.toISOString().replace(/\.\d+Z/, "");
     }

@@ -84,7 +84,7 @@ export class ListRaids extends HTTPRequest {
                     leader: idMap.get(document.leaderId),
                     comp: document.compositionName,
                     publishedDate: Utils.formatDateString(document.publishedDate),
-                    id: document._id
+                    id: document._id.toHexString()
                 };
             });
             payload = JSON.stringify(formattedDocuments);
@@ -208,7 +208,7 @@ export class GetRaid extends HTTPRequest {
                     members: role.reserves.map(reserve => idMap.get(reserve))
                 };
             }),
-            id: document._id
+            id: document._id.toHexString()
         };
 
         Logger.LogRequest(Severity.Debug, this.timestamp, `Sending one raid in payload with ID ${this.req.params["id"]}`);
