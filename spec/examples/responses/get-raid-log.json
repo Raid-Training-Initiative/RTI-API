@@ -1,0 +1,27 @@
+[
+    {
+        "date": "2021-02-04T23:17:54",
+        "type": "Created",
+        "data": {
+            "user": "Trevor#1990"
+        }
+    },
+    {
+        "date": "2021-02-04T23:44:08",
+        "type": "Registered",
+        "data": {
+            "user": "Trevor#1990",
+            "roleName": "⬛ Boon Thief",
+            "isReserve": false
+        }
+    },
+    {
+        "date": "2021-02-04T23:48:17",
+        "type": "Registered",
+        "data": {
+            "user": "Jim T#6521",
+            "roleName": "🔴 DPS",
+            "isReserve": false
+        }
+    }
+]

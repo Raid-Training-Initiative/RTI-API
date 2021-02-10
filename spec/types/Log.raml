@@ -4,24 +4,27 @@ description: Data type for a raid event log.
 properties:
   date:
     type: datetime-only
-    description: The date and time that the raid is scheduled to finish. In the format yyyy-MM-ddTHH:mm:ss.
-    example: "DoubleChrono"
-  categories:
-    type: string[]
-    description: The name of the comp's category.
-    example: [
-      "Generic"
-    ]
-  roles:
-    type: array
-    description: A list of roles that this comp is comprised of.
-    items:
-      properties:
-        name:
-          type: string
-          description: The name of the role.
-          example: "🟣 Chrono"
-        requiredParticipants:
-          type: number
-          description: The max number of participants that can sign up to that role.
-          example: 2
+    description: The date and time that the action described by the log entry happened. In the format yyyy-MM-ddTHH:mm:ss.
+    example: "2021-02-04T23:17:54"
+  type:
+    type: string
+    description: The type of log entry that this is.
+    example: "Created"
+  data:
+    type: object
+    description: Additional data on the log.
+    properties:
+      user:
+        type: string
+        description: The user associated with this log entry.
+        example: "Johnny#8288"
+      roleName:
+        type: string
+        required: false
+        description: The role associated with this log entry
+        example: "🟡 BS"
+      isReserve:
+        type: boolean
+        required: false
+        description: Whether or not the role associated with this log entry is a reserve role or not.
+        example: true
