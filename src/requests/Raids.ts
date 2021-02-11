@@ -56,7 +56,6 @@ export class ListRaids extends HTTPRequest {
 
     /**
      * Returns the JSON (or CSV) string payload of a list of raids after making a GET /raids request.
-     * @throws {ResourceNotFoundException} When a comp specified in the comp query parameter does not exist.
      */
     public async send_response(paginated?: {page: number, pageSize: number}): Promise<void> {
         const documents = await DB.query_raids(await this.db_filter(), paginated);
@@ -122,8 +121,11 @@ export class ListRaids extends HTTPRequest {
             filters.push({ compositionName: regex });
         }
         if (this.req.query["leader"]) {
-            const idMap = await Utils.matches_name_id_map(this.req.query["leader"].toString());
-            filters.push({ leaderId: { $in: Array.from(idMap.keys()) }});
+            const document = await DB.query_member_by_name(this.req.query["leader"].toString());
+            if (document == undefined) {
+                throw new ResourceNotFoundException(this.req.query["leader"].toString());
+            }
+            filters.push({ leaderId: document.userId });
         }
         if (this.req.query["published"]) {
             const publishedString = this.req.query["published"].toString().toLowerCase();

@@ -99,9 +99,15 @@ export default class DB {
             .exec()) as IMemberDocument;
     }
 
-    public static async query_member_by_discord_name(discordName?: string): Promise<IMemberDocument> {
-        return (await this._instance.db.memberModel
-            .findOne({gw2Name: discordName})
-            .exec()) as IMemberDocument;
+    public static async query_member_by_name(name?: string, options?: {useGW2Name: boolean}): Promise<IMemberDocument> {
+        if (options?.useGW2Name) {
+            return (await this._instance.db.memberModel
+                .findOne({gw2Name: name})
+                .exec()) as IMemberDocument;
+        } else {
+            return (await this._instance.db.memberModel
+                .findOne({gw2Name: name})
+                .exec()) as IMemberDocument;
+        }
     }
 }

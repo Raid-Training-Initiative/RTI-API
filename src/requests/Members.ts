@@ -66,7 +66,7 @@ export class ListMembers extends HTTPRequest {
             filters.push({ userId: { $in: Array.from(idMap.keys()) }});
         }
         if (this.req.query["approver"]) {
-            const document = await DB.query_member_by_discord_name(this.req.query["approver"].toString());
+            const document = await DB.query_member_by_name(this.req.query["approver"].toString());
             if (document == undefined) {
                 throw new ResourceNotFoundException(this.req.query["approver"].toString());
             }
