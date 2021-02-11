@@ -99,6 +99,7 @@ export class ListRaids extends HTTPRequest {
 
     /**
      * Filters the documents according to the filters specified in the query parameters.
+     * @throws {ResourceNotFoundException} When the Discord name of the specified leader cannot be found in the database.
      * @returns A filter to pass into the database query.
      */
     private async db_filter(): Promise<Object> {
