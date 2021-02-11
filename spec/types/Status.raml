@@ -54,31 +54,27 @@ properties:
             type: string
             description: The short hash of the git commit at HEAD.
             example: e91afee
-      systemInfo:
-        type: object
-        description: Information on the system that the API is deployed on.
-        properties:
-          platform:
-            type: string
-            description: The OS of the system.
-            example: "win32"
-          type:
-            type: string
-            description: The type of the OS.
-            example: "Windows_NT"
-          hostname:
-            type: string
-            description: The name of the host machine.
-            example: "DESKTOP-UCPOGSM"
-          release:
-            type: string
-            description: The OS release version.
-            example: "10.0.19042"
-          memory:
-            type: number
-            description: The total amount of system memory in bytes.
-            example: 17092751360
-          cores:
-            type: number
-            description: The number of CPU cores.
-            example: 8
+  systemInfo:
+    type: object
+    description: Information on the system that the API is deployed on.
+    properties:
+      platform:
+        type: string
+        description: The OS of the system.
+        example: "win32"
+      type:
+        type: string
+        description: The type of the OS.
+        example: "Windows_NT"
+      release:
+        type: string
+        description: The OS release version.
+        example: "10.0.19042"
+      memory:
+        type: number
+        description: The total amount of system memory in bytes.
+        example: 17092751360
+      cores:
+        type: number
+        description: The number of CPU cores.
+        example: 8

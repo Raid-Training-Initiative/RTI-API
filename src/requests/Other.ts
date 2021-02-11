@@ -47,7 +47,6 @@ export class GetStatus extends HTTPRequest {
             systemInfo: {
                 platform: process.platform,
                 type: os.type(),
-                hostname: os.hostname(),
                 release: os.release(),
                 memory: os.totalmem(),
                 cores: os.cpus().length
