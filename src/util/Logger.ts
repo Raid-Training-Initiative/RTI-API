@@ -1,4 +1,4 @@
-import HTTPException from "../exceptions/HTTPException";
+import HTTPException from "../exceptions/base/HTTPException";
 
 export enum Severity {
     Debug = "Debug", // For fine-grained information that is useful to debug the API.

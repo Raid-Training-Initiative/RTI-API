@@ -1,6 +1,6 @@
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { NextFunction, Request, Response } from "express";
-import HTTPException from "../../exceptions/HTTPException";
+import HTTPException from "../../exceptions/base/HTTPException";
 import ServerErrorException from "../../exceptions/ServerErrorException";
 import InvalidQueryParametersException from "../../exceptions/InvalidQueryParametersException";
 import Auth from "../../util/Auth";
@@ -76,6 +76,10 @@ export default abstract class HTTPRequest {
         });
     }
 
+    /**
+     * Checks if the pagination query parameters entered into the request are valid or not. If they are, they are added as class variables.
+     * @throws {BadSyntaxException} When query parameters are invalid (one of them is missing or they're not valid positive numbers).
+     */
     private validate_pagination() {
         const page = this.req.query["page"]?.toString();
         const pageSize = this.req.query["pageSize"]?.toString();

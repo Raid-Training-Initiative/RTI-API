@@ -1,4 +1,4 @@
-import HTTPException from "./HTTPException";
+import HTTPException from "./base/HTTPException";
 
 export default class InvalidQueryParametersException extends HTTPException {
     constructor(queryParam: string) {

@@ -2,7 +2,7 @@ import "module-alias/register";
 import { IConfig } from "./util/Config";
 import express = require("express");
 import { Request, Response, NextFunction } from "express";
-import errorMiddleware from "./util/Error.middleware";
+import error_middleware from "./util/Error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
 import Auth from "./util/Auth";
 import { Logger, Severity } from "./util/Logger";
@@ -119,7 +119,7 @@ export class App {
             Logger.log(Severity.Info, `Server started at http://localhost:${port}`);
         });
 
-        server.use(errorMiddleware);
+        server.use(error_middleware);
     }
 }
 
