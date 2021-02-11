@@ -9,6 +9,7 @@ import { Logger, Severity } from "./util/Logger";
 import { GetComp, ListComps } from "./requests/Comps";
 import { GetCategory, ListCategories } from "./requests/Categories";
 import { GetRaid, ListRaids, GetRaidLog } from "./requests/Raids";
+import { GetMember, ListMembers } from "./requests/Members";
 import DB from "./util/DB";
 
 export class App {
@@ -35,72 +36,87 @@ export class App {
     public async run() { 
         const server = express();
         const port = 8080;
-        Logger.Log(Severity.Info, `Initialising API with DB ${this._config.db}`);
+        Logger.log(Severity.Info, `Initialising API with DB ${this._config.db}`);
 
         await DB.create(this._config);
         await Auth.create(this._config);
         
+        // =========### Raids ###=========
+        server.get("/raids", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /raids request initiated`);
+            const listRaids = new ListRaids(req, res, next);
+            await listRaids.run();
+            Logger.log(Severity.Info, `GET /raids request completed`);
+        });
+
+        server.get("/raids/:id", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /raids/:id request initiated`);
+            const getRaid = new GetRaid(req, res, next);
+            await getRaid.run();
+            Logger.log(Severity.Info, `GET /raids/:id request completed`);
+        });
+
+        server.get("/raids/:id/log", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /raids/:id/log request initiated`);
+            const getRaidLog = new GetRaidLog(req, res, next);
+            await getRaidLog.run();
+            Logger.log(Severity.Info, `GET /raids/:id/log request completed`);
+        });
+
+        // =========### Members ###=========
+        server.get("/members", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /members request initiated`);
+            const listMembers = new ListMembers(req, res, next);
+            await listMembers.run();
+            Logger.log(Severity.Info, `GET /members request completed`);
+        });
+
+        server.get("/members/:discordid", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /members/:discordid request initiated`);
+            const getMember = new GetMember(req, res, next);
+            await getMember.run();
+            Logger.log(Severity.Info, `GET /members/:discordid request completed`);
+        });
+
         // =========### Comps ###=========
         server.get("/comps", async (req: Request, res: Response, next: NextFunction) => {
-            Logger.Log(Severity.Info, `GET /comps request initiated`);
+            Logger.log(Severity.Info, `GET /comps request initiated`);
             const listComps = new ListComps(req, res, next);
             await listComps.run();
-            Logger.Log(Severity.Info, `GET /comps request completed`);
+            Logger.log(Severity.Info, `GET /comps request completed`);
         });
 
         server.get("/comps/:comp", async (req: Request, res: Response, next: NextFunction) => {
-            Logger.Log(Severity.Info, `GET /comps/:comp request initiated`);
+            Logger.log(Severity.Info, `GET /comps/:comp request initiated`);
             const getComp = new GetComp(req, res, next);
             await getComp.run();
-            Logger.Log(Severity.Info, `GET /comps/:comp request completed`);
+            Logger.log(Severity.Info, `GET /comps/:comp request completed`);
         });
 
         // =========### Categories ###=========
         server.get("/categories", async (req: Request, res: Response, next: NextFunction) => {
-            Logger.Log(Severity.Info, `GET /categories request initiated`);
+            Logger.log(Severity.Info, `GET /categories request initiated`);
             const listComps = new ListCategories(req, res, next);
             await listComps.run();
-            Logger.Log(Severity.Info, `GET /categories request completed`);
+            Logger.log(Severity.Info, `GET /categories request completed`);
         });
 
         server.get("/categories/:category", async (req: Request, res: Response, next: NextFunction) => {
-            Logger.Log(Severity.Info, `GET /categories/:category request initiated`);
+            Logger.log(Severity.Info, `GET /categories/:category request initiated`);
             const getComp = new GetCategory(req, res, next);
             await getComp.run();
-            Logger.Log(Severity.Info, `GET /categories/:category request completed`);
-        });
-
-        // =========### Raids ###=========
-        server.get("/raids", async (req: Request, res: Response, next: NextFunction) => {
-            Logger.Log(Severity.Info, `GET /raids request initiated`);
-            const listRaids = new ListRaids(req, res, next);
-            await listRaids.run();
-            Logger.Log(Severity.Info, `GET /raids request completed`);
-        });
-
-        server.get("/raids/:id", async (req: Request, res: Response, next: NextFunction) => {
-            Logger.Log(Severity.Info, `GET /raids/:id request initiated`);
-            const getRaid = new GetRaid(req, res, next);
-            await getRaid.run();
-            Logger.Log(Severity.Info, `GET /raids/:id request completed`);
-        });
-
-        server.get("/raids/:id/log", async (req: Request, res: Response, next: NextFunction) => {
-            Logger.Log(Severity.Info, `GET /raids/:id/log request initiated`);
-            const getRaidLog = new GetRaidLog(req, res, next);
-            await getRaidLog.run();
-            Logger.Log(Severity.Info, `GET /raids/:id/log request completed`);
+            Logger.log(Severity.Info, `GET /categories/:category request completed`);
         });
 
         // =========### Other ###=========
         server.get("*", async (req: Request, res: Response, next: NextFunction) => {
-            Logger.Log(Severity.Info, `Request made to nonexistent resource`);
+            Logger.log(Severity.Info, `Request made to nonexistent resource`);
             next(new ResourceNotFoundException(req.url))
         });
 
         // Start the Express server.
         server.listen(port, () => {
-            Logger.Log(Severity.Info, `Server started at http://localhost:${port}`);
+            Logger.log(Severity.Info, `Server started at http://localhost:${port}`);
         });
 
         server.use(errorMiddleware);
@@ -117,10 +133,10 @@ function load_configuration(): IConfig | null {
         config = process.env.CONFIG;
     }
     if (!config) {
-        Logger.Log(Severity.Error, "No configuration specified");
+        Logger.log(Severity.Error, "No configuration specified");
         return null;
     }
-    Logger.Log(Severity.Info, `Using config '${config}'.`);
+    Logger.log(Severity.Info, `Using config '${config}'.`);
 
     let confFile: string;
     switch (config) {
@@ -131,14 +147,14 @@ function load_configuration(): IConfig | null {
             confFile = "../../ConfigDebug.json";
             break;
         default:
-            Logger.Log(Severity.Error, "Invalid configuration name");
+            Logger.log(Severity.Error, "Invalid configuration name");
             return null;
     }
 
     return require(confFile);
 }
 
-process.on("uncaughtException", (error) => Logger.LogError(Severity.Error, error));
+process.on("uncaughtException", (error) => Logger.log_error(Severity.Error, error));
 const conf = load_configuration();
 if (conf) {
     App.initiate(conf);

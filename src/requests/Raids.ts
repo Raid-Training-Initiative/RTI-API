@@ -5,7 +5,7 @@
 import { NextFunction, Request, Response } from "express";
 import { Logger, Severity } from "../util/Logger";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
-import HTTPRequest from "./HTTPRequest";
+import HTTPRequest from "./base/HTTPRequest";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import Utils from "../util/Utils";
 import escapeStringRegexp = require("escape-string-regexp");
@@ -18,11 +18,13 @@ export class ListRaids extends HTTPRequest {
         "comp",
         "leader",
         "published",
-        "format"
+        "format",
+        "page",
+        "pageSize"
     ];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next);
+        super(req, res, next, {authenticated: true, paginated: true});
     }
 
     /**
@@ -56,13 +58,13 @@ export class ListRaids extends HTTPRequest {
      * Returns the JSON (or CSV) string payload of a list of raids after making a GET /raids request.
      * @throws {ResourceNotFoundException} When a comp specified in the comp query parameter does not exist.
      */
-    public async send_response(): Promise<void> {
-        const documents = await DB.queryRaids(await this.db_filter());
+    public async send_response(paginated?: {page: number, pageSize: number}): Promise<void> {
+        const documents = await DB.query_raids(await this.db_filter(), paginated);
 
         // Resolve the IDs to names.
         const idArray = new Array<string>();
         documents.forEach(document => idArray.push(document.leaderId));
-        const idMap: Map<string, string> = await Utils.getMemberIdMap(idArray);
+        const idMap: Map<string, string> = await Utils.get_member_id_map(idArray);
         
         let payload: string = "";
         let formattedDocuments: Object[];
@@ -79,24 +81,19 @@ export class ListRaids extends HTTPRequest {
                 return {
                     name: document.name,
                     status: document.status,
-                    startTime: Utils.formatDateString(document.startTime),
-                    endTime: Utils.formatDateString(document.endTime),
+                    startTime: Utils.format_date_string(document.startTime),
+                    endTime: Utils.format_date_string(document.endTime),
                     leader: idMap.get(document.leaderId),
                     comp: document.compositionName,
-                    publishedDate: Utils.formatDateString(document.publishedDate),
+                    publishedDate: Utils.format_date_string(document.publishedDate),
                     id: document._id.toHexString()
                 };
             });
             payload = JSON.stringify(formattedDocuments);
         }
         
-        let filterString: string = "";
-        this.validRequestQueryParameters.forEach(queryParam => {
-            if (this.req.query[queryParam]) {
-                filterString += `${queryParam}: ${this.req.query[queryParam]} | `;
-            }
-        });
-        Logger.LogRequest(Severity.Debug, this.timestamp, `Sending ${formattedDocuments.length} raids in payload with ${filterString.length > 0 ? "filter - " + filterString : "no filter"}`);
+        const filterString: string = Utils.generate_filter_string(this.validRequestQueryParameters, this.req);
+        Logger.log_request(Severity.Debug, this.timestamp, `Sending ${formattedDocuments.length} raids in payload with ${filterString.length > 0 ? "filter - " + filterString : "no filter"}`);
         this.res.set("Content-Type", `application/${this.req.query["format"] ? this.req.query["format"].toString().toLowerCase() : "json"}`); // Set to application/csv if specified.
         this.res.send(payload);
     }
@@ -114,9 +111,10 @@ export class ListRaids extends HTTPRequest {
         }
         if (this.req.query["name"]) {
             const regex: RegExp = /[-!$%^&*()_+|~=`{}[\]:";'<>?,./\s]+/gi;
-            const escapedName: string = escapeStringRegexp(this.req.query["name"].toString());
-            const strippedName: string = escapedName.replace(regex, "").toLowerCase();
-            filters.push({ $where: `this.name.replace(/${regex.source}/gi, '').toLowerCase().includes('${strippedName}')` });
+            const strippedName: string = this.req.query["name"].toString().replace(regex, "").toLowerCase();
+            const escapedName: string = escapeStringRegexp(strippedName);
+            
+            filters.push({ $where: `this.name.replace(/${regex.source}/gi, '').toLowerCase().includes('${escapedName}')` });
         }
         if (this.req.query["comp"]) {
             const escapedComp: string = escapeStringRegexp(this.req.query["comp"].toString());
@@ -124,7 +122,7 @@ export class ListRaids extends HTTPRequest {
             filters.push({ compositionName: regex });
         }
         if (this.req.query["leader"]) {
-            const idMap = await Utils.matchesNameIdMap(this.req.query["leader"].toString());
+            const idMap = await Utils.matches_name_id_map(this.req.query["leader"].toString());
             filters.push({ leaderId: { $in: Array.from(idMap.keys()) }});
         }
         if (this.req.query["published"]) {
@@ -165,7 +163,7 @@ export class GetRaid extends HTTPRequest {
      * @throws {ResourceNotFoundException} When the raid cannot be found.
      */
     public async send_response() {
-        const document = await DB.queryRaid(this.req.params["id"]);
+        const document = await DB.query_raid(this.req.params["id"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["id"])
         }
@@ -178,22 +176,22 @@ export class GetRaid extends HTTPRequest {
         });
         let idMap: Map<string, string> = new Map<string, string>();
         if (this.req.query["names"] && this.req.query["names"].toString().toLowerCase() == "GW2") {
-            idMap = await Utils.getMemberIdMap(idArray, true);
+            idMap = await Utils.get_member_id_map(idArray, { returnGW2Names: true });
         }
         else {
-            idMap = await Utils.getMemberIdMap(idArray);
+            idMap = await Utils.get_member_id_map(idArray);
         }
-        const leaderDiscordName = (await Utils.getMemberIdMap([document.leaderId])).get(document.leaderId);
+        const leaderDiscordName = (await Utils.get_member_id_map([document.leaderId])).get(document.leaderId);
 
         const formattedDocument = {
             name: document.name,
             description: document.description,
             status: document.status,
-            startTime: Utils.formatDateString(document.startTime),
-            endTime: Utils.formatDateString(document.endTime),
+            startTime: Utils.format_date_string(document.startTime),
+            endTime: Utils.format_date_string(document.endTime),
             leader: leaderDiscordName,
             comp: document.compositionName,
-            publishedDate: Utils.formatDateString(document.publishedDate),
+            publishedDate: Utils.format_date_string(document.publishedDate),
             channelId: document.channelId,
             participants: document.roles.map(role => {
                 return {
@@ -211,7 +209,7 @@ export class GetRaid extends HTTPRequest {
             id: document._id.toHexString()
         };
 
-        Logger.LogRequest(Severity.Debug, this.timestamp, `Sending one raid in payload with ID ${this.req.params["id"]}`);
+        Logger.log_request(Severity.Debug, this.timestamp, `Sending one raid in payload with ID ${this.req.params["id"]}`);
         const payload = JSON.stringify(formattedDocument);
         this.res.set("Content-Type", "application/json");
         this.res.send(payload);
@@ -246,7 +244,7 @@ export class GetRaidLog extends HTTPRequest {
      * Returns the JSON string payload of a raid log after making a GET /raids/:id.log request.
      */
     public async send_response() {
-        const document = await DB.queryRaid(this.req.params["id"]);
+        const document = await DB.query_raid(this.req.params["id"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["id"])
         }
@@ -258,15 +256,15 @@ export class GetRaidLog extends HTTPRequest {
         });
         let idMap: Map<string, string> = new Map<string, string>();
         if (this.req.query["names"] && this.req.query["names"].toString().toLowerCase() == "GW2") {
-            idMap = await Utils.getMemberIdMap(idArray, true);
+            idMap = await Utils.get_member_id_map(idArray, { returnGW2Names: true });
         }
         else {
-            idMap = await Utils.getMemberIdMap(idArray);
+            idMap = await Utils.get_member_id_map(idArray);
         }
 
         const formattedDocument = document.log.map(log => {
             return {
-                date: Utils.formatDateString(log.date),
+                date: Utils.format_date_string(log.date),
                 type: log.type,
                 data: {
                     user: idMap.get(log.data.user ? log.data.user : log.data),
@@ -276,7 +274,7 @@ export class GetRaidLog extends HTTPRequest {
             }
         });
 
-        Logger.LogRequest(Severity.Debug, this.timestamp, `Sending one raid in payload with ID ${this.req.params["id"]}`);
+        Logger.log_request(Severity.Debug, this.timestamp, `Sending one raid in payload with ID ${this.req.params["id"]}`);
         const payload = JSON.stringify(formattedDocument);
         this.res.set("Content-Type", "application/json");
         this.res.send(payload);

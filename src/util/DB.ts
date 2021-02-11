@@ -31,47 +31,77 @@ export default class DB {
         }
     }
 
-    public static async queryComps(filter?: Object): Promise<IRaidCompositionPopulatedDocument[]> {
+    public static async query_comps(filter?: Object): Promise<IRaidCompositionPopulatedDocument[]> {
         return (await this._instance.db.raidCompositionModel
             .find(filter ? filter: {})
             .populate("categories")
             .exec()) as IRaidCompositionPopulatedDocument[];
     }
 
-    public static async queryComp(compName: string): Promise<IRaidCompositionPopulatedDocument> {
+    public static async query_comp(compName: string): Promise<IRaidCompositionPopulatedDocument> {
         return (await this._instance.db.raidCompositionModel
             .findOne({name: compName})
             .populate("categories")
             .exec()) as IRaidCompositionPopulatedDocument;
     }
 
-    public static async queryCategories(filter?: Object): Promise<IRaidCompositionCategoryDocument[]> {
+    public static async query_categories(filter?: Object): Promise<IRaidCompositionCategoryDocument[]> {
         return (await this._instance.db.raidCompositionCategoryModel
             .find(filter ? filter : {})
             .exec()) as IRaidCompositionCategoryDocument[];
     }
 
-    public static async queryCategory(categoryName: string): Promise<IRaidCompositionCategoryDocument> {
+    public static async query_category(categoryName: string): Promise<IRaidCompositionCategoryDocument> {
         return (await this._instance.db.raidCompositionCategoryModel
             .findOne({name: categoryName})
             .exec()) as IRaidCompositionCategoryDocument;
     }
 
-    public static async queryRaids(filter?: Object): Promise<IRaidEventDocument[]> {
-        return (await this._instance.db.raidEventModel
-            .find(filter ? filter : {})
-            .exec()) as IRaidEventDocument[];
+    public static async query_raids(filter?: Object, pagination?: {page: number, pageSize: number}): Promise<IRaidEventDocument[]> {
+        if (pagination) {
+            return (await this._instance.db.raidEventModel
+                .find(filter ? filter : {})
+                .sort({startTime: -1, _id: 1})
+                .skip(pagination.pageSize * (pagination.page - 1))
+                .limit(pagination.pageSize)
+                .exec()) as IRaidEventDocument[];
+        } else {
+            return (await this._instance.db.raidEventModel
+                .find(filter ? filter : {})
+                .sort({startTime: -1, _id: 1})
+                .exec()) as IRaidEventDocument[];
+        }
     }
 
-    public static async queryRaid(raidId: string): Promise<IRaidEventDocument> {
+    public static async query_raid(raidId: string): Promise<IRaidEventDocument> {
         return (await this._instance.db.raidEventModel
             .findOne({_id: raidId})
             .exec()) as IRaidEventDocument;
     }
 
-    public static async queryMembers(filter?: Object): Promise<IMemberDocument[]> {
+    public static async query_members(filter?: Object, pagination?: {page: number, pageSize: number}): Promise<IMemberDocument[]> {
+        if (pagination) {
+            return (await this._instance.db.memberModel
+                .find(filter ? filter : {})
+                .skip(pagination.pageSize * (pagination.page - 1))
+                .limit(pagination.pageSize)
+                .exec()) as IMemberDocument[];
+        } else {
+            return (await this._instance.db.memberModel
+                .find(filter ? filter : {})
+                .exec()) as IMemberDocument[];
+        }
+    }
+
+    public static async query_member_by_id(discordId?: string): Promise<IMemberDocument> {
         return (await this._instance.db.memberModel
-            .find(filter ? filter : {})
-            .exec()) as IMemberDocument[];
+            .findOne({userId: discordId})
+            .exec()) as IMemberDocument;
+    }
+
+    public static async query_member_by_discord_name(discordName?: string): Promise<IMemberDocument> {
+        return (await this._instance.db.memberModel
+            .findOne({gw2Name: discordName})
+            .exec()) as IMemberDocument;
     }
 }

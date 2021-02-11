@@ -1,6 +1,7 @@
 import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
 import escapeStringRegexp = require("escape-string-regexp");
+import { Request } from "express";
 import DB from "./DB";
 
 export default class Utils {
@@ -10,10 +11,10 @@ export default class Utils {
      * @param returnGW2Names A boolean specifying whether to return GW2 names (true) or discord names (false).
      * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
-    public static async getMemberIdMap(ids: string[], returnGW2Names?: boolean): Promise<Map<string, string>> {
+    public static async get_member_id_map(ids: string[], options?: {returnGW2Names: boolean}): Promise<Map<string, string>> {
         const idMap = new Map<string, string>();
-        const documents: IMemberDocument[] = await DB.queryMembers({userId: {$in: ids}});
-        documents.forEach(document => idMap.set(document.userId, returnGW2Names ? document.gw2Name : document.gw2Name));
+        const documents: IMemberDocument[] = await DB.query_members({userId: {$in: ids}});
+        documents.forEach(document => idMap.set(document.userId, options?. returnGW2Names ? document.gw2Name : document.gw2Name));
 
         return idMap;
     }
@@ -24,13 +25,12 @@ export default class Utils {
      * @param returnGW2Names A boolean specifying whether to return GW2 names (true) or discord names (false).
      * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
-    public static async matchesNameIdMap(name: string, returnGW2Names?: boolean, fuzzyMatch?: boolean): Promise<Map<string, string>> {
+    public static async matches_name_id_map(name: string, options?: {returnGW2Names: boolean}): Promise<Map<string, string>> {
         const idMap = new Map<string, string>();
-        let escapedName = escapeStringRegexp(name);
-        if (fuzzyMatch) escapedName = escapedName.replace(/[#.]\d{4}/gi, "");
-        const regex: RegExp = new RegExp(escapedName, "gi");
-        const documents: IMemberDocument[] = await DB.queryMembers({gw2Name: regex});
-        documents.forEach(document => idMap.set(document.userId, returnGW2Names ? document.gw2Name : document.gw2Name));
+        name = escapeStringRegexp(name);
+        const regex: RegExp = new RegExp(name, "gi");
+        const documents: IMemberDocument[] = await DB.query_members({gw2Name: regex});
+        documents.forEach(document => idMap.set(document.userId, options?.returnGW2Names ? document.gw2Name : document.gw2Name));
 
         return idMap;
     }
@@ -40,10 +40,10 @@ export default class Utils {
      * @param categories A list of strings representing the categories to get the database IDs of.
      * @returns A map with the keys being the lowercased category names and the values being the database IDs.
      */
-    public static async getCategoryIdsMapFromCategories(categories: string[]): Promise<Map<string, string>> {
+    public static async get_category_ids_map_from_categories(categories: string[]): Promise<Map<string, string>> {
         const idMap = new Map<string, string>();
         const categoriesRegex: RegExp[] = categories.map(category => new RegExp(category, "gi"));
-        const documents: IRaidCompositionCategoryDocument[] = await DB.queryCategories({name: {$in: categoriesRegex}});
+        const documents: IRaidCompositionCategoryDocument[] = await DB.query_categories({name: {$in: categoriesRegex}});
         documents.forEach(document => idMap.set(document.name.toLowerCase(), document._id.toHexString()));
         
         return idMap;
@@ -54,7 +54,24 @@ export default class Utils {
      * @param date The date to format.
      * @returns The formatted date as a string.
      */
-    public static formatDateString(date: Date | undefined): string | undefined {
+    public static format_date_string(date: Date | undefined): string | undefined {
         return date?.toISOString().replace(/\.\d+Z/, "");
+    }
+
+    /**
+     * Generates a string to use for a log specifying what filters were used.
+     * @param validRequestQueryParameters A list of query parameter names to cycle through for the filter string/
+     * @param req The request being made.
+     * @returns A string to use to output to a log.
+     */
+    public static generate_filter_string(validRequestQueryParameters: string[], req: Request): string {
+        let filterString: string = "";
+        validRequestQueryParameters.forEach(queryParam => {
+            if (req.query[queryParam]) {
+                filterString += `${queryParam}: ${req.query[queryParam]} | `;
+            }
+        });
+
+        return filterString;
     }
 }
