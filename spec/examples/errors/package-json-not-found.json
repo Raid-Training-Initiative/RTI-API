@@ -1,0 +1,5 @@
+{
+    "status": 500,
+    "name": "ServerError",
+    "message": "Internal error: Error loading package.json"
+}

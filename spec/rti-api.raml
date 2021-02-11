@@ -7,6 +7,7 @@ types:
   Log: !include types/Log.raml
   Comp: !include types/Comp.raml
   Category: !include types/Category.raml
+  Status: !include types/Status.raml
 traits:
   requiresAuthentication:
     headers:
@@ -265,3 +266,24 @@ traits:
             application/json:
               description: Error response when the requested category could not be found.
               example: !include examples/errors/resource-not-found.json
+
+/status:
+  get:
+    description: Returns an object providing details on the API.
+    responses:
+      200:
+        body:
+          application/json:
+            description: A status object.
+            type: Status
+            example: !include examples/responses/get-status.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json
+      500:
+        body:
+          application/json:
+            description: Error response when package.json file could not be found.
+            example: !include examples/errors/package-json-not-found.json

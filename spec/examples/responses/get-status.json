@@ -1,0 +1,26 @@
+{
+    "timestamp": 1613078128784,
+    "processInfo": {
+        "uptime": 150.2199066,
+        "pid": 23040,
+        "title": "node",
+        "environment": "Debug"
+    },
+    "apiInfo": {
+        "apiName": "rti-api",
+        "apiVersion": "1.0.0",
+        "guildId": "705796529293623417",
+        "gitVersionInfo": {
+            "branch": "master",
+            "commitId": "e91afee"
+        }
+    },
+    "systemInfo": {
+        "platform": "win32",
+        "type": "Windows_NT",
+        "hostname": "DESKTOP-UCPOGSM",
+        "release": "10.0.19042",
+        "memory": 17092751360,
+        "cores": 8
+    }
+}

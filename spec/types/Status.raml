@@ -1,0 +1,84 @@
+#%RAML 1.0 DataType
+description: Data type for a status object.
+
+properties:
+  timestamp:
+    type: number
+    description: The current timestamp.
+    example: 1613078128784
+  processInfo:
+    type: object
+    description: Information on the node process.
+    properties:
+      uptime:
+        type: number
+        description: How many seconds the process has been going for.
+        example: 150.2199066
+      pid:
+        type: number
+        description: The process ID.
+        example: 23040
+      title:
+        type: string
+        description: The name/path of the process.
+        example: "node"
+      environment:
+        type: string
+        description: The environment that the API is being run in.
+        example: "Debug"
+  apiInfo:
+    type: object
+    description: Information on the API.
+    properties:
+      apiName:
+        type: string
+        description: The name of the API.
+        example: "rti-api"
+      apiVersion:
+        type: string
+        description: The version of the API.
+        example: "1.0.0"
+      guildId:
+        type: string
+        description: The guild ID of the Discord server that the database pertains to.
+        example: "705796529293623417"
+      gitVersionInfo:
+        type: object
+        description: Version and status of the git repository.
+        properties:
+          branch:
+            type: string
+            description: The name of the git branch that the deployed API is on.
+            example: "master"
+          commitId:
+            type: string
+            description: The short hash of the git commit at HEAD.
+            example: e91afee
+      systemInfo:
+        type: object
+        description: Information on the system that the API is deployed on.
+        properties:
+          platform:
+            type: string
+            description: The OS of the system.
+            example: "win32"
+          type:
+            type: string
+            description: The type of the OS.
+            example: "Windows_NT"
+          hostname:
+            type: string
+            description: The name of the host machine.
+            example: "DESKTOP-UCPOGSM"
+          release:
+            type: string
+            description: The OS release version.
+            example: "10.0.19042"
+          memory:
+            type: number
+            description: The total amount of system memory in bytes.
+            example: 17092751360
+          cores:
+            type: number
+            description: The number of CPU cores.
+            example: 8
