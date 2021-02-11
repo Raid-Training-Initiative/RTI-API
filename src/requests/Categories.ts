@@ -46,8 +46,9 @@ export class GetCategory extends HTTPRequest {
             throw new ResourceNotFoundException(this.req.params["category"]);
         }
 
-        let formattedDocument = {};
-        formattedDocument = { name: document.name };
+        const formattedDocument = {
+            name: document.name
+        };
         
         Logger.log_request(Severity.Debug, this.timestamp, `Sending one category in payload with name ${this.req.params["category"]}`);
         const payload = JSON.stringify(formattedDocument);

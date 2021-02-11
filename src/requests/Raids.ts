@@ -260,8 +260,7 @@ export class GetRaidLog extends HTTPRequest {
         let idMap: Map<string, string> = new Map<string, string>();
         if (this.req.query["names"] && this.req.query["names"].toString().toLowerCase() == "GW2") {
             idMap = await Utils.get_member_id_map(idArray, { returnGW2Names: true });
-        }
-        else {
+        } else {
             idMap = await Utils.get_member_id_map(idArray);
         }
 

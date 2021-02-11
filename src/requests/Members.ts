@@ -95,8 +95,7 @@ export class GetMember extends HTTPRequest {
         }
         const approverDiscordName = (await Utils.get_member_id_map([document.approverId])).get(document.approverId);
 
-        let formattedDocument = {};
-        formattedDocument = {
+        const formattedDocument = {
             gw2Name: document.gw2Name,
             discordName: document.gw2Name,
             approver: approverDiscordName,

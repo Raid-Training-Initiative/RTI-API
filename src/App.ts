@@ -10,6 +10,7 @@ import { GetComp, ListComps } from "./requests/Comps";
 import { GetCategory, ListCategories } from "./requests/Categories";
 import { GetRaid, ListRaids, GetRaidLog } from "./requests/Raids";
 import { GetMember, ListMembers } from "./requests/Members";
+import { GetStatus } from "./requests/Other";
 import DB from "./util/DB";
 
 export class App {
@@ -109,6 +110,14 @@ export class App {
         });
 
         // =========### Other ###=========
+        server.get("/status", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /status request initiated`);
+            const getStatus = new GetStatus(req, res, next, this._config);
+            await getStatus.run();
+            Logger.log(Severity.Info, `GET /status request completed`);
+        });
+
+
         server.get("*", async (req: Request, res: Response, next: NextFunction) => {
             Logger.log(Severity.Info, `Request made to nonexistent resource`);
             next(new ResourceNotFoundException(req.url))

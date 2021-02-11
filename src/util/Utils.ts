@@ -1,5 +1,6 @@
 import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
+import { execSync } from "child_process";
 import escapeStringRegexp = require("escape-string-regexp");
 import { Request } from "express";
 import DB from "./DB";
@@ -73,5 +74,14 @@ export default class Utils {
         });
 
         return filterString;
+    }
+
+    public static get_commit_info(): object {
+        const branchNameCommand = "git rev-parse --abbrev-ref HEAD";
+        const commitHashCommand = "git rev-parse HEAD";
+        return {
+            branch: execSync(branchNameCommand).toString().trim(),
+            commitId: execSync(commitHashCommand).toString().substring(0, 7)
+        }
     }
 }

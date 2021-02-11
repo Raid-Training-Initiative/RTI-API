@@ -82,8 +82,7 @@ export class GetComp extends HTTPRequest {
             throw new ResourceNotFoundException(this.req.params["comp"]);
         }
 
-        let formattedDocument = {};
-        formattedDocument = {
+        const formattedDocument = {
             name: document.name,
             categories: document.categories.map(category => {
                 return category.name

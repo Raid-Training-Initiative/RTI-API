@@ -111,12 +111,12 @@ export default abstract class HTTPRequest {
      * Executes the request and handles errors.
      */
     public async run() {
-        try {
+        try
+        {
             Logger.log_request(Severity.Debug, this.timestamp, `Request: ${this.req.method} ${this.req.url}`);
             await this.validate_request();
             this.pagination ? await this.send_response(this.pagination) : await this.send_response();
-        }
-        catch (exception) {
+        } catch (exception) {
             if (exception instanceof HTTPException) {
                 Logger.log_http_error(Severity.Warn, this.timestamp, exception);
                 this.next(exception);
