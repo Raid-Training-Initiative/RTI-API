@@ -8,7 +8,7 @@ export default class Utils {
     /**
      * Maps discord IDs to GW2 names.
      * @param ids A string array of discord IDs.
-     * @param returnGW2Names A boolean specifying whether to return GW2 names (true) or discord names (false).
+     * @param options An object containing a boolean specifying whether to return GW2 names (true) or discord names (false).
      * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
     public static async get_member_id_map(ids: string[], options?: {returnGW2Names: boolean}): Promise<Map<string, string>> {
@@ -20,9 +20,9 @@ export default class Utils {
     }
 
     /**
-     * Returns a map for all members matching the passed name.
+     * Returns a map of IDs for all members matching the passed name.
      * @param name The discord name to query the database with.
-     * @param returnGW2Names A boolean specifying whether to return GW2 names (true) or discord names (false).
+     * @param options An object containing a boolean specifying whether to return GW2 names (true) or discord names (false).
      * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
     public static async matches_name_id_map(name: string, options?: {returnGW2Names: boolean}): Promise<Map<string, string>> {
