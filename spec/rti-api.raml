@@ -3,6 +3,7 @@ title: RTI API
 types:
   RaidSummary: !include types/RaidSummary.raml
   Raid: !include types/Raid.raml
+  Member: !include types/Member.raml
   Log: !include types/Log.raml
   Comp: !include types/Comp.raml
   Category: !include types/Category.raml
@@ -20,11 +21,21 @@ traits:
           application/json:
             description: Error response when authentication failed.
             example: !include examples/errors/unauthorized.json
+  supportsPagination:
+    queryParameters:
+      page:
+        type: number
+        description: A number greater than 0 indicating what page of results to return.
+        example: 4
+      pageSize:
+        type: number
+        description: A number greater than 0 indicating how many results to return per page.
+        example: 20
 
 /raids:
   get:
     description: Gets a list of the saved raids. Each raid is summarised and certain fields are left out for a cleaner view.
-    is: ["requiresAuthentication"]
+    is: ["requiresAuthentication", "supportsPagination"]
     queryParameters:
       status:
         type: string
@@ -66,11 +77,6 @@ traits:
           application/json:
             description: Error response when syntax is invalid.
             example: !include examples/errors/bad-syntax-bad-status.json
-      404:
-        body:
-          application/json:
-            description: Error response when the comp name in the query parameter does not exist.
-            example: !include examples/errors/resource-not-found.json
   /{id}:
     get:
       description: Gets a single raid.
@@ -123,6 +129,62 @@ traits:
                 description: Error response when the raid ID being requested is not found.
                 example: !include examples/errors/resource-not-found.json
 
+/members:
+  get:
+    description: Gets a list of the saved members.
+    is: ["requiresAuthentication", "supportsPagination"]
+    queryParameters:
+      gw2Name:
+        type: string
+        description: Filter by gw2Name of the member (can be incomplete).
+        example: John.5231
+      discordName:
+        type: string
+        description: Filter by discordName of the member (can be incomplete).
+        example: John#1529
+      approver:
+        type: string
+        description: Filter by the discordName of the approver of the member.
+        example: Tim#6391
+    responses:
+      200:
+        body:
+          application/json:
+            description: A list of members.
+            type: Member[]
+            example: !include examples/responses/list-members.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json
+      404:
+        body:
+          application/json:
+            description: Error response when the approver in the query parameter does not exist.
+            example: !include examples/errors/resource-not-found.json
+  /{discordid}:
+    get:
+      description: Gets a single member by their userId.
+      is: ["requiresAuthentication"]
+      responses:
+        200:
+          body:
+            application/json:
+              description: A member.
+              type: Member
+              example: !include examples/responses/get-member.json
+        400:
+          body:
+            application/json:
+              description: Error response when syntax is invalid.
+              example: !include examples/errors/invalid-query-parameters.json
+        404:
+          body:
+            application/json:
+              description: Error response when the member's userId does not exist.
+              example: !include examples/errors/resource-not-found.json
+
 /comps:
   get:
     description: Gets a list of the saved raid squad compositions.
@@ -146,7 +208,7 @@ traits:
             example: !include examples/errors/invalid-query-parameters.json
   /{comp}:
     get:
-      description: Gets a single raid squad composition.
+      description: Gets a single raid squad composition by name.
       is: ["requiresAuthentication"]
       responses:
         200:
@@ -184,7 +246,7 @@ traits:
             example: !include examples/errors/invalid-query-parameters.json
   /{category}:
     get:
-      description: Gets a single raid squad composition category.
+      description: Gets a single raid squad composition category by name.
       is: ["requiresAuthentication"]
       responses:
         200:
