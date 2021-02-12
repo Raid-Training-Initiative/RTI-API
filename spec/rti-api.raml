@@ -32,11 +32,18 @@ traits:
         type: number
         description: A number greater than 0 indicating how many results to return per page.
         example: 20
+  multiFormat:
+    queryParameters:
+      format:
+        type: string
+        description: A case-insensitive string to define whether to return a JSON or CSV response.
+        enum: ["csv", "json"]
+
 
 /raids:
   get:
     description: Gets a list of the saved raids. Each raid is summarised and certain fields are left out for a cleaner view.
-    is: ["requiresAuthentication", "supportsPagination"]
+    is: ["requiresAuthentication", "supportsPagination", "multiFormat"]
     queryParameters:
       status:
         type: string
@@ -58,21 +65,16 @@ traits:
         type: boolean
         description: A boolean indicating whether or not to only output published raids.
         example: true
-      format:
-        type: string
-        description: A case-insensitive string to define whether to return a JSON or CSV response.
-        enum: ["csv", "json"]
-
     responses:
       200:
         body:
           application/json:
             description: A list of raids in JSON format.
             type: RaidSummary[]
-            example: !include examples/responses/list-raids.json
+            example: !include examples/responses/json/list-raids.json
           application/csv:
             description: A list of raids in CSV format.
-            example: !include examples/responses/list-raids.csv
+            example: !include examples/responses/csv/list-raids.csv
       400:
         body:
           application/json:
@@ -93,7 +95,7 @@ traits:
             application/json:
               description: A raid.
               type: Raid
-              example: !include examples/responses/get-raid.json
+              example: !include examples/responses/json/get-raid.json
         400:
           body:
             application/json:
@@ -133,7 +135,7 @@ traits:
 /members:
   get:
     description: Gets a list of the saved members.
-    is: ["requiresAuthentication", "supportsPagination"]
+    is: ["requiresAuthentication", "supportsPagination", "multiFormat"]
     queryParameters:
       gw2Name:
         type: string
@@ -151,9 +153,12 @@ traits:
       200:
         body:
           application/json:
-            description: A list of members.
+            description: A list of members in JSON format.
             type: Member[]
-            example: !include examples/responses/list-members.json
+            example: !include examples/responses/json/list-members.json
+          application/csv:
+            description: A list of members in CSV format.
+            example: !include examples/responses/csv/list-members.csv
       400:
         body:
           application/json:
@@ -174,7 +179,7 @@ traits:
             application/json:
               description: A member.
               type: Member
-              example: !include examples/responses/get-member.json
+              example: !include examples/responses/json/get-member.json
         400:
           body:
             application/json:
@@ -201,7 +206,7 @@ traits:
           application/json:
             description: A list of compositions.
             type: Comp[]
-            example: !include examples/responses/list-comps.json
+            example: !include examples/responses/json/list-comps.json
       400:
         body:
           application/json:
@@ -217,7 +222,7 @@ traits:
             application/json:
               description: A composition.
               type: Comp
-              example: !include examples/responses/get-comp.json
+              example: !include examples/responses/json/get-comp.json
         400:
           body:
             application/json:
@@ -239,7 +244,7 @@ traits:
           application/json:
             description: A list of categories.
             type: Category[]
-            example: !include examples/responses/list-categories.json
+            example: !include examples/responses/json/list-categories.json
       400:
         body:
           application/json:
@@ -255,7 +260,7 @@ traits:
             application/json:
               description: A category.
               type: Category
-              example: !include examples/responses/get-category.json
+              example: !include examples/responses/json/get-category.json
         400:
           body:
             application/json:
@@ -276,7 +281,7 @@ traits:
           application/json:
             description: A status object.
             type: Status
-            example: !include examples/responses/get-status.json
+            example: !include examples/responses/json/get-status.json
       400:
         body:
           application/json:
