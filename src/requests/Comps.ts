@@ -3,7 +3,6 @@
  */
 
 import { NextFunction, Request, Response } from "express";
-import { Logger, Severity } from "../util/Logger";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import HTTPRequest from "./base/HTTPRequest";
 import DB from "../util/DB";
@@ -15,13 +14,13 @@ export class ListComps extends HTTPRequest {
     ];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true, paginated: false});
+        super(req, res, next, {authenticated: true});
     }
 
     /**
      * Returns the JSON string payload of a list of comps after making a GET /comps request.
      */
-    public async send_response(): Promise<void> {
+    public async prepare_response(): Promise<Object[]> {
         const documents = await DB.query_comps(await this.db_filter());
         const formattedDocuments = documents.map(document => {
             return {
@@ -37,10 +36,8 @@ export class ListComps extends HTTPRequest {
                 })
             };
         });
-        Logger.log_request(Severity.Debug, this.timestamp, `Sending ${formattedDocuments.length} comps in payload with filter: ${this.req.query["categories"] ? this.req.query["categories"] : "none"}`);
-        const payload = JSON.stringify(formattedDocuments);
-        this.res.set("Content-Type", "application/json");
-        this.res.send(payload);
+        
+        return formattedDocuments;
     }
 
     /**
@@ -76,7 +73,7 @@ export class GetComp extends HTTPRequest {
      * Returns the JSON string payload of a comp after making a GET /comps/:comp request.
      * @throws {ResourceNotFoundException} When the comp cannot be found.
      */
-    public async send_response() {
+    public async prepare_response(): Promise<Object> {
         const document = await DB.query_comp(this.req.params["comp"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["comp"]);
@@ -95,9 +92,6 @@ export class GetComp extends HTTPRequest {
             })
         };
         
-        Logger.log_request(Severity.Debug, this.timestamp, `Sending one comp in payload with name ${this.req.params["comp"]}`);
-        const payload = JSON.stringify(formattedDocument);
-        this.res.set("Content-Type", "application/json");
-        this.res.send(payload);
+        return formattedDocument;
     }
 }

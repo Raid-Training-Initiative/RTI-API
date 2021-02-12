@@ -8,10 +8,11 @@ import UnauthorizedException from "../../exceptions/UnauthorizedException";
 import { Logger, Severity } from "../../util/Logger";
 import ResourceNotFoundException from "../../exceptions/ResourceNotFoundException";
 import BadSyntaxException from "../../exceptions/BadSyntaxException";
+import Utils from "../../util/Utils";
 
 export default abstract class HTTPRequest {
     public abstract validRequestQueryParameters: string[]; // A list of query parameters that this endpoint takes.
-    public abstract send_response(pagination?: {page: number, pageSize: number}): Promise<void>;
+    public abstract prepare_response(pagination?: {page: number, pageSize: number}): Promise<Object[] | Object>; // Returns a list of objects to put in the response payload.
 
     protected req: Request;
     protected res: Response;
@@ -20,28 +21,49 @@ export default abstract class HTTPRequest {
     protected timestamp: string;
     protected _client_id;
 
-    private authenticated: boolean;
-    private paginated: boolean;
+    private paginated: boolean; // Does the request support pagination?
+    private authenticated: boolean; // Does the request require authentication?
+    private multiFormat: boolean; // Does the request provide responses in multiple different formats?
+    
     private pagination: {page: number, pageSize: number};
 
-    constructor(req: Request, res: Response, next: NextFunction, options?: {authenticated: boolean, paginated: boolean}) {
+    constructor(req: Request, res: Response, next: NextFunction, options?: {authenticated?: boolean, paginated?: boolean, multiFormat?: boolean}) {
         this.req = req;
         this.res = res;
         this.next = next;
         this.timestamp = Date.now().toString();
-        this.authenticated = options ? options.authenticated : false;
-        this.paginated = options ? options.authenticated : false;
+        if (options) { // If additional options are specified.
+            this.authenticated = options.authenticated ? options.authenticated : false;
+            this.paginated = options.paginated ? options.paginated : false;
+            this.multiFormat = options.multiFormat ? options.multiFormat : false;
+        }
+        
     }
 
     /**
-     * Validates the request and returns an error payload if validation fails.
+     * Validates the request and throws an error if validation fails.
      * @throws {UnauthorizedException} When the Authorization header is empty or contains an invalid client secret.
      * @throws {InvalidQueryParametersException} When a query parameter was specified that is not part of the accepted list of parameters.
+     * @throws {BadSyntaxException} When a query parameter isn't one of the supported values.
      */
     public async validate_request() {
         if (this.authenticated) this.validate_authentication();
         this.validate_query_parameters();
         if (this.paginated) this.validate_pagination();
+        if (this.multiFormat) this.validate_format_param();
+    }
+
+    /**
+     * Validates the format query parameter and throws an error if validation fails.
+     * @throws {BadSyntaxException} When the format query parameter isn't one of the supported values.
+     */
+    public async validate_format_param() {
+        if (this.req.query["format"]) {
+            const formatString: string = this.req.query["format"]?.toString().toLowerCase();
+            if (formatString != "csv" && formatString != "json") {
+                throw new BadSyntaxException("Query parameter format must be either csv or json.");
+            }
+        }
     }
 
     /**
@@ -115,7 +137,8 @@ export default abstract class HTTPRequest {
         {
             Logger.log_request(Severity.Debug, this.timestamp, `Request: ${this.req.method} ${this.req.url}`);
             await this.validate_request();
-            this.pagination ? await this.send_response(this.pagination) : await this.send_response();
+            const documents: Object[] | Object = this.pagination ? await this.prepare_response(this.pagination) : await this.prepare_response();
+            this.send_response(documents);
         } catch (exception) {
             if (exception instanceof HTTPException) {
                 Logger.log_http_error(Severity.Warn, this.timestamp, exception);
@@ -129,5 +152,22 @@ export default abstract class HTTPRequest {
                 this.next(new ServerErrorException(exception.message));
             }
         }
+    }
+
+    private send_response(documents: Object[] | Object) {
+        const filterString: string = Utils.generate_filter_string(this.validRequestQueryParameters, this.req);
+        Logger.log_request(Severity.Debug, this.timestamp, `Sending ${Array.isArray(documents) ? documents.length : 1} items in payload with ${filterString.length > 0 ? "filter - " + filterString : "no filter"}`);
+        
+        let payload: string = "";
+        const format: string | undefined = this.multiFormat && this.req.query["format"] ? this.req.query["format"].toString().toLowerCase() : undefined; 
+        if (format == "csv") {
+            payload = Array.isArray(documents) ? documents.join("\n") : payload;
+            this.res.set("Content-Type", "application/csv");
+        } else {
+            payload = JSON.stringify(documents);
+            this.res.set("Content-Type", "application/json");
+        }
+        
+        this.res.send(payload);
     }
 }

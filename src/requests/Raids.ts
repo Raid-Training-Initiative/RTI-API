@@ -3,7 +3,6 @@
  */
 
 import { NextFunction, Request, Response } from "express";
-import { Logger, Severity } from "../util/Logger";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
 import HTTPRequest from "./base/HTTPRequest";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
@@ -24,7 +23,7 @@ export class ListRaids extends HTTPRequest {
     ];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true, paginated: true});
+        super(req, res, next, {authenticated: true, paginated: true, multiFormat: true});
     }
 
     /**
@@ -46,18 +45,12 @@ export class ListRaids extends HTTPRequest {
                 throw new BadSyntaxException("Query parameter published must be either true or false.");
             }
         }
-        if (this.req.query["format"]) {
-            const formatString: string = this.req.query["format"]?.toString().toLowerCase();
-            if (formatString != "csv" && formatString != "json") {
-                throw new BadSyntaxException("Query parameter format must be either csv or json.");
-            }
-        }
     }
 
     /**
      * Returns the JSON (or CSV) string payload of a list of raids after making a GET /raids request.
      */
-    public async send_response(paginated?: {page: number, pageSize: number}): Promise<void> {
+    public async prepare_response(paginated?: {page: number, pageSize: number}): Promise<Object[]> {
         const documents = await DB.query_raids(await this.db_filter(), paginated);
 
         // Resolve the IDs to names.
@@ -65,15 +58,11 @@ export class ListRaids extends HTTPRequest {
         documents.forEach(document => idArray.push(document.leaderId));
         const idMap: Map<string, string> = await Utils.get_member_id_map(idArray);
         
-        let payload: string = "";
         let formattedDocuments: Object[];
         if ((this.req.query["format"]) && (this.req.query["format"].toString().toLowerCase() == "csv")) {
             formattedDocuments = documents.map(document => {
-                return idMap.get(document.leaderId) + "," + document.name + ","
-                    + document.startTime.toISOString().split("T")[0] + ","
-                    + document.startTime.toISOString().split("T")[1].replace(/:\d+\.\d+Z/, "");
+                return `${idMap.get(document.leaderId)},${document.name},${document.startTime.toISOString().split("T")[0]},${document.startTime.toISOString().split("T")[1].replace(/:\d+\.\d+Z/, "")}`;
             });
-            payload = formattedDocuments.join("\n");
         }
         else {
             formattedDocuments = documents.map(document => {
@@ -88,13 +77,9 @@ export class ListRaids extends HTTPRequest {
                     id: document._id.toHexString()
                 };
             });
-            payload = JSON.stringify(formattedDocuments);
         }
         
-        const filterString: string = Utils.generate_filter_string(this.validRequestQueryParameters, this.req);
-        Logger.log_request(Severity.Debug, this.timestamp, `Sending ${formattedDocuments.length} raids in payload with ${filterString.length > 0 ? "filter - " + filterString : "no filter"}`);
-        this.res.set("Content-Type", `application/${this.req.query["format"] ? this.req.query["format"].toString().toLowerCase() : "json"}`); // Set to application/csv if specified.
-        this.res.send(payload);
+        return formattedDocuments;
     }
 
     /**
@@ -165,7 +150,7 @@ export class GetRaid extends HTTPRequest {
      * Returns the JSON string payload of a raid after making a GET /raids/:id request.
      * @throws {ResourceNotFoundException} When the raid cannot be found.
      */
-    public async send_response() {
+    public async prepare_response(): Promise<Object> {
         const document = await DB.query_raid(this.req.params["id"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["id"])
@@ -212,10 +197,7 @@ export class GetRaid extends HTTPRequest {
             id: document._id.toHexString()
         };
 
-        Logger.log_request(Severity.Debug, this.timestamp, `Sending one raid in payload with ID ${this.req.params["id"]}`);
-        const payload = JSON.stringify(formattedDocument);
-        this.res.set("Content-Type", "application/json");
-        this.res.send(payload);
+        return formattedDocument;
     }
 }
 
@@ -246,7 +228,7 @@ export class GetRaidLog extends HTTPRequest {
     /**
      * Returns the JSON string payload of a raid log after making a GET /raids/:id.log request.
      */
-    public async send_response() {
+    public async prepare_response(): Promise<Object> {
         const document = await DB.query_raid(this.req.params["id"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["id"])
@@ -276,9 +258,6 @@ export class GetRaidLog extends HTTPRequest {
             }
         });
 
-        Logger.log_request(Severity.Debug, this.timestamp, `Sending one raid in payload with ID ${this.req.params["id"]}`);
-        const payload = JSON.stringify(formattedDocument);
-        this.res.set("Content-Type", "application/json");
-        this.res.send(payload);
+        return formattedDocument;
     }
 }

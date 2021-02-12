@@ -4,7 +4,6 @@
 
 import { NextFunction, Request, Response } from "express";
 import Utils from "../util/Utils";
-import { Logger, Severity } from "../util/Logger";
 import HTTPRequest from "./base/HTTPRequest";
 import { IConfig } from "../util/Config";
 import ServerErrorException from "../exceptions/ServerErrorException";
@@ -22,7 +21,7 @@ export class GetStatus extends HTTPRequest {
     /**
      * Returns the JSON string payload of information about the API after a get status request.
      */
-    public async send_response(): Promise<void> {
+    public async prepare_response(): Promise<Object> {
         let packageJson: any;
         try {
             packageJson = require("../../../package.json");
@@ -54,9 +53,6 @@ export class GetStatus extends HTTPRequest {
             }
         };
         
-        Logger.log_request(Severity.Debug, this.timestamp, `Sending status`);
-        const payload = JSON.stringify(statusObject);
-        this.res.set("Content-Type", "application/json");
-        this.res.send(payload);
+        return statusObject;
     }
 }

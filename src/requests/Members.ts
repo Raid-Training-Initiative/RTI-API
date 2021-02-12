@@ -3,7 +3,6 @@
  */
 
 import { NextFunction, Request, Response } from "express";
-import { Logger, Severity } from "../util/Logger";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import HTTPRequest from "./base/HTTPRequest";
 import DB from "../util/DB";
@@ -14,18 +13,19 @@ export class ListMembers extends HTTPRequest {
         "gw2Name",
         "discordName",
         "approver",
+        "format",
         "page",
         "pageSize"
     ];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true, paginated: true});
+        super(req, res, next, {authenticated: true, paginated: true, multiFormat: true});
     }
 
     /**
      * Returns the JSON string payload of a list of members after making a GET /members request.
      */
-    public async send_response(pagination?: {page: number, pageSize: number}): Promise<void> {
+    public async prepare_response(pagination?: {page: number, pageSize: number}): Promise<Object[]> {
         const documents = await DB.query_members(await this.db_filter(), pagination);
 
         // Resolve the IDs to names.
@@ -33,21 +33,24 @@ export class ListMembers extends HTTPRequest {
         documents.forEach(document => idArray.push(document.approverId));
         const idMap: Map<string, string> = await Utils.get_member_id_map(idArray);
 
-        const formattedDocuments = documents.map(document => {
-            return {
-                gw2Name: document.gw2Name,
-                discordName: document.gw2Name,
-                approver: idMap.get(document.approverId),
-                userId: document.userId,
-                banned: document.banned
-            };
-        });
+        let formattedDocuments: Object[];
+        if ((this.req.query["format"]) && (this.req.query["format"].toString().toLowerCase() == "csv")) {
+            formattedDocuments = documents.map(document => {
+                return `${idMap.get(document.approverId)},${document.gw2Name},${document.gw2Name}`;
+            })
+        } else {
+            formattedDocuments = documents.map(document => {
+                return {
+                    gw2Name: document.gw2Name,
+                    discordName: document.gw2Name,
+                    approver: idMap.get(document.approverId),
+                    userId: document.userId,
+                    banned: document.banned
+                };
+            });
+        }
 
-        const filterString: string = Utils.generate_filter_string(this.validRequestQueryParameters, this.req);
-        Logger.log_request(Severity.Debug, this.timestamp, `Sending ${formattedDocuments.length} members in payload with ${filterString.length > 0 ? "filter - " + filterString : "no filter"}`);
-        const payload = JSON.stringify(formattedDocuments);
-        this.res.set("Content-Type", "application/json");
-        this.res.send(payload);
+        return formattedDocuments;
     }
 
     /**
@@ -88,7 +91,7 @@ export class GetMember extends HTTPRequest {
      * Returns the JSON string payload of a comp after making a GET /comps/:comp request.
      * @throws {ResourceNotFoundException} When the comp cannot be found.
      */
-    public async send_response() {
+    public async prepare_response(): Promise<Object> {
         const document = await DB.query_member_by_id(this.req.params["discordid"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["discordid"]);
@@ -103,9 +106,6 @@ export class GetMember extends HTTPRequest {
             banned: document.banned
         };
         
-        Logger.log_request(Severity.Debug, this.timestamp, `Sending one member in payload with discordId ${this.req.params["discordId"]}`);
-        const payload = JSON.stringify(formattedDocument);
-        this.res.set("Content-Type", "application/json");
-        this.res.send(payload);
+        return formattedDocument;
     }
 }
