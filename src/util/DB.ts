@@ -2,6 +2,7 @@ import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
 import { IRaidCompositionPopulatedDocument } from "@RTIBot-DB/documents/IRaidCompositionDocument";
 import { IRaidEventDocument } from "@RTIBot-DB/documents/IRaidEventDocument";
+import { ITrainingRequestDocument } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import ServerErrorException from "../exceptions/ServerErrorException";
 import { IConfig } from "./Config";
@@ -108,6 +109,20 @@ export default class DB {
             return (await this._instance.db.memberModel
                 .findOne({gw2Name: name})
                 .exec()) as IMemberDocument;
+        }
+    }
+
+    public static async query_training_requests(filter?: Object, pagination?: {page: number, pageSize: number}): Promise<ITrainingRequestDocument[]> {
+        if (pagination) {
+            return (await this._instance.db.trainingRequestModel
+                .find(filter ? filter : {})
+                .skip(pagination.pageSize * (pagination.page - 1))
+                .limit(pagination.pageSize)
+                .exec()) as ITrainingRequestDocument[];
+        } else {
+            return (await this._instance.db.trainingRequestModel
+                .find(filter ? filter : {})
+                .exec()) as ITrainingRequestDocument[];
         }
     }
 }

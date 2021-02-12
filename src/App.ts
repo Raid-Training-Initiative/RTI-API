@@ -12,6 +12,7 @@ import { GetRaid, ListRaids, GetRaidLog } from "./requests/Raids";
 import { GetMember, ListMembers } from "./requests/Members";
 import { GetStatus } from "./requests/Other";
 import DB from "./util/DB";
+import { ListTrainingRequests } from "./requests/TrainingRequests";
 
 export class App {
     private static _app: App | undefined;
@@ -97,16 +98,24 @@ export class App {
         // =========### Categories ###=========
         server.get("/categories", async (req: Request, res: Response, next: NextFunction) => {
             Logger.log(Severity.Info, `GET /categories request initiated`);
-            const listComps = new ListCategories(req, res, next);
-            await listComps.run();
+            const listCategories = new ListCategories(req, res, next);
+            await listCategories.run();
             Logger.log(Severity.Info, `GET /categories request completed`);
         });
 
         server.get("/categories/:category", async (req: Request, res: Response, next: NextFunction) => {
             Logger.log(Severity.Info, `GET /categories/:category request initiated`);
-            const getComp = new GetCategory(req, res, next);
-            await getComp.run();
+            const getCategory = new GetCategory(req, res, next);
+            await getCategory.run();
             Logger.log(Severity.Info, `GET /categories/:category request completed`);
+        });
+
+        // =========### TrainingRequests ###=========
+        server.get("/trainingrequests", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /trainingrequests request initiated`);
+            const listTrainingRequests = new ListTrainingRequests(req, res, next);
+            await listTrainingRequests.run();
+            Logger.log(Severity.Info, `GET /trainingrequests request completed`);
         });
 
         // =========### Other ###=========
