@@ -18,7 +18,8 @@ export class ListComps extends HTTPRequest {
     }
 
     /**
-     * Returns the JSON string payload of a list of comps after making a GET /comps request.
+     * Returns the list of comps after making a GET /comps request.
+     * @returns A list of objects representing comps.
      */
     public async prepare_response(): Promise<Object[]> {
         const documents = await DB.query_comps(await this.db_filter());
@@ -70,8 +71,9 @@ export class GetComp extends HTTPRequest {
     }
 
     /**
-     * Returns the JSON string payload of a comp after making a GET /comps/:comp request.
+     * Returns a comp after making a GET /comps/:comp request.
      * @throws {ResourceNotFoundException} When the comp cannot be found.
+     * @returns An object representing a comp.
      */
     public async prepare_response(): Promise<Object> {
         const document = await DB.query_comp(this.req.params["comp"]);

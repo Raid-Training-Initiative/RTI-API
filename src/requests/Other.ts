@@ -19,7 +19,8 @@ export class GetStatus extends HTTPRequest {
     }
 
     /**
-     * Returns the JSON string payload of information about the API after a get status request.
+     * Returns information about the API after a get status request.
+     * @returns An object representing information about the API.
      */
     public async prepare_response(): Promise<Object> {
         let packageJson: any;

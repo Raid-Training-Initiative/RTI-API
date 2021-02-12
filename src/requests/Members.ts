@@ -23,7 +23,8 @@ export class ListMembers extends HTTPRequest {
     }
 
     /**
-     * Returns the JSON string payload of a list of members after making a GET /members request.
+     * Returns a list of members after making a GET /members request.
+     * @returns A list of objects representing members.
      */
     public async prepare_response(pagination?: {page: number, pageSize: number}): Promise<Object[]> {
         const documents = await DB.query_members(await this.db_filter(), pagination);
@@ -90,6 +91,7 @@ export class GetMember extends HTTPRequest {
     /**
      * Returns the JSON string payload of a comp after making a GET /comps/:comp request.
      * @throws {ResourceNotFoundException} When the comp cannot be found.
+     * @returns An object representing a member.
      */
     public async prepare_response(): Promise<Object> {
         const document = await DB.query_member_by_id(this.req.params["discordid"]);

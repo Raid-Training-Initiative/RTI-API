@@ -48,7 +48,8 @@ export class ListRaids extends HTTPRequest {
     }
 
     /**
-     * Returns the JSON (or CSV) string payload of a list of raids after making a GET /raids request.
+     * Returns a list of raids after making a GET /raids request.
+     * @returns A list of objects representing raids.
      */
     public async prepare_response(paginated?: {page: number, pageSize: number}): Promise<Object[]> {
         const documents = await DB.query_raids(await this.db_filter(), paginated);
@@ -147,8 +148,9 @@ export class GetRaid extends HTTPRequest {
     }
 
     /**
-     * Returns the JSON string payload of a raid after making a GET /raids/:id request.
+     * Returns a raid after making a GET /raids/:id request.
      * @throws {ResourceNotFoundException} When the raid cannot be found.
+     * @returns An object representing a raid.
      */
     public async prepare_response(): Promise<Object> {
         const document = await DB.query_raid(this.req.params["id"]);
@@ -226,7 +228,9 @@ export class GetRaidLog extends HTTPRequest {
     }
 
     /**
-     * Returns the JSON string payload of a raid log after making a GET /raids/:id.log request.
+     * Returns a raid log after making a GET /raids/:id.log request.
+     * @throws {ResourceNotFoundException} When the raid cannot be found.
+     * @returns An object representing a raid log.
      */
     public async prepare_response(): Promise<Object> {
         const document = await DB.query_raid(this.req.params["id"]);

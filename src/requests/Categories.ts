@@ -15,7 +15,8 @@ export class ListCategories extends HTTPRequest {
     }
 
     /**
-     * Returns the JSON string payload of a list of categories after making a GET /categories request.
+     * Returns the list of categories after making a GET /categories request.
+     * @returns A list of objects representing categories.
      */
     public async prepare_response(): Promise<Object[]> {
         const documents = await DB.query_categories();
@@ -33,8 +34,9 @@ export class GetCategory extends HTTPRequest {
     }
 
     /**
-     * Returns the JSON string payload of a category after making a GET /categories/:category request.
+     * Returns a category after making a GET /categories/:category request.
      * @throws {ResourceNotFoundException} When the category cannot be found.
+     * @returns An object representing a category.
      */
     public async prepare_response(): Promise<Object> {
         const document = await DB.query_category(this.req.params["category"]);
