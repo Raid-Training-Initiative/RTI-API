@@ -18,6 +18,7 @@
     "systemInfo": {
         "platform": "win32",
         "type": "Windows_NT",
+        "hostname": "DESKTOP-UCPOGM",
         "release": "10.0.19042",
         "memory": 17092751360,
         "cores": 8
