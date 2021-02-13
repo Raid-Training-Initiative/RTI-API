@@ -73,7 +73,7 @@ export default abstract class HTTPRequest {
     private validate_authentication() {
         const auth: Auth = Auth.instance();
         const auth_header: string[] = (this.req.headers.authorization || "").split(" ");
-        if (auth_header[0] != "Basic") {
+        if (auth_header[0] != "Bearer") {
             throw new UnauthorizedException();
         }
 
