@@ -34,13 +34,16 @@ export class ListRaids extends HTTPRequest {
         await super.validate_request();
 
         if (this.req.query["status"]) {
-            const statusString: string = this.req.query["status"]?.toString().toLowerCase();
-            if (statusString != "draft" && statusString != "published" && statusString != "archived") {
-                throw new BadSyntaxException("Query parameter status must be either draft, published, or archived.");
-            }
+            const statusStrings: string[] = this.req.query["status"].toString().toLowerCase().split(",");
+            statusStrings.forEach(statusString => {
+                if (statusString != "draft" && statusString != "published" && statusString != "archived") {
+                    throw new BadSyntaxException("Query parameter status must be either draft, published, or archived.");
+                }
+            })
+            
         }
         if (this.req.query["published"]) {
-            const publishedString: string = this.req.query["published"]?.toString().toLowerCase();
+            const publishedString: string = this.req.query["published"].toString().toLowerCase();
             if (publishedString != "true" && publishedString != "false") {
                 throw new BadSyntaxException("Query parameter published must be either true or false.");
             }
@@ -81,7 +84,7 @@ export class ListRaids extends HTTPRequest {
         }
         
         return formattedDocuments;
-    }
+    }f
 
     /**
      * Filters the documents according to the filters specified in the query parameters.
@@ -91,9 +94,9 @@ export class ListRaids extends HTTPRequest {
     private async db_filter(): Promise<Object> {
         const filters: Object[] = [];
         if (this.req.query["status"]) {
-            const escapedStatus: string = escapeStringRegexp(this.req.query["status"].toString());
-            const regex: RegExp = new RegExp(escapedStatus, "gi");
-            filters.push({ status: regex });
+            const filterStatus: RegExp[] = this.req.query["status"].toString()
+                .split(",").map(status => new RegExp(`^${escapeStringRegexp(status)}$`, "gi"));
+            filters.push({ status: { $in: filterStatus }});
         }
         if (this.req.query["name"]) {
             const regex: RegExp = /[-!$%^&*()_+|~=`{}[\]:";'<>?,./\s]+/gi;
@@ -105,7 +108,7 @@ export class ListRaids extends HTTPRequest {
         if (this.req.query["comps"]) {
             const filterComps: RegExp[] = this.req.query["comps"].toString()
                 .split(",").map(comp => new RegExp(`^${escapeStringRegexp(comp)}$`, "gi"));
-            filters.push({ compositionName: {$in: filterComps} });
+            filters.push({ compositionName: { $in: filterComps } });
         }
         if (this.req.query["leader"]) {
             const document = await DB.query_member_by_name(this.req.query["leader"].toString());
