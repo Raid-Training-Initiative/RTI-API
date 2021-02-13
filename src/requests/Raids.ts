@@ -14,7 +14,7 @@ export class ListRaids extends HTTPRequest {
     public validRequestQueryParameters: string[] = [
         "status",
         "name",
-        "comp",
+        "comps",
         "leader",
         "published",
         "format",
@@ -102,10 +102,10 @@ export class ListRaids extends HTTPRequest {
             
             filters.push({ $where: `this.name.replace(/${regex.source}/gi, '').toLowerCase().includes('${escapedName}')` });
         }
-        if (this.req.query["comp"]) {
-            const escapedComp: string = escapeStringRegexp(this.req.query["comp"].toString());
-            const regex: RegExp = new RegExp(`^${escapedComp}$`, "i");
-            filters.push({ compositionName: regex });
+        if (this.req.query["comps"]) {
+            const filterComps: RegExp[] = this.req.query["comps"].toString()
+                .split(",").map(comp => new RegExp(`^${escapeStringRegexp(comp)}$`, "gi"));
+            filters.push({ compositionName: {$in: filterComps} });
         }
         if (this.req.query["leader"]) {
             const document = await DB.query_member_by_name(this.req.query["leader"].toString());

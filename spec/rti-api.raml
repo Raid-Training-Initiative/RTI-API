@@ -53,10 +53,10 @@ traits:
         type: string
         description: A case-insensitive string to filter the raids by name. Returns raids whose name contains the filter query string as a substring.
         example: "continuation"
-      comp:
+      comps:
         type: string
-        description: A case-insensitive string to filter the raids by comp name.
-        example: "DoubleChrono"
+        description: A comma-separated, case-insensitive string to filter the raids by comp names.
+        example: "DoubleChrono,Dhuum-RR"
       leader:
         type: string
         description: A case-insensitive string with all numbers and dots and hashtags removed to filter the raids by leader name.
@@ -203,7 +203,7 @@ traits:
     queryParameters:
       category:
         type: string
-        description: A URI-safe, comma-separated list of composition categories
+        description: A comma-separated, case-insensitive string to filter compositions by categories.
         example: "Generic,Other,Wing%205"
     responses:
       200:
