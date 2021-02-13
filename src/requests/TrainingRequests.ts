@@ -28,7 +28,7 @@ export class ListTrainingRequests extends HTTPRequest {
      * Filters the documents according to the filters specified in the query parameters.
      * @returns A filter to pass into the database query.
      */
-    private async db_filter(): Promise<Object> {
-        return {};
-    }
+    // private async db_filter(): Promise<Object> {
+    //     return {};
+    // }
 }

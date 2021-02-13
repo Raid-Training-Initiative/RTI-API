@@ -4,6 +4,7 @@ import { execSync } from "child_process";
 import escapeStringRegexp = require("escape-string-regexp");
 import { Request } from "express";
 import DB from "./DB";
+import { Logger, Severity } from "./Logger";
 
 export default class Utils {
     /**
@@ -76,12 +77,27 @@ export default class Utils {
         return filterString;
     }
 
-    public static get_commit_info(): object {
-        const branchNameCommand = "git rev-parse --abbrev-ref HEAD";
-        const commitHashCommand = "git rev-parse HEAD";
-        return {
-            branch: execSync(branchNameCommand).toString().trim(),
-            commitId: execSync(commitHashCommand).toString().substring(0, 7)
+    public static get_commit_info(): Object | undefined {
+        if (process.env.COMMIT_ID && process.env.BRANCH) {
+            return {
+                branch: process.env.BRANCH.trim(),
+                commitId: process.env.COMMIT_ID.trim()
+            }
+        } else {
+            const branchNameCommand = "git rev-parse --abbrev-ref HEAD";
+            const commitHashCommand = "git rev-parse --short HEAD";
+            let commitInfo: Object | undefined;
+            try {
+                commitInfo = {
+                    branch: execSync(branchNameCommand).toString().trim(),
+                    commitId: execSync(commitHashCommand).toString().trim()
+                }
+            } catch (exception) {
+                Logger.log_error(Severity.Error, exception.message);
+            }
+
+            return commitInfo;
         }
+        
     }
 }
