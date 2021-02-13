@@ -148,12 +148,12 @@ traits:
         example: John.5231
       discordName:
         type: string
-        description: Filter by discordName of the member (can be incomplete).
-        example: John#1529
+        description: Filter by discordName of the member (can be incomplete). Needs to be URI-safe, so use %23 instead of hashtags!
+        example: John%231529
       approver:
         type: string
         description: Filter by the discordName of the approver of the member.
-        example: Tim#6391
+        example: Tim%236391
       banned:
         type: boolean
         description: Filter by whether or not the member is currently banned.
