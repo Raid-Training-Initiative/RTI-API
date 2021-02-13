@@ -31,6 +31,24 @@ If there is a database already created and backed up into a dump folder, then yo
 mongorestore
 ```
 
+## Setting up Authentication
+For most endpoints, a Bearer token will need to be provided. Below are steps for setting this up:
+
+* Step 1: Create a `clients.json` file containing an object with key-value pairs, where the keys are the Bearer tokens and the values are the names/identifiers for each of the tokens. Example `clients.json` file:
+```json
+{
+    "TESTTOKEN": "RTI Developer"
+}
+```
+* Step 2: Point to the `clients.json` file in your `ConfigDebug.json` file:
+```json
+{
+    "db": "mongodb://localhost:27017/",
+    "guildId": "705796529293623417",
+    "clientsFile": "./clients.json"
+}
+```
+
 ## Running
 * Step 1: Transpile TypeScript files into JavaScript code:
 ```bash
@@ -40,7 +58,7 @@ npm run tsc
 ```bash
 node dist/src/App.js Debug
 ```
-* Step 3: Make HTTP requests to the server, e.g. `GET http://localhost:8080/comps`.
+* Step 3: Make HTTP requests to the server, e.g. `GET http://localhost:8080/status`.
 
 ## Optional Configuration
 * If using VS Code, put the following JSON files in a folder called `.vscode` placed in the root directory:
