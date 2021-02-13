@@ -8,15 +8,28 @@ import { Logger, Severity } from "./Logger";
 
 export default class Utils {
     /**
-     * Maps discord IDs to GW2 names.
+     * Maps discord IDs to discord or GW2 names.
      * @param ids A string array of discord IDs.
      * @param options An object containing a boolean specifying whether to return GW2 names (true) or discord names (false).
      * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
-    public static async get_member_id_map(ids: string[], options?: {returnGW2Names: boolean}): Promise<Map<string, string>> {
+    public static async ids_to_map(ids: string[], options?: {returnGW2Names: boolean}): Promise<Map<string, string>> {
         const idMap = new Map<string, string>();
         const documents: IMemberDocument[] = await DB.query_members({userId: {$in: ids}});
         documents.forEach(document => idMap.set(document.userId, options?. returnGW2Names ? document.gw2Name : document.gw2Name));
+
+        return idMap;
+    }
+
+    /**
+     * Maps discord names to discord IDs.
+     * @param names A string array of discord names.
+     * @returns A map with the keys being discord names and the values being discord IDs.
+     */
+    public static async names_to_map(names: string[]): Promise<Map<string, string>> {
+        const idMap = new Map<string, string>();
+        const documents: IMemberDocument[] = await DB.query_members({gw2Name: {$in: names}});
+        documents.forEach(document => idMap.set(document.gw2Name, document.userId));
 
         return idMap;
     }

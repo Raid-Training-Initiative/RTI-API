@@ -17,6 +17,8 @@ export class ListRaids extends HTTPRequest {
         "comps",
         "leader",
         "published",
+        "participants",
+        "reserves",
         "format",
         "page",
         "pageSize"
@@ -60,7 +62,7 @@ export class ListRaids extends HTTPRequest {
         // Resolve the IDs to names.
         const idArray = new Array<string>();
         documents.forEach(document => idArray.push(document.leaderId));
-        const idMap: Map<string, string> = await Utils.get_member_id_map(idArray);
+        const idMap: Map<string, string> = await Utils.ids_to_map(idArray);
         
         let formattedDocuments: Object[];
         if ((this.req.query["format"]) && (this.req.query["format"].toString().toLowerCase() == "csv")) {
@@ -121,6 +123,16 @@ export class ListRaids extends HTTPRequest {
             const publishedString = this.req.query["published"].toString().toLowerCase();
             filters.push({ publishedDate: { "$exists" : publishedString == "true" }});
         }
+        if (this.req.query["participants"]) {
+            const filterParticipants: string[] = this.req.query["participants"].toString().split(",");
+            const memberMap: Map<string, string> = await Utils.names_to_map(filterParticipants);
+            filters.push({ "roles.participants": { $all: Array.from(memberMap.values()) } });
+        }
+        if (this.req.query["reserves"]) {
+            const filterParticipants: string[] = this.req.query["reserves"].toString().split(",");
+            const memberMap: Map<string, string> = await Utils.names_to_map(filterParticipants);
+            filters.push({ "roles.reserves": { $all: Array.from(memberMap.values()) } });
+        }
         
         return filters.length > 0 ? { "$and": filters } : {};
     }
@@ -169,12 +181,12 @@ export class GetRaid extends HTTPRequest {
         });
         let idMap: Map<string, string> = new Map<string, string>();
         if (this.req.query["names"] && this.req.query["names"].toString().toLowerCase() == "GW2") {
-            idMap = await Utils.get_member_id_map(idArray, { returnGW2Names: true });
+            idMap = await Utils.ids_to_map(idArray, { returnGW2Names: true });
         }
         else {
-            idMap = await Utils.get_member_id_map(idArray);
+            idMap = await Utils.ids_to_map(idArray);
         }
-        const leaderDiscordName = (await Utils.get_member_id_map([document.leaderId])).get(document.leaderId);
+        const leaderDiscordName = (await Utils.ids_to_map([document.leaderId])).get(document.leaderId);
 
         const formattedDocument = {
             name: document.name,
@@ -248,9 +260,9 @@ export class GetRaidLog extends HTTPRequest {
         });
         let idMap: Map<string, string> = new Map<string, string>();
         if (this.req.query["names"] && this.req.query["names"].toString().toLowerCase() == "GW2") {
-            idMap = await Utils.get_member_id_map(idArray, { returnGW2Names: true });
+            idMap = await Utils.ids_to_map(idArray, { returnGW2Names: true });
         } else {
-            idMap = await Utils.get_member_id_map(idArray);
+            idMap = await Utils.ids_to_map(idArray);
         }
 
         const formattedDocument = document.log.map(log => {

@@ -65,6 +65,14 @@ traits:
         type: boolean
         description: A boolean indicating whether or not to only output published raids.
         example: true
+      participants:
+        type: string
+        description: A comma-separated, case-sensitive string to filter the raids by participants' Discord names. All participants in this query list have to be present as participants in the raid.
+        example: "Step%231937,Christin%230112"
+      reserves:
+        type: string
+        description: A comma-separated, case-sensitive string to filter the raids by reserves' Discord names. All reserves in this query list have to be present as reserves in the raid.
+        example: "Step%231937,Christin%230112"
     responses:
       200:
         body:

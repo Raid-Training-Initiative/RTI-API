@@ -49,7 +49,7 @@ export class ListMembers extends HTTPRequest {
         // Resolve the IDs to names.
         const idArray = new Array<string>();
         documents.forEach(document => idArray.push(document.approverId));
-        const idMap: Map<string, string> = await Utils.get_member_id_map(idArray);
+        const idMap: Map<string, string> = await Utils.ids_to_map(idArray);
 
         let formattedDocuments: Object[];
         if ((this.req.query["format"]) && (this.req.query["format"].toString().toLowerCase() == "csv")) {
@@ -119,7 +119,7 @@ export class GetMember extends HTTPRequest {
         if (document == undefined) {
             throw new ResourceNotFoundException(this.req.params["discordid"]);
         }
-        const approverDiscordName = (await Utils.get_member_id_map([document.approverId])).get(document.approverId);
+        const approverDiscordName = (await Utils.ids_to_map([document.approverId])).get(document.approverId);
 
         const formattedDocument = {
             gw2Name: document.gw2Name,
