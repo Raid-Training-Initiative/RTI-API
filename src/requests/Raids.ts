@@ -180,7 +180,7 @@ export class GetRaid extends HTTPRequest {
             role.reserves.forEach(reserve => idArray.push(reserve));
         });
         let idMap: Map<string, string | undefined>;
-        if (this.req.query["names"] && this.req.query["names"].toString().toLowerCase() == "GW2") {
+        if (this.req.query["names"] && this.req.query["names"].toString().toLowerCase() == "gw2") {
             idMap = await Utils.ids_to_map(idArray, { returnGW2Names: true });
         }
         else {
