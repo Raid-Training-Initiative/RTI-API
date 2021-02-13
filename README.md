@@ -3,8 +3,6 @@
 ## Overview
 This is a repository for the API that exposes the RTI data used by [RTI Bot](https://github.com/Daniel123643/RTIBot) for use within web interfaces and other third-party applications.
 
-`spec` is a folder containing a RAML specification to easily view the API design and what requests you can make. `src` is a folder containing the code for this API, with `App.ts` being the executable file.
-
 ## Installation
 * Step 1: [Install Node.js](https://nodejs.org/en/download/) if you haven't already.
 * Step 2: [Install MongoDB](https://www.mongodb.com/try/download/community?tck=docs_server) and add its `bin` folder to your PATH.
@@ -138,6 +136,20 @@ node dist/src/App.js Debug
     }
 }
 ```
+
+## File Information
+* `spec` is a folder containing a RAML specification to easily view the API design and what requests you can make.
+* `src` is a folder containing the code for this API, with `App.ts` being the executable file.
+* `RTIBot-DB` is a submodule containing the documents and schemas for the database.
+* `.github` is a folder containing YAML files used to define GitHub actions for CI/CD.
+
+Other files:
+
+* `Dockerfile`, `.dockerignore`, & `dockercompose.yml` are files used to spin up a Docker container.
+* `package.json` & `package-lock.json` are files used by Node to install dependencies.
+* `start.sh` & `stop.sh` are files used by the GitHub action to deploy the API.
+* `tsconfig.json` is a config file used to transpile TypeScript files into JavaScript.
+* `Config.json` and `ConfigDebug.json` are files loaded when the app starts to determine what the database path, `clients.json` path, and guild ID are.
 
 ## Contact
 * Guild Wars 2 username: `Step.1285`
