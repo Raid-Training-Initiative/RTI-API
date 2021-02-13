@@ -7,12 +7,14 @@ import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import HTTPRequest from "./base/HTTPRequest";
 import DB from "../util/DB";
 import Utils from "../util/Utils";
+import BadSyntaxException from "../exceptions/BadSyntaxException";
 
 export class ListMembers extends HTTPRequest {
     public validRequestQueryParameters: string[] = [
         "gw2Name",
         "discordName",
         "approver",
+        "banned",
         "format",
         "page",
         "pageSize"
@@ -20,6 +22,21 @@ export class ListMembers extends HTTPRequest {
 
     constructor(req: Request, res: Response, next: NextFunction) {
         super(req, res, next, {authenticated: true, paginated: true, multiFormat: true});
+    }
+
+    /**
+     * Validates the request with the basic HTTP request validation and then checks if the query parameters are correct.
+     * @throws {BadSyntaxException} When a query parameter doesn't have the correct value.
+     */
+    public async validate_request() {
+        await super.validate_request();
+
+        if (this.req.query["banned"]) {
+            const publishedString: string = this.req.query["banned"].toString().toLowerCase();
+            if (publishedString != "true" && publishedString != "false") {
+                throw new BadSyntaxException("Query parameter banned must be either true or false.");
+            }
+        }
     }
 
     /**
@@ -75,6 +92,10 @@ export class ListMembers extends HTTPRequest {
                 throw new ResourceNotFoundException(this.req.query["approver"].toString());
             }
             filters.push({ approverId: document.userId });
+        }
+        if (this.req.query["banned"]) {
+            const booleanBanned: boolean = this.req.query["banned"].toString().toLowerCase() == "true";
+            filters.push({ banned: booleanBanned});
         }
 
         return filters.length > 0 ? { $or: filters } : {};
