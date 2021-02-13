@@ -16,8 +16,8 @@ RUN npm install --silent --global pm2
 RUN mkdir /data
 COPY --from=builder /build .
 COPY ["Config.json", "ConfigDebug.json", "./"]
-ARG $commitId
-ARG $branch
+ARG commitId
+ARG branch
 ENV COMMIT_ID=$commitId BRANCH=$branch
 
 CMD [ "pm2-runtime", "dist/src/App.js" ]
