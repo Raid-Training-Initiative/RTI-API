@@ -47,8 +47,8 @@ traits:
     queryParameters:
       status:
         type: string
-        description: A case-insensitive string to filter the raids by status.
-        enum: ["Published", "Draft", "Archived"]
+        description: A comma-separated, case-insensitive string to filter the raids by status.
+        example: "draft,published,archived"
       name:
         type: string
         description: A case-insensitive string to filter the raids by name. Returns raids whose name contains the filter query string as a substring.
@@ -154,6 +154,10 @@ traits:
         type: string
         description: Filter by the discordName of the approver of the member.
         example: Tim#6391
+      banned:
+        type: boolean
+        description: Filter by whether or not the member is currently banned.
+        example: true
     responses:
       200:
         body:
