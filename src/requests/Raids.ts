@@ -104,7 +104,7 @@ export class ListRaids extends HTTPRequest {
         }
         if (this.req.query["comp"]) {
             const escapedComp: string = escapeStringRegexp(this.req.query["comp"].toString());
-            const regex: RegExp = new RegExp(escapedComp, "gi");
+            const regex: RegExp = new RegExp(`^${escapedComp}$`, "i");
             filters.push({ compositionName: regex });
         }
         if (this.req.query["leader"]) {
