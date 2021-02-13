@@ -12,7 +12,7 @@ import BadSyntaxException from "../exceptions/BadSyntaxException";
 export class ListMembers extends HTTPRequest {
     public validRequestQueryParameters: string[] = [
         "gw2Name",
-        "discordName",
+        "discordTag",
         "approver",
         "banned",
         "format",
@@ -49,18 +49,19 @@ export class ListMembers extends HTTPRequest {
         // Resolve the IDs to names.
         const idArray = new Array<string>();
         documents.forEach(document => idArray.push(document.approverId));
-        const idMap: Map<string, string> = await Utils.ids_to_map(idArray);
+        const idMap: Map<string, string | undefined> = await Utils.ids_to_map(idArray);
 
         let formattedDocuments: Object[];
         if ((this.req.query["format"]) && (this.req.query["format"].toString().toLowerCase() == "csv")) {
             formattedDocuments = documents.map(document => {
-                return `${idMap.get(document.approverId)},${document.gw2Name},${document.gw2Name}`;
+                return `${idMap.get(document.approverId)},${document.gw2Name},${document.discordTag}`;
             })
         } else {
             formattedDocuments = documents.map(document => {
                 return {
                     gw2Name: document.gw2Name,
-                    discordName: document.gw2Name,
+                    discordName: document.discordName,
+                    discordTag: document.discordTag,
                     approver: idMap.get(document.approverId),
                     userId: document.userId,
                     banned: document.banned
@@ -82,8 +83,8 @@ export class ListMembers extends HTTPRequest {
             const idMap = await Utils.matches_name_id_map(this.req.query["gw2Name"].toString(), { returnGW2Names: true });
             filters.push({ userId: { $in: Array.from(idMap.keys()) }});
         }
-        if (this.req.query["discordName"]) {
-            const idMap = await Utils.matches_name_id_map(this.req.query["discordName"].toString(), { returnGW2Names: false });
+        if (this.req.query["discordTag"]) {
+            const idMap = await Utils.matches_name_id_map(this.req.query["discordTag"].toString(), { returnGW2Names: false });
             filters.push({ userId: { $in: Array.from(idMap.keys()) }});
         }
         if (this.req.query["approver"]) {
@@ -123,7 +124,8 @@ export class GetMember extends HTTPRequest {
 
         const formattedDocument = {
             gw2Name: document.gw2Name,
-            discordName: document.gw2Name,
+            discordName: document.discordName,
+            discordTag: document.discordTag,
             approver: approverDiscordName,
             userId: document.userId,
             banned: document.banned

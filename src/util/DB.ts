@@ -107,7 +107,7 @@ export default class DB {
                 .exec()) as IMemberDocument;
         } else {
             return (await this._instance.db.memberModel
-                .findOne({gw2Name: name})
+                .findOne({discordTag: name})
                 .exec()) as IMemberDocument;
         }
     }

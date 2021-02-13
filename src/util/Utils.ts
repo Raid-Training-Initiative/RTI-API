@@ -13,10 +13,10 @@ export default class Utils {
      * @param options An object containing a boolean specifying whether to return GW2 names (true) or discord names (false).
      * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
-    public static async ids_to_map(ids: string[], options?: {returnGW2Names: boolean}): Promise<Map<string, string>> {
-        const idMap = new Map<string, string>();
+    public static async ids_to_map(ids: string[], options?: {returnGW2Names: boolean}): Promise<Map<string, string | undefined>> {
+        const idMap = new Map<string, string | undefined>();
         const documents: IMemberDocument[] = await DB.query_members({userId: {$in: ids}});
-        documents.forEach(document => idMap.set(document.userId, options?. returnGW2Names ? document.gw2Name : document.gw2Name));
+        documents.forEach(document => idMap.set(document.userId, options?. returnGW2Names ? document.gw2Name : document.discordTag));
 
         return idMap;
     }
@@ -26,10 +26,10 @@ export default class Utils {
      * @param names A string array of discord names.
      * @returns A map with the keys being discord names and the values being discord IDs.
      */
-    public static async names_to_map(names: string[]): Promise<Map<string, string>> {
-        const idMap = new Map<string, string>();
-        const documents: IMemberDocument[] = await DB.query_members({gw2Name: {$in: names}});
-        documents.forEach(document => idMap.set(document.gw2Name, document.userId));
+    public static async names_to_map(names: string[]): Promise<Map<string | undefined, string>> {
+        const idMap = new Map<string | undefined, string>();
+        const documents: IMemberDocument[] = await DB.query_members({discordTag: {$in: names}});
+        documents.forEach(document => idMap.set(document.discordTag, document.userId));
 
         return idMap;
     }
@@ -40,12 +40,12 @@ export default class Utils {
      * @param options An object containing a boolean specifying whether to return GW2 names (true) or discord names (false).
      * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
-    public static async matches_name_id_map(name: string, options?: {returnGW2Names: boolean}): Promise<Map<string, string>> {
-        const idMap = new Map<string, string>();
+    public static async matches_name_id_map(name: string, options?: {returnGW2Names: boolean}): Promise<Map<string, string | undefined>> {
+        const idMap = new Map<string, string | undefined>();
         name = escapeStringRegexp(name);
         const regex: RegExp = new RegExp(name, "gi");
         const documents: IMemberDocument[] = await DB.query_members({gw2Name: regex});
-        documents.forEach(document => idMap.set(document.userId, options?.returnGW2Names ? document.gw2Name : document.gw2Name));
+        documents.forEach(document => idMap.set(document.userId, options?.returnGW2Names ? document.gw2Name : document.discordTag));
 
         return idMap;
     }
