@@ -65,12 +65,21 @@ export default class Utils {
     }
 
     /**
-     * Takes a date and formats it to a consistent format (yyyy/MM/ddTHH:mm:ss).
-     * @param date The date to format.
+     * Takes a date and time and formats it to a consistent datetime format (yyyy/MM/ddTHH:mm:ss).
+     * @param date The date and time to format.
+     * @returns The formatted datetime as a string.
+     */
+    public static format_datetime_string(date: Date | undefined): string | undefined {
+        return date?.toISOString().replace(/\.\d+Z/, "");
+    }
+
+    /**
+     * Takes a date and time and formats it to a consistent date format (yyyy/MM/dd).
+     * @param date The date and time to format.
      * @returns The formatted date as a string.
      */
     public static format_date_string(date: Date | undefined): string | undefined {
-        return date?.toISOString().replace(/\.\d+Z/, "");
+        return date?.toISOString().split("T")[0];
     }
 
     /**
@@ -80,23 +89,27 @@ export default class Utils {
      * @returns A string to use to output to a log.
      */
     public static generate_filter_string(validRequestQueryParameters: string[], req: Request): string {
-        let filterString: string = "";
+        const filterString: string[] = [];
         validRequestQueryParameters.forEach(queryParam => {
             if (req.query[queryParam]) {
-                filterString += `${queryParam}: ${req.query[queryParam]} | `;
+                filterString.push(`${queryParam}: ${req.query[queryParam]}`);
             }
         });
 
-        return filterString;
+        return filterString.join(" | ");
     }
 
+    /**
+     * Return the commit info (short hash + branch name) of the repository that is currently active.
+     * @returns An object containing branch and commitId as strings with git info.
+     */
     public static get_commit_info(): Object | undefined {
-        if (process.env.COMMIT_ID && process.env.BRANCH) {
+        if (process.env.COMMIT_ID && process.env.BRANCH) { // If the environment variables were set (running on Docker).
             return {
                 branch: process.env.BRANCH.trim(),
                 commitId: process.env.COMMIT_ID.trim()
             }
-        } else {
+        } else { // Probably running on Node.
             const branchNameCommand = "git rev-parse --abbrev-ref HEAD";
             const commitHashCommand = "git rev-parse --short HEAD";
             let commitInfo: Object | undefined;

@@ -41,8 +41,7 @@ export class ListRaids extends HTTPRequest {
                 if (statusString != "draft" && statusString != "published" && statusString != "archived") {
                     throw new BadSyntaxException("Query parameter status must be either draft, published, or archived.");
                 }
-            })
-            
+            });
         }
         if (this.req.query["published"]) {
             const publishedString: string = this.req.query["published"].toString().toLowerCase();
@@ -69,24 +68,23 @@ export class ListRaids extends HTTPRequest {
             formattedDocuments = documents.map(document => {
                 return `${idMap.get(document.leaderId)},${document.name},${document.startTime.toISOString().split("T")[0]},${document.startTime.toISOString().split("T")[1].replace(/:\d+\.\d+Z/, "")}`;
             });
-        }
-        else {
+        } else {
             formattedDocuments = documents.map(document => {
                 return {
                     name: document.name,
                     status: document.status,
-                    startTime: Utils.format_date_string(document.startTime),
-                    endTime: Utils.format_date_string(document.endTime),
+                    startTime: Utils.format_datetime_string(document.startTime),
+                    endTime: Utils.format_datetime_string(document.endTime),
                     leader: idMap.get(document.leaderId),
                     comp: document.compositionName,
-                    publishedDate: Utils.format_date_string(document.publishedDate),
+                    publishedDate: Utils.format_datetime_string(document.publishedDate),
                     id: document._id.toHexString()
                 };
             });
         }
         
         return formattedDocuments;
-    }f
+    }
 
     /**
      * Filters the documents according to the filters specified in the query parameters.
@@ -192,11 +190,11 @@ export class GetRaid extends HTTPRequest {
             name: document.name,
             description: document.description,
             status: document.status,
-            startTime: Utils.format_date_string(document.startTime),
-            endTime: Utils.format_date_string(document.endTime),
+            startTime: Utils.format_datetime_string(document.startTime),
+            endTime: Utils.format_datetime_string(document.endTime),
             leader: leaderDiscordName,
             comp: document.compositionName,
-            publishedDate: Utils.format_date_string(document.publishedDate),
+            publishedDate: Utils.format_datetime_string(document.publishedDate),
             channelId: document.channelId,
             participants: document.roles.map(role => {
                 return {
@@ -267,7 +265,7 @@ export class GetRaidLog extends HTTPRequest {
 
         const formattedDocument = document.log.map(log => {
             return {
-                date: Utils.format_date_string(log.date),
+                date: Utils.format_datetime_string(log.date),
                 type: log.type,
                 data: {
                     user: idMap.get(log.data.user ? log.data.user : log.data),
