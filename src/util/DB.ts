@@ -4,6 +4,7 @@ import { IRaidCompositionPopulatedDocument } from "@RTIBot-DB/documents/IRaidCom
 import { IRaidEventDocument } from "@RTIBot-DB/documents/IRaidEventDocument";
 import { ITrainingRequestDocument } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
+import { TrainingRequestSchema } from "@RTIBot-DB/schemas/TrainingRequestSchema";
 import ServerErrorException from "../exceptions/ServerErrorException";
 import { IConfig } from "./Config";
 
@@ -11,14 +12,15 @@ export default class DB {
     private static _instance: DB;
     private db: MongoDatabase;
 
-    private constructor(private readonly _config: IConfig) {
-        this.db = new MongoDatabase(this._config.db, this._config.guildId)
+    private constructor(_config: IConfig) {
+        this.db = new MongoDatabase(_config.db, _config.guildId)
     }
 
-    public static async create(config: IConfig) {
+    public static async create(_config: IConfig) {
         if (!this._instance) {
-            this._instance = new this(config)
+            this._instance = new this(_config)
             await this._instance.db.connect();
+            TrainingRequestSchema.index({comment: "text"});
         } else {
             throw new ServerErrorException("Error establishing connection to database.");
         }
