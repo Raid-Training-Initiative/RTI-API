@@ -1,0 +1,48 @@
+#%RAML 1.0 DataType
+description: Data type for a training request.
+
+properties:
+  discordTag:
+    type: string
+    description: The discordTag of the member who created this training request. If not specified, then the member is not on the server.
+    example: "Robert#5512"
+    required: false
+  active:
+    type: boolean
+    description: Whether or not the training request is currently active.
+    example: true
+  requestedWings:
+    type: array
+    items:
+      type: number
+    description: A list of wings that the user requested.
+    example: [ 2, 4, 5 ]
+  comment:
+    type: string
+    description: The comment that the member included with their training request.
+    example: "I would like to join only Dhuum trainings."
+  created:
+    type: datetime-only
+    description: The date and time that the training request was created.
+    example: "2020-12-13T16:28:47"
+  lastEdited:
+    type: datetime-only
+    description: The last time that this training request had an update.
+    example: "2020-12-27T16:34:35"
+  disabledReason:
+    type: string
+    description: The reason for the training request becoming inactive.
+    enum: [
+      "None",
+      "Manually by User",
+      "Manually by Officer",
+      "Fulfilled",
+      "API Key Removed",
+      "Invalid API Key",
+      "No Longer Member",
+      "Expired"
+    ]
+  userId:
+    type: string
+    description: The Discord ID of the member.
+    example: "645169823936151572"

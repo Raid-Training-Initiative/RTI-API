@@ -7,6 +7,7 @@ types:
   Log: !include types/Log.raml
   Comp: !include types/Comp.raml
   Category: !include types/Category.raml
+  TrainingRequestSummary: !include types/TrainingRequestSummary.raml
   Status: !include types/Status.raml
 traits:
   requiresAuthentication:
@@ -288,6 +289,47 @@ traits:
             application/json:
               description: Error response when the requested category could not be found.
               example: !include examples/errors/resource-not-found.json
+
+/trainingrequests:
+  get:
+    description: Gets a list of the saved training requests.
+    is: ["requiresAuthentication", "supportsPagination", "multiFormat"]
+    queryParameters:
+      keywords:
+        type: string
+        description: A comma-separated, case-insensitive list of keywords to search in the comments. Only results that contain all the keywords are returned.
+        example: "dhuum,only,dps"
+      active:
+        type: boolean
+        description: A boolean indicating whether or not to only output active training requests.
+        example: true
+      wings:
+        type: string
+        description: A comma-separated list of wing numbers to filter the training requests by requested wings.
+        example: "4,5,7"
+      disabledReasons:
+        type: string
+        description: A comma-separated, case-insensitive list of disabled reasons to filter the training requests with.
+        enum: [
+          "None",
+          "Manually by User",
+          "Manually by Officer",
+          "Fulfilled",
+          "API Key Removed",
+          "Invalid API Key",
+          "No Longer Member",
+          "Expired"
+        ]
+    responses:
+      200:
+        body:
+          application/json:
+            description: A list of training requests in JSON format.
+            type: TrainingRequestSummary[]
+            example: !include examples/responses/json/list-training-requests.json
+          application/csv:
+            description: A list of training requests in CSV format.
+            example: !include examples/responses/csv/list-training-requests.csv
 
 /status:
   get:
