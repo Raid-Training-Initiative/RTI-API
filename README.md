@@ -28,6 +28,10 @@ If there is a database already created and backed up into a dump folder, then yo
 ```bash
 mongorestore
 ```
+* Note that if your dump folder is an archive, you should run:
+```bash
+mongorestore --gzip --archive=<your_dump_archive>
+```
 
 ## Setting up Authentication
 For most endpoints, a Bearer token will need to be provided. Below are steps for setting this up:
