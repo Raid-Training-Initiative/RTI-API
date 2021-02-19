@@ -33,7 +33,7 @@ export class GetStatus extends HTTPRequest {
         const statusObject = {
             timestamp: Date.now(),
             processInfo: {
-                uptime: process.uptime(),
+                uptime: Utils.seconds_to_pretty_time(process.uptime()),
                 pid: process.pid,
                 title: process.title,
                 environment: process.argv[2]

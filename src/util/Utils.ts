@@ -82,6 +82,14 @@ export default class Utils {
         return date?.toISOString().split("T")[0];
     }
 
+    public static seconds_to_pretty_time(seconds: number): string { 
+        const numDays = Math.floor(seconds / 86400);
+        const numHours = Math.floor((seconds % 86400) / 3600);
+        const numMinutes = Math.floor(((seconds % 86400) % 3600) / 60);
+        const numSeconds = Math.floor(((seconds % 86400) % 3600) % 60);
+        return numDays + " days " + numHours + " hours " + numMinutes + " minutes " + numSeconds + " seconds";
+    }
+
     /**
      * Generates a string to use for a log specifying what filters were used.
      * @param validRequestQueryParameters A list of query parameter names to cycle through for the filter string/
