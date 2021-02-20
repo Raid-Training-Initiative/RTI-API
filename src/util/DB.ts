@@ -25,7 +25,10 @@ export default class DB {
         if (!this._instance) {
             this._instance = new this(_config)
             await this._instance.db.connect();
+
+            // Create the indexes required for database queries.
             TrainingRequestSchema.index({comment: "text"});
+            this._instance.db.trainingRequestModel.createIndexes();
         } else {
             throw new ServerErrorException("Attempted to create existing database instance.");
         }
