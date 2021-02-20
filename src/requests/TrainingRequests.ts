@@ -33,6 +33,12 @@ export class ListTrainingRequests extends HTTPRequest {
     public validate_request() {
         super.validate_request();
         
+        if (this.req.query["active"]) {
+            const activeString: string = this.req.query["active"].toString().toLowerCase();
+            if (activeString != "true" && activeString != "false") {
+                throw new BadSyntaxException("Query parameter active must be either true or false.");
+            }
+        }
         if (this.req.query["disabledReasons"]) {
             const disabledReasonStrings: string[] = this.req.query["disabledReasons"].toString().toLowerCase().split(",");
             disabledReasonStrings.forEach(disabledReasonString => {
