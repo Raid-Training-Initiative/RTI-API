@@ -43,6 +43,7 @@ export class ListComps extends HTTPRequest {
 
     /**
      * Filters the documents according to the filters specified in the query parameters.
+     * @throws {ResourceNotFoundException} When a category is not found in the database.
      * @returns A filter to pass into the database query.
      */
     private async db_filter(): Promise<Object> {
