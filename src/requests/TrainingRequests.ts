@@ -9,6 +9,7 @@ import HTTPRequest from "./base/HTTPRequest";
 import Utils from "../util/Utils";
 import { TrainingRequestDisabledReason } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import escapeStringRegexp = require("escape-string-regexp");
+import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 
 export class ListTrainingRequests extends HTTPRequest {
     public validRequestQueryParameters: string[] = [
@@ -95,7 +96,7 @@ export class ListTrainingRequests extends HTTPRequest {
                     requestedWings: document.requestedWings,
                     comment: document.comment,
                     created: Utils.format_datetime_string(document.creationDate),
-                    lastEdited: Utils.format_datetime_string(document.lastEditedTimestamp),
+                    edited: Utils.format_datetime_string(document.lastEditedTimestamp),
                     disabledReason: document.disabledReason,
                     userId: document.userId
                 };
@@ -132,5 +133,46 @@ export class ListTrainingRequests extends HTTPRequest {
         }
         
         return filters.length > 0 ? { "$and": filters } : {};
+    }
+}
+
+export class GetTrainingRequest extends HTTPRequest {
+    public validRequestQueryParameters: string[] = [];
+
+    constructor(req: Request, res: Response, next: NextFunction) {
+        super(req, res, next);
+    }
+
+    /**
+     * Returns a raid after making a GET /trainingrequests/:userid request.
+     * @throws {ResourceNotFoundException} When the raid cannot be found.
+     * @returns An object representing a raid.
+     */
+    public async prepare_response(): Promise<Object> {
+        const document = await DB.query_training_request(this.req.params["userid"]);
+        if (document == undefined) {
+            throw new ResourceNotFoundException(this.req.params["userid"])
+        }
+        const discordTag = (await Utils.ids_to_map([document.userId])).get(document.userId);
+        const historyMap: Object = {};
+        document.history.forEach((value, key) =>
+            historyMap[key] = {
+                requested: Utils.format_datetime_string(value.requestedDate),
+                cleared: Utils.format_datetime_string(value.clearedDate)
+            });
+
+        const formattedDocument = {
+            discordTag: discordTag,
+            active: document.active,
+            requestedWings: document.requestedWings,
+            comment: document.comment,
+            created: Utils.format_datetime_string(document.creationDate),
+            edited: Utils.format_datetime_string(document.lastEditedTimestamp),
+            disabledReason: document.disabledReason,
+            userId: document.userId,
+            history: historyMap
+        };
+
+        return formattedDocument;
     }
 }

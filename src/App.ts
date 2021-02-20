@@ -1,6 +1,7 @@
 import "module-alias/register";
 import { IConfig } from "./util/Config";
 import express = require("express");
+import DB from "./util/DB";
 import { Request, Response, NextFunction } from "express";
 import error_middleware from "./util/Error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
@@ -10,12 +11,12 @@ import { GetComp, ListComps } from "./requests/Comps";
 import { GetCategory, ListCategories } from "./requests/Categories";
 import { GetRaid, ListRaids, GetRaidLog } from "./requests/Raids";
 import { GetMember, ListMembers } from "./requests/Members";
+import { ListTrainingRequests, GetTrainingRequest } from "./requests/TrainingRequests";
 import { GetStatus } from "./requests/Other";
-import DB from "./util/DB";
-import { ListTrainingRequests } from "./requests/TrainingRequests";
 
 export class App {
     private static _app: App | undefined;
+    private _config: IConfig;
     
     public static initiate(config: IConfig) {
         if (!this._app) {
@@ -30,7 +31,9 @@ export class App {
         return this._app;
     }
 
-    constructor(private readonly _config: IConfig) {}
+    constructor(_config: IConfig) {
+        this._config = _config;
+    }
 
     /**
      * Runs the API and listens for the different endpoints.
@@ -116,6 +119,13 @@ export class App {
             const listTrainingRequests = new ListTrainingRequests(req, res, next);
             await listTrainingRequests.run();
             Logger.log(Severity.Info, `GET /trainingrequests request completed`);
+        });
+
+        server.get("/trainingrequests/:userid", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /trainingrequests/:userid request initiated`);
+            const getTrainingRequest = new GetTrainingRequest(req, res, next);
+            await getTrainingRequest.run();
+            Logger.log(Severity.Info, `GET /trainingrequests/:userid request completed`);
         });
 
         // =========### Other ###=========
