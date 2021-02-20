@@ -1,7 +1,7 @@
 # RTI API
 
 ## Overview
-This is a repository for the API that exposes the RTI data used by [RTI Bot](https://github.com/Daniel123643/RTIBot) for use within web interfaces and other third-party applications.
+This is a repository for the API that exposes the RTI data used by [RTI Bot](https://github.com/Daniel123643/RTIBot) for use within web interfaces and other third-party applications. The base URL of the live API is [here](https://rti.krhom.com/api/).
 
 ## Installation
 * Step 1: [Install Node.js](https://nodejs.org/en/download/) if you haven't already.
@@ -18,6 +18,17 @@ git submodule update --init --recursive
 ```bash
 npm install
 ```
+
+## Running
+* Step 1: Transpile TypeScript files into JavaScript code:
+```bash
+npm run tsc
+```
+* Step 2: Run the app:
+```bash
+node dist/src/App.js Debug
+```
+* Step 3: Make HTTP requests to the server, e.g. `GET http://localhost:8080/status`.
 
 ## Restoring Data
 If there is a database already created and backed up into a dump folder, then you can restore this data for use within the API.
@@ -51,16 +62,16 @@ For most endpoints, a Bearer token will need to be provided. Below are steps for
 }
 ```
 
-## Running
-* Step 1: Transpile TypeScript files into JavaScript code:
-```bash
-npm run tsc
-```
-* Step 2: Run the app:
-```bash
-node dist/src/App.js Debug
-```
-* Step 3: Make HTTP requests to the server, e.g. `GET http://localhost:8080/status`.
+## Setting up Postman
+Postman is a free software that will allow you to easily send requests to the API. Included in the `postman` folder are files you can import into Postman to immediately have a collection of requests you can make and an environment you can use.
+
+* Step 1: [Install Postman](https://www.postman.com/downloads/)
+* Step 2: Import the collection and environment via the `Import` button in Postman.
+* Step 3: Change your environment to the imported environment.
+* Step 4: Run the API locally (on port `8080`, which is the default port).
+* Step 5: Run any of the requests in the nested folder structure to sample the API.
+
+Note that this will only work off the bat if you have an existing dump of RTI test data to use. Refer to the `Restoring Data` section if you don't have any data to use the API with. You may also change the environment's values (`baseUrl` and `rtiApiToken`) if you have a working API token and wish to hit the [live API](https://rti.krhom.com/api/).
 
 ## Optional Configuration
 * If using VS Code, put the following JSON files in a folder called `.vscode` placed in the root directory:
@@ -137,6 +148,7 @@ node dist/src/App.js Debug
         "@typescript-eslint"
     ],
     "rules": {
+        "no-unused-vars": "off"
     }
 }
 ```
@@ -144,6 +156,7 @@ node dist/src/App.js Debug
 ## File Information
 * `spec` is a folder containing a RAML specification to easily view the API design and what requests you can make.
 * `src` is a folder containing the code for this API, with `App.ts` being the executable file.
+* `postman` is a folder containing Postman collections and environments for unit tests and sampling the API.
 * `RTIBot-DB` is a submodule containing the documents and schemas for the database.
 * `.github` is a folder containing YAML files used to define GitHub actions for CI/CD.
 
