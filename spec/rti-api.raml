@@ -7,6 +7,7 @@ types:
   Log: !include types/Log.raml
   Comp: !include types/Comp.raml
   Category: !include types/Category.raml
+  TrainingRequest: !include types/TrainingRequest.raml
   TrainingRequestSummary: !include types/TrainingRequestSummary.raml
   Status: !include types/Status.raml
 traits:
@@ -303,6 +304,32 @@ traits:
           application/csv:
             description: A list of training requests in CSV format.
             example: !include examples/responses/csv/list-training-requests.csv
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json 
+  /{userid}:
+    get:
+      description: Gets a single training request by the user ID of the member that made it.
+      is: ["requiresAuthentication"]
+      responses:
+        200:
+          body:
+            application/json:
+              description: A training request.
+              type: TrainingRequest
+              example: !include examples/responses/json/get-training-request.json
+        400:
+          body:
+            application/json:
+              description: Error response when syntax is invalid.
+              example: !include examples/errors/invalid-query-parameters.json 
+        404:
+          body:
+            application/json:
+              description: Error response when the requested category could not be found.
+              example: !include examples/errors/resource-not-found.json
 
 /status:
   get:
