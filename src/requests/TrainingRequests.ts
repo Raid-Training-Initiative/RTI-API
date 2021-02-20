@@ -30,8 +30,8 @@ export class ListTrainingRequests extends HTTPRequest {
      * Validates the request with the basic HTTP request validation and then checks if the query parameters are correct.
      * @throws {BadSyntaxException} When a query parameter doesn't have the correct value.
      */
-    public async validate_request() {
-        await super.validate_request();
+    public validate_request() {
+        super.validate_request();
         
         if (this.req.query["disabledReasons"]) {
             const disabledReasonStrings: string[] = this.req.query["disabledReasons"].toString().toLowerCase().split(",");

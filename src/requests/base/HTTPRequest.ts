@@ -19,7 +19,7 @@ export default abstract class HTTPRequest {
     protected next: NextFunction;
     protected db: MongoDatabase;
     protected timestamp: string;
-    protected _client_id;
+    protected _client_id: string | undefined;
 
     private paginated: boolean; // Does the request support pagination?
     private authenticated: boolean; // Does the request require authentication?
@@ -46,7 +46,7 @@ export default abstract class HTTPRequest {
      * @throws {InvalidQueryParametersException} When a query parameter was specified that is not part of the accepted list of parameters.
      * @throws {BadSyntaxException} When a query parameter isn't one of the supported values.
      */
-    public async validate_request() {
+    public validate_request() {
         if (this.authenticated) this.validate_authentication();
         this.validate_query_parameters();
         if (this.paginated) this.validate_pagination();
@@ -57,7 +57,7 @@ export default abstract class HTTPRequest {
      * Validates the format query parameter and throws an error if validation fails.
      * @throws {BadSyntaxException} When the format query parameter isn't one of the supported values.
      */
-    public async validate_format_param() {
+    public validate_format_param() {
         if (this.req.query["format"]) {
             const formatString: string = this.req.query["format"]?.toString().toLowerCase();
             if (formatString != "csv" && formatString != "json") {
@@ -136,7 +136,7 @@ export default abstract class HTTPRequest {
         try
         {
             Logger.log_request(Severity.Debug, this.timestamp, `Request: ${this.req.method} ${this.req.url}`);
-            await this.validate_request();
+            this.validate_request();
             const documents: Object[] | Object = this.pagination ? await this.prepare_response(this.pagination) : await this.prepare_response();
             this.send_response(documents);
         } catch (exception) {
