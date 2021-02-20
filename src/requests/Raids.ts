@@ -147,7 +147,7 @@ export class GetRaid extends HTTPRequest {
 
     /**
      * Perform specific validation for this endpoint.
-     * @throws When the names query parameter exists and it's not a supported value.
+     * @throws {BadSyntaxException} When the names query parameter exists and it's not a supported value.
      */
     public async validate_request() {
         await super.validate_request();
