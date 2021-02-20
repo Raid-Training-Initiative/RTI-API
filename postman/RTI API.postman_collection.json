@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "82507df5-6055-439d-92e2-188679c3e1a1",
+		"_postman_id": "00912a03-8b0a-441b-ba6a-58c7e0a2b793",
 		"name": "RTI API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1604,7 +1604,7 @@
 										"exec": [
 											"pm.test(\"Number of members test\", function () {\r",
 											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson.length).to.eql(20);\r",
+											"    pm.expect(responseJson.length).to.lte(20);\r",
 											"});"
 										],
 										"type": "text/javascript"
