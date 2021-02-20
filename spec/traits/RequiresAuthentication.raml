@@ -1,0 +1,14 @@
+#%RAML 1.0 Trait
+
+headers:
+  Authorization:
+    description: Basic authentication with a 64-character client secret.
+    type: string
+    required: true
+    example: "Basic 22AB6BsFYJgqqclNbknmUr7gG0nn5qtiXgdxJP7G0dTnkUjSN5nZNFca3M8Wfe3k"
+responses:
+  401:
+    body:
+      application/json:
+        description: Error response when authentication failed.
+        example: !include ../examples/errors/unauthorized.json

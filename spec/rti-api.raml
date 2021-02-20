@@ -10,36 +10,9 @@ types:
   TrainingRequestSummary: !include types/TrainingRequestSummary.raml
   Status: !include types/Status.raml
 traits:
-  requiresAuthentication:
-    headers:
-      Authorization:
-        description: Basic authentication with a 64-character client secret.
-        type: string
-        required: true
-        example: "Basic 22AB6BsFYJgqqclNbknmUr7gG0nn5qtiXgdxJP7G0dTnkUjSN5nZNFca3M8Wfe3k"
-    responses:
-      401:
-        body:
-          application/json:
-            description: Error response when authentication failed.
-            example: !include examples/errors/unauthorized.json
-  supportsPagination:
-    queryParameters:
-      page:
-        type: number
-        description: A number greater than 0 indicating what page of results to return.
-        example: 4
-      pageSize:
-        type: number
-        description: A number greater than 0 indicating how many results to return per page.
-        example: 20
-  multiFormat:
-    queryParameters:
-      format:
-        type: string
-        description: A case-insensitive string to define whether to return a JSON or CSV response.
-        enum: ["csv", "json"]
-
+  requiresAuthentication: !include traits/RequiresAuthentication.raml
+  supportsPagination: !include traits/SupportsPagination.raml
+  multiFormat: !include traits/multiFormat.raml
 
 /raids:
   get:
