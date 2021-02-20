@@ -44,7 +44,7 @@ export default class Utils {
         const idMap = new Map<string, string | undefined>();
         name = escapeStringRegexp(name);
         const regex: RegExp = new RegExp(name, "gi");
-        const documents: IMemberDocument[] = await DB.query_members({gw2Name: regex});
+        const documents: IMemberDocument[] = await DB.query_members(options?.returnGW2Names ? { gw2Name: regex } : { discordTag: regex });
         documents.forEach(document => idMap.set(document.userId, options?.returnGW2Names ? document.gw2Name : document.discordTag));
 
         return idMap;
