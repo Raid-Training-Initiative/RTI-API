@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "00912a03-8b0a-441b-ba6a-58c7e0a2b793",
+		"_postman_id": "82507df5-6055-439d-92e2-188679c3e1a1",
 		"name": "RTI API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -824,755 +824,6 @@
 			]
 		},
 		{
-			"name": "Training Requests",
-			"item": [
-				{
-					"name": "List",
-					"item": [
-						{
-							"name": "All Training Requests",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Training Requests Page 1",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Number of training requests test\", function () {\r",
-											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson.length).to.eql(20);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?page=1&pageSize=20",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "page",
-											"value": "1"
-										},
-										{
-											"key": "pageSize",
-											"value": "20"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Keyword Search",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const jsonData = pm.response.json()\r",
-											"\r",
-											"pm.test(\"All training request comments contain all of the specified strings\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.request.url.getQueryString().toLowerCase().split(\"=\")[1].split(\",\").forEach(keyword => pm.expect(item.comment.toLowerCase()).to.contain(keyword))\r",
-											"    })\r",
-											"})"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?keywords=dhuum,only",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "keywords",
-											"value": "dhuum,only"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Only Active Training Requests",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const jsonData = pm.response.json()\r",
-											"\r",
-											"pm.test(\"All training requests are active\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.expect(item.active).to.eql(pm.request.url.getQueryString().split(\"=\")[1] == \"true\")\r",
-											"    })\r",
-											"})"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?active=true",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "active",
-											"value": "true"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Filter by Wings",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const jsonData = pm.response.json()\r",
-											"\r",
-											"pm.test(\"All training requests have one of the specified wings\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        const queryWings = pm.request.url.getQueryString().split(\"=\")[1].split(\",\").map(wing => Number.parseInt(wing));\r",
-											"        const requestedWings = item.requestedWings;\r",
-											"        const commonElements = queryWings.filter(wing => requestedWings.indexOf(wing) > -1);\r",
-											"\r",
-											"        pm.expect(commonElements.length).to.be.greaterThan(0);\r",
-											"    })\r",
-											"})"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?wings=1,2,3",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "wings",
-											"value": "1,2,3"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Filter by disabledReasons",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const jsonData = pm.response.json()\r",
-											"\r",
-											"pm.test(\"All training request disabled reasons are one of the specified strings\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.expect(item.disabledReason.toLowerCase()).to.be.oneOf(pm.request.url.getQueryString().toLowerCase().split(\"=\")[1].split(\",\"));\r",
-											"    })\r",
-											"})"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?disabledReasons=None,Expired",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "disabledReasons",
-											"value": "None,Expired"
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"const schema = {",
-									"    \"type\": \"array\",",
-									"    \"items\": {",
-									"        \"type\": \"object\",",
-									"        \"required\": [\"active\", \"requestedWings\", \"comment\", \"created\", \"edited\", \"disabledReason\", \"userId\"],",
-									"        \"properties\": {",
-									"            \"discordTag\": { \"type\": \"string\" },",
-									"            \"active\": { \"type\": \"boolean\" },",
-									"            \"requestedWings\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }},",
-									"            \"comment\": { \"type\": \"string\" },",
-									"            \"created\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"            \"edited\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"            \"disabledReason\": {",
-									"                \"type\": \"string\",",
-									"                \"enum\": [",
-									"                    \"None\",",
-									"                    \"Manually by User\",",
-									"                    \"Manually by Officer\",",
-									"                    \"Fulfilled\",",
-									"                    \"API Key Removed\",",
-									"                    \"Invalid API Key\",",
-									"                    \"No Longer Member\",",
-									"                    \"Expired\"",
-									"                ]",
-									"            },",
-									"            \"userId\": { \"type\": \"string\" }",
-									"        }",
-									"    }",
-									"}",
-									"",
-									"pm.test(\"Status test\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Content-Type is present\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\");",
-									"});",
-									"",
-									"pm.test(\"Schema test\", function () {",
-									"    pm.response.to.have.jsonSchema(schema);",
-									"});"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Get",
-					"item": [
-						{
-							"name": "Existent Training Request",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests/218456492339101697",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests",
-										"218456492339101697"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"const schema = {",
-									"    \"type\": \"object\",",
-									"    \"required\": [\"active\", \"requestedWings\", \"comment\", \"created\", \"edited\", \"disabledReason\", \"userId\", \"history\"],",
-									"    \"properties\": {",
-									"        \"discordTag\": { \"type\": \"string\" },",
-									"        \"active\": { \"type\": \"boolean\" },",
-									"        \"requestedWings\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }},",
-									"        \"comment\": { \"type\": \"string\" },",
-									"        \"created\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"        \"edited\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"        \"disabledReason\": {",
-									"            \"type\": \"string\",",
-									"            \"enum\": [",
-									"                \"None\",",
-									"                \"Manually by User\",",
-									"                \"Manually by Officer\",",
-									"                \"Fulfilled\",",
-									"                \"API Key Removed\",",
-									"                \"Invalid API Key\",",
-									"                \"No Longer Member\",",
-									"                \"Expired\"",
-									"            ]",
-									"        },",
-									"        \"userId\": { \"type\": \"string\" },",
-									"        \"history\": {",
-									"            \"type\": \"object\",",
-									"            \"additionalProperties\": {",
-									"                \"type\": \"object\",",
-									"                \"properties\": {",
-									"                    \"requested\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"                    \"cleared\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"                }",
-									"            }",
-									"        }",
-									"    }",
-									"}",
-									"",
-									"pm.test(\"Status test\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Content-Type is present\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\");",
-									"});",
-									"",
-									"pm.test(\"Schema test\", function () {",
-									"    pm.response.to.have.jsonSchema(schema);",
-									"});"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "List CSV",
-					"item": [
-						{
-							"name": "All Training Requests as CSV",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?format=csv",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "format",
-											"value": "csv"
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test(\"Status test\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Content-Type is present\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\");",
-									"});"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Errors",
-					"item": [
-						{
-							"name": "Wrong disabledReason",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status test\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?active=no",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "active",
-											"value": "no"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Wrong Active",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status test\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?disabledReasons=ThisIsNotAReason",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "disabledReasons",
-											"value": "ThisIsNotAReason"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Wings Aren't Numbers",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status test\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?wings=one",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "wings",
-											"value": "one"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Bad Authentication",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status test\", function () {\r",
-											"    pm.response.to.have.status(401);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "Authorization",
-										"value": "Basic 1234567890",
-										"type": "text"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Page Without PageSize",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status test\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?page=1",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "page",
-											"value": "1"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "PageSize Without Page",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status test\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?pageSize=20",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "pageSize",
-											"value": "20"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Wrong Format",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status test\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests?format=txt",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests"
-									],
-									"query": [
-										{
-											"key": "format",
-											"value": "txt"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Nonexistent Training Request",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status test\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/trainingrequests/111111111111111111111111",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"trainingrequests",
-										"111111111111111111111111"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				}
-			]
-		},
-		{
 			"name": "Members",
 			"item": [
 				{
@@ -1604,7 +855,7 @@
 										"exec": [
 											"pm.test(\"Number of members test\", function () {\r",
 											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson.length).to.lte(20);\r",
+											"    pm.expect(responseJson.length).to.eql(20);\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -2759,6 +2010,829 @@
 							""
 						]
 					}
+				}
+			]
+		},
+		{
+			"name": "Training Requests",
+			"item": [
+				{
+					"name": "List",
+					"item": [
+						{
+							"name": "All Training Requests",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Training Requests Page 1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Number of training requests test\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.length).to.eql(20);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?page=1&pageSize=20",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "20"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Keyword Search",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const jsonData = pm.response.json()\r",
+											"\r",
+											"pm.test(\"All training request comments contain all of the specified strings\", () => {\r",
+											"    _.each(jsonData, (item) => {\r",
+											"        pm.request.url.getQueryString().toLowerCase().split(\"=\")[1].split(\",\").forEach(keyword => pm.expect(item.comment.toLowerCase()).to.contain(keyword))\r",
+											"    })\r",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?keywords=dhuum,only",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "keywords",
+											"value": "dhuum,only"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Only Active Training Requests",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const jsonData = pm.response.json()\r",
+											"\r",
+											"pm.test(\"All training requests are active\", () => {\r",
+											"    _.each(jsonData, (item) => {\r",
+											"        pm.expect(item.active).to.eql(pm.request.url.getQueryString().split(\"=\")[1] == \"true\")\r",
+											"    })\r",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?active=true",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "active",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Filter by Wings",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const jsonData = pm.response.json()\r",
+											"\r",
+											"pm.test(\"All training requests have one of the specified wings\", () => {\r",
+											"    _.each(jsonData, (item) => {\r",
+											"        const queryWings = pm.request.url.getQueryString().split(\"=\")[1].split(\",\").map(wing => Number.parseInt(wing));\r",
+											"        const requestedWings = item.requestedWings;\r",
+											"        const commonElements = queryWings.filter(wing => requestedWings.indexOf(wing) > -1);\r",
+											"\r",
+											"        pm.expect(commonElements.length).to.be.greaterThan(0);\r",
+											"    })\r",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?wings=1,2,3",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "wings",
+											"value": "1,2,3"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Filter by disabledReasons",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const jsonData = pm.response.json()\r",
+											"\r",
+											"pm.test(\"All training request disabled reasons are one of the specified strings\", () => {\r",
+											"    _.each(jsonData, (item) => {\r",
+											"        pm.expect(item.disabledReason.toLowerCase()).to.be.oneOf(pm.request.url.getQueryString().toLowerCase().split(\"=\")[1].split(\",\"));\r",
+											"    })\r",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?disabledReasons=None,Expired",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "disabledReasons",
+											"value": "None,Expired"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const schema = {",
+									"    \"type\": \"array\",",
+									"    \"items\": {",
+									"        \"type\": \"object\",",
+									"        \"required\": [\"active\", \"requestedWings\", \"comment\", \"created\", \"edited\", \"disabledReason\", \"userId\"],",
+									"        \"properties\": {",
+									"            \"discordTag\": { \"type\": \"string\" },",
+									"            \"active\": { \"type\": \"boolean\" },",
+									"            \"requestedWings\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }},",
+									"            \"comment\": { \"type\": \"string\" },",
+									"            \"created\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"            \"edited\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"            \"disabledReason\": {",
+									"                \"type\": \"string\",",
+									"                \"enum\": [",
+									"                    \"None\",",
+									"                    \"Manually by User\",",
+									"                    \"Manually by Officer\",",
+									"                    \"Fulfilled\",",
+									"                    \"API Key Removed\",",
+									"                    \"Invalid API Key\",",
+									"                    \"No Longer Member\",",
+									"                    \"Expired\"",
+									"                ]",
+									"            },",
+									"            \"userId\": { \"type\": \"string\" }",
+									"        }",
+									"    }",
+									"}",
+									"",
+									"pm.test(\"Status test\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is present\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"pm.test(\"Schema test\", function () {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get",
+					"item": [
+						{
+							"name": "Existent Training Request",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests/218456492339101697",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests",
+										"218456492339101697"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const schema = {",
+									"    \"type\": \"object\",",
+									"    \"required\": [\"active\", \"requestedWings\", \"comment\", \"created\", \"edited\", \"disabledReason\", \"userId\", \"history\"],",
+									"    \"properties\": {",
+									"        \"discordTag\": { \"type\": \"string\" },",
+									"        \"active\": { \"type\": \"boolean\" },",
+									"        \"requestedWings\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }},",
+									"        \"comment\": { \"type\": \"string\" },",
+									"        \"created\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"        \"edited\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"        \"disabledReason\": {",
+									"            \"type\": \"string\",",
+									"            \"enum\": [",
+									"                \"None\",",
+									"                \"Manually by User\",",
+									"                \"Manually by Officer\",",
+									"                \"Fulfilled\",",
+									"                \"API Key Removed\",",
+									"                \"Invalid API Key\",",
+									"                \"No Longer Member\",",
+									"                \"Expired\"",
+									"            ]",
+									"        },",
+									"        \"userId\": { \"type\": \"string\" },",
+									"        \"history\": {",
+									"            \"type\": \"object\",",
+									"            \"additionalProperties\": {",
+									"                \"type\": \"object\",",
+									"                \"properties\": {",
+									"                    \"requested\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"                    \"cleared\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"                }",
+									"            }",
+									"        }",
+									"    }",
+									"}",
+									"",
+									"pm.test(\"Status test\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is present\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"pm.test(\"Schema test\", function () {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "List CSV",
+					"item": [
+						{
+							"name": "All Training Requests as CSV",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?format=csv",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "format",
+											"value": "csv"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status test\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is present\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Errors",
+					"item": [
+						{
+							"name": "Wrong disabledReason",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?active=no",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "active",
+											"value": "no"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Wrong Active",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?disabledReasons=ThisIsNotAReason",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "disabledReasons",
+											"value": "ThisIsNotAReason"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Wings Aren't Numbers",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?wings=one",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "wings",
+											"value": "one"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Bad Authentication",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Basic 1234567890",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Page Without PageSize",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?page=1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PageSize Without Page",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?pageSize=20",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "pageSize",
+											"value": "20"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Wrong Format",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?format=txt",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "format",
+											"value": "txt"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Nonexistent Training Request",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests/111111111111111111111111",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests",
+										"111111111111111111111111"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "GuildOptions",
+			"item": [
+				{
+					"name": "Get",
+					"item": [
+						{
+							"name": "Get Guild Options",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/guildoptions",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"guildoptions"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const schema = {",
+									"    \"type\": \"object\",",
+									"    \"required\": [\"raidUnregisterNotificationTime\", \"raidReminderNotificationTime\", \"trainingRequestAutoSyncInterval\", \"trainingRequestInactiveDaysBeforeDisable\", \"commanderRoles\", \"officerRoles\"],",
+									"    \"properties\": {",
+									"        \"raidUnregisterNotificationTime\": { \"type\": \"number\" },",
+									"        \"raidReminderNotificationTime\": { \"type\": \"number\" },",
+									"        \"trainingRequestAutoSyncInterval\": {  \"type\": \"number\" },",
+									"        \"trainingRequestInactiveDaysBeforeDisable\": { \"type\": \"number\" },",
+									"        \"commanderRoles\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }},",
+									"        \"officerRoles\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }},",
+									"        \"memberRoleId\": { \"type\": \"string\" },",
+									"        \"guildApplicationsChannelId\": { \"type\": \"string\" },",
+									"        \"raidCategoryId\": { \"type\": \"string\" },",
+									"        \"raidDraftCategoryId\": { \"type\": \"string\" }",
+									"    }",
+									"}",
+									"",
+									"pm.test(\"Status test\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is present\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"pm.test(\"Schema test\", function () {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});"
+								]
+							}
+						}
+					]
 				}
 			]
 		},

@@ -13,6 +13,7 @@ import { GetRaid, ListRaids, GetRaidLog } from "./requests/Raids";
 import { GetMember, ListMembers } from "./requests/Members";
 import { ListTrainingRequests, GetTrainingRequest } from "./requests/TrainingRequests";
 import { GetStatus } from "./requests/Other";
+import { GetGuildOptions } from "./requests/GuildOptions";
 
 export class App {
     private static _app: App | undefined;
@@ -126,6 +127,14 @@ export class App {
             const getTrainingRequest = new GetTrainingRequest(req, res, next);
             await getTrainingRequest.run();
             Logger.log(Severity.Info, `GET /trainingrequests/:userid request completed`);
+        });
+
+        // =========### TrainingRequests ###=========
+        server.get("/guildoptions", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /guildoptions request initiated`);
+            const getGuildOptions = new GetGuildOptions(req, res, next);
+            await getGuildOptions.run();
+            Logger.log(Severity.Info, `GET /guildoptions request completed`);
         });
 
         // =========### Other ###=========

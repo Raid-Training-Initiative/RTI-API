@@ -9,6 +9,7 @@ types:
   Category: !include types/Category.raml
   TrainingRequest: !include types/TrainingRequest.raml
   TrainingRequestSummary: !include types/TrainingRequestSummary.raml
+  GuildOptions: !include types/GuildOptions.raml
   Status: !include types/Status.raml
 traits:
   requiresAuthentication: !include traits/RequiresAuthentication.raml
@@ -330,6 +331,27 @@ traits:
             application/json:
               description: Error response when the requested category could not be found.
               example: !include examples/errors/resource-not-found.json
+
+/guildoptions:
+  get:
+    description: Returns an object specifying the guild option values.
+    responses:
+      200:
+        body:
+          application/json:
+            description: A guild options object.
+            type: GuildOptions
+            example: !include examples/responses/json/get-guild-options.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json
+      500:
+        body:
+          application/json:
+            description: Error response when the guild options aren't found in the database.
+            example: !include examples/errors/no-guild-options.json
 
 /status:
   get:

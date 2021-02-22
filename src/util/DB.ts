@@ -1,3 +1,4 @@
+import { IGuildOptionsData } from "@RTIBot-DB/documents/IGuildOptionsDocument";
 import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
 import { IRaidCompositionPopulatedDocument } from "@RTIBot-DB/documents/IRaidCompositionDocument";
@@ -202,5 +203,15 @@ export default class DB {
         return (await this._instance.db.trainingRequestModel
             .findOne({userId: userId})
             .exec()) as ITrainingRequestDocument;
+    }
+
+    /**
+     * Queries the database and retrieves the guild options.
+     * @returns An object representing the guild options.
+     */
+    public static async query_guild_options(): Promise<IGuildOptionsData> {
+        return (await this._instance.db.guildOptionsModel
+            .findOne()
+            .exec()) as IGuildOptionsData;
     }
 }

@@ -1,0 +1,5 @@
+{
+    "status": 500,
+    "name": "InvalidQueryParameters",
+    "message": "Guild options not found in database"
+}
