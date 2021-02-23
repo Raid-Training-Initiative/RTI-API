@@ -129,7 +129,7 @@ export class App {
             Logger.log(Severity.Info, `GET /trainingrequests/:userid request completed`);
         });
 
-        // =========### TrainingRequests ###=========
+        // =========### GuildOptions ###=========
         server.get("/guildoptions", async (req: Request, res: Response, next: NextFunction) => {
             Logger.log(Severity.Info, `GET /guildoptions request initiated`);
             const getGuildOptions = new GetGuildOptions(req, res, next);

@@ -21,7 +21,7 @@ export class GetGuildOptions extends HTTPRequest {
     public async prepare_response(): Promise<Object> {
         const document = await DB.query_guild_options();
         if (document == undefined) {
-            throw new ServerErrorException("Guild options not found in database.");
+            throw new ServerErrorException("Guild options not found in database");
         }
 
         const formattedDocument = {
