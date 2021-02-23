@@ -1,0 +1,19 @@
+{
+  "comps": {
+      "count": 56
+  },
+  "categories": {
+      "count": 13
+  },
+  "raids": {
+      "count": 612,
+      "countPublished": 436
+  },
+  "members": {
+      "count": 2000
+  },
+  "trainingRequests": {
+      "count": 247,
+      "countActive": 107
+  }
+}

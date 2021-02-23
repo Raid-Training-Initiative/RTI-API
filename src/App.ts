@@ -12,7 +12,7 @@ import { GetCategory, ListCategories } from "./requests/Categories";
 import { GetRaid, ListRaids, GetRaidLog } from "./requests/Raids";
 import { GetMember, ListMembers } from "./requests/Members";
 import { ListTrainingRequests, GetTrainingRequest } from "./requests/TrainingRequests";
-import { GetStatus } from "./requests/Other";
+import { GetStats, GetStatus } from "./requests/Other";
 import { GetGuildOptions } from "./requests/GuildOptions";
 
 export class App {
@@ -145,6 +145,12 @@ export class App {
             Logger.log(Severity.Info, `GET /status request completed`);
         });
 
+        server.get("/stats", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /stats request initiated`);
+            const getStats = new GetStats(req, res, next);
+            await getStats.run();
+            Logger.log(Severity.Info, `GET /stats request completed`);
+        });
 
         server.get("*", async (req: Request, res: Response, next: NextFunction) => {
             Logger.log(Severity.Info, `Request made to nonexistent resource`);

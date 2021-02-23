@@ -72,6 +72,17 @@ export default class DB {
     }
 
     /**
+     * Queries the database and retrieves the count of comps.
+     * @param filter An object to pass into the database query that filters the results.
+     * @returns The count of comps.
+     */
+    public static async query_comps_count(filter?: Object): Promise<number> {
+        return (await this._instance.db.raidCompositionModel
+            .count(filter ? filter: {})
+            .exec()) as number;
+    }
+
+    /**
      * Queries the database and retrieves a list of categories.
      * @param filter An object to pass into the database query that filters the results.
      * @returns A list of categories.
@@ -91,6 +102,17 @@ export default class DB {
         return (await this._instance.db.raidCompositionCategoryModel
             .findOne({name: categoryName})
             .exec()) as IRaidCompositionCategoryDocument;
+    }
+
+    /**
+     * Queries the database and retrieves the count of categories.
+     * @param filter An object to pass into the database query that filters the results.
+     * @returns The count of categories.
+     */
+    public static async query_categories_count(filter?: Object): Promise<number> {
+        return (await this._instance.db.raidCompositionCategoryModel
+            .count(filter ? filter: {})
+            .exec()) as number;
     }
 
     /**
@@ -124,6 +146,17 @@ export default class DB {
         return (await this._instance.db.raidEventModel
             .findOne({_id: raidId})
             .exec()) as IRaidEventDocument;
+    }
+
+    /**
+     * Queries the database and retrieves the count of raids.
+     * @param filter An object to pass into the database query that filters the results.
+     * @returns The count of raids.
+     */
+    public static async query_raids_count(filter?: Object): Promise<number> {
+        return (await this._instance.db.raidEventModel
+            .count(filter ? filter: {})
+            .exec()) as number;
     }
 
     /**
@@ -176,6 +209,17 @@ export default class DB {
     }
 
     /**
+     * Queries the database and retrieves the count of members.
+     * @param filter An object to pass into the database query that filters the results.
+     * @returns The count of members.
+     */
+    public static async query_members_count(filter?: Object): Promise<number> {
+        return (await this._instance.db.memberModel
+            .count(filter ? filter: {})
+            .exec()) as number;
+    }
+
+    /**
      * Queries the database and retrieves a list of training requests.
      * @param filter An object to pass into the database query that filters the results.
      * @returns A list of training requests.
@@ -203,6 +247,17 @@ export default class DB {
         return (await this._instance.db.trainingRequestModel
             .findOne({userId: userId})
             .exec()) as ITrainingRequestDocument;
+    }
+
+    /**
+     * Queries the database and retrieves the count of training requests.
+     * @param filter An object to pass into the database query that filters the results.
+     * @returns The count of training requests.
+     */
+    public static async query_training_requests_count(filter?: Object): Promise<number> {
+        return (await this._instance.db.trainingRequestModel
+            .count(filter ? filter: {})
+            .exec()) as number;
     }
 
     /**

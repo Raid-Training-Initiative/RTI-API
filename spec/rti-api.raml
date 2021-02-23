@@ -373,3 +373,18 @@ traits:
           application/json:
             description: Error response when package.json file could not be found.
             example: !include examples/errors/package-json-not-found.json
+
+/stats:
+  get:
+    description: Returns an object providing statistics about the data.
+    responses:
+      200:
+        body:
+          application/json:
+            description: An object with statistics about the data.
+            example: !include examples/responses/json/get-stats.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json
