@@ -61,6 +61,7 @@ For most endpoints, a Bearer token will need to be provided. Below are steps for
     "clientsFile": "./clients.json"
 }
 ```
+* Step 3: Add your token to the `Authorization` header of requests you make in the form `Bearer <token>` (e.g. `Bearer TESTTOKEN`).
 
 ## Setting up Postman
 Postman is a free software that will allow you to easily send requests to the API. Included in the `postman` folder are files you can import into Postman to immediately have a collection of requests you can make and an environment you can use.
