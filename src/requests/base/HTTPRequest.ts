@@ -9,6 +9,7 @@ import { Logger, Severity } from "../../util/Logger";
 import ResourceNotFoundException from "../../exceptions/ResourceNotFoundException";
 import BadSyntaxException from "../../exceptions/BadSyntaxException";
 import Utils from "../../util/Utils";
+import RequestOptions from "./RequestOptions";
 
 export default abstract class HTTPRequest {
     public abstract validRequestQueryParameters: string[]; // A list of query parameters that this endpoint takes.
@@ -27,7 +28,7 @@ export default abstract class HTTPRequest {
     
     private pagination: {page: number, pageSize: number};
 
-    constructor(req: Request, res: Response, next: NextFunction, options?: {authenticated?: boolean, paginated?: boolean, multiFormat?: boolean}) {
+    constructor(req: Request, res: Response, next: NextFunction, options?: RequestOptions) {
         this.req = req;
         this.res = res;
         this.next = next;
