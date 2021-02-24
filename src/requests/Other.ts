@@ -9,6 +9,9 @@ import { IConfig } from "../util/Config";
 import ServerErrorException from "../exceptions/ServerErrorException";
 import * as os from "os";
 import DB from "../util/DB";
+import moment = require("moment-timezone");
+import momentDurationFormatSetup = require("moment-duration-format");
+momentDurationFormatSetup(moment);
 
 export class GetStatus extends HTTPRequest {
     public validRequestQueryParameters: string[] = [];
@@ -35,7 +38,7 @@ export class GetStatus extends HTTPRequest {
         const statusObject = {
             timestamp: Date.now(),
             processInfo: {
-                uptime: Utils.seconds_to_pretty_time(process.uptime()),
+                uptime: moment.duration(process.uptime(), "seconds").format("Y [years] M [months] D [days] h [hours] m [minutes] s [seconds]"),
                 pid: process.pid,
                 title: process.title,
                 environment: process.argv[2]
