@@ -14,7 +14,7 @@ git clone https://github.com/StephanWells/RTI-API.git
 ```bash
 git submodule update --init --recursive
 ```
-* Step 5: Open the terminal at the root folder and install Node dependencies:
+* Step 5: Open a terminal at the root folder and install Node dependencies:
 ```bash
 npm install
 ```
