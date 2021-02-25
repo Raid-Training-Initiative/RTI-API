@@ -126,7 +126,7 @@ Note that this will only work off the bat if you have an existing dump of RTI te
 }
 ```
 
-* For realtime IDE linting, you can also install [ES Lint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) for VS Code and place the following `.eslintrc.json` file into the root directory:
+* For realtime IDE linting, you can also install [ES Lint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) for VS Code and place the following `eslintrc.json` file into the root directory:
 ```json
 {
     "env": {
