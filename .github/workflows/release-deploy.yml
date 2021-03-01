@@ -23,10 +23,10 @@ jobs:
         with:
           command: |
             cd RTI-API
-            git stash
+            git checkout release
             git pull
             git submodule update --init --recursive
-            git stash pop
+            chmod +x start.sh
             sh start.sh
           host: ${{ secrets.RTIBOT_API_DEPLOY_HOST }}
           port: ${{ secrets.RTIBOT_API_DEPLOY_PORT }}
