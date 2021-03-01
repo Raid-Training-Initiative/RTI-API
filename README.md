@@ -18,6 +18,20 @@ git submodule update --init --recursive
 ```bash
 npm install
 ```
+* Step 6: Create a file called `ConfigDebug.json` in the root directory, with the following contents:
+```json
+{
+    "db": "mongodb://localhost:27017/",
+    "guildId": "paste the guild ID here",
+}
+```
+* Step 7: Optionally, if you plan to run with Docker, create a file called `Config.json` in the root directory, with the following contents:
+```json
+{
+    "db": "mongodb://db:27017/",
+    "guildId": "paste the guild ID here",
+}
+```
 
 ## Running
 * Step 1: Transpile TypeScript files into JavaScript code:

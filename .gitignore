@@ -232,4 +232,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Config files
+Config.json
+ConfigDebug.json
+
 # End of https://www.toptal.com/developers/gitignore/api/web,node,vscode,sublimetext,windows,macos
