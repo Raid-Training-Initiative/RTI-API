@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         git submodule init
-        git config submodule.RTIBot-DB.url https://Krhomv:${{ secrets.RTIBOT_DB_TOKEN }}@github.com/Krhomv/RTIBot-DB.git
+        git config submodule.RTIBot-DB.url https://${{ secrets.RTIBOT_DB_USER }}:${{ secrets.RTIBOT_DB_TOKEN }}@github.com/Krhomv/RTIBot-DB.git
         git submodule update
     - name: Setup Node.js environment
       uses: actions/setup-node@v1.4.4
