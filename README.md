@@ -23,6 +23,7 @@ npm install
 {
     "db": "mongodb://localhost:27017/",
     "guildId": "paste the guild ID here",
+    "clientsFile": "./clients.json"
 }
 ```
 * Step 7: Optionally, if you plan to run with Docker, create a file called `Config.json` in the root directory, with the following contents:
@@ -30,8 +31,28 @@ npm install
 {
     "db": "mongodb://db:27017/",
     "guildId": "paste the guild ID here",
+    "clientsFile": "./clients/clients.json"
 }
 ```
+
+## Setting up Authentication
+For most endpoints, a Bearer token will need to be provided. Below are steps for setting this up:
+
+* Step 1: Create a `clients.json` file containing an object with key-value pairs, where the keys are the Bearer tokens and the values are the names/identifiers for each of the tokens. Example `clients.json` file:
+```json
+{
+    "TESTTOKEN": "RTI Developer"
+}
+```
+* Step 2: Point to the `clients.json` file in your `ConfigDebug.json` file. Example `ConfigDebug.json`:
+```json
+{
+    "db": "mongodb://localhost:27017/",
+    "guildId": "156175293055369216",
+    "clientsFile": "./clients.json"
+}
+```
+* Step 3: Add your token to the `Authorization` header of requests you make in the form `Bearer <token>` (e.g. `Bearer TESTTOKEN`).
 
 ## Running
 * Step 1: Transpile TypeScript files into JavaScript code:
@@ -45,7 +66,7 @@ node dist/src/App.js Debug
 * Step 3: Make HTTP requests to the server, e.g. `GET http://localhost:8080/status`.
 
 ## Restoring Data
-If there is a database already created and backed up into a dump folder, then you can restore this data for use within the API.
+The API won't do much without data to expose. If there is a database already created and backed up into a dump folder, then you can restore this data for use within the API.
 
 * Step 1: [Install Mongo Tools](https://docs.mongodb.com/database-tools/installation/installation-windows/) and add its `bin` folder to your PATH.
 * Step 2: Connect to MongoDB (this can be done via running `mongo` in a terminal or via a GUI like [Robo 3T](https://robomongo.org/download)).
@@ -57,25 +78,6 @@ mongorestore
 ```bash
 mongorestore --gzip --archive=<your_dump_archive>
 ```
-
-## Setting up Authentication
-For most endpoints, a Bearer token will need to be provided. Below are steps for setting this up:
-
-* Step 1: Create a `clients.json` file containing an object with key-value pairs, where the keys are the Bearer tokens and the values are the names/identifiers for each of the tokens. Example `clients.json` file:
-```json
-{
-    "TESTTOKEN": "RTI Developer"
-}
-```
-* Step 2: Point to the `clients.json` file in your `ConfigDebug.json` file:
-```json
-{
-    "db": "mongodb://localhost:27017/",
-    "guildId": "156175293055369216",
-    "clientsFile": "./clients.json"
-}
-```
-* Step 3: Add your token to the `Authorization` header of requests you make in the form `Bearer <token>` (e.g. `Bearer TESTTOKEN`).
 
 ## Setting up Postman
 Postman is a free software that will allow you to easily send requests to the API. Included in the `postman` folder are files you can import into Postman to immediately have a collection of requests you can make and an environment you can use.
