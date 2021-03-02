@@ -71,7 +71,7 @@ For most endpoints, a Bearer token will need to be provided. Below are steps for
 ```json
 {
     "db": "mongodb://localhost:27017/",
-    "guildId": "705796529293623417",
+    "guildId": "156175293055369216",
     "clientsFile": "./clients.json"
 }
 ```
