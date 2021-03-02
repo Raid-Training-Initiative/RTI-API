@@ -2169,6 +2169,40 @@
 							"response": []
 						},
 						{
+							"name": "Filter by Users",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/trainingrequests?users=Fattony%234209,Samunstein%235279,LoveSponge%239943",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trainingrequests"
+									],
+									"query": [
+										{
+											"key": "users",
+											"value": "Fattony%234209,Samunstein%235279,LoveSponge#9943"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Filter by Wings",
 							"event": [
 								{

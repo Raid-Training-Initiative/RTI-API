@@ -8,11 +8,11 @@ import BadSyntaxException from "../exceptions/BadSyntaxException";
 import HTTPRequest from "./base/HTTPRequest";
 import Utils from "../util/Utils";
 import { TrainingRequestDisabledReason } from "@RTIBot-DB/documents/ITrainingRequestDocument";
-import escapeStringRegexp = require("escape-string-regexp");
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 
 export class ListTrainingRequests extends HTTPRequest {
     public validRequestQueryParameters: string[] = [
+        "users",
         "keywords",
         "active",
         "wings",
@@ -119,6 +119,11 @@ export class ListTrainingRequests extends HTTPRequest {
     private async db_filter(): Promise<Object> {
         const filters: Object[] = [];
 
+        if (this.req.query["users"]) {
+            const filterUsers: string[] = this.req.query["users"].toString().split(",");
+            const memberMap: Map<string | undefined, string> = await Utils.names_to_map(filterUsers);
+            filters.push({ userId: { $in: Array.from(memberMap.values()) } });
+        }
         if (this.req.query["keywords"]) {
             const filterKeywords: string[] = this.req.query["keywords"].toString().split(",");
             const keywordQuery: string = `"${filterKeywords.join("\",\"")}"`;
@@ -133,8 +138,7 @@ export class ListTrainingRequests extends HTTPRequest {
             filters.push({ requestedWings: { $in: filterWings }});
         }
         if (this.req.query["disabledReasons"]) {
-            const filterDisabledReasons: RegExp[] = this.req.query["disabledReasons"].toString()
-                .split(",").map(disabledReason => new RegExp(`^${escapeStringRegexp(disabledReason)}$`, "gi"));
+            const filterDisabledReasons: RegExp[] = Utils.get_regex_list_from_query_string(this.req.query["disabledReasons"].toString());
             filters.push({ disabledReason: { $in: filterDisabledReasons }});
         }
         

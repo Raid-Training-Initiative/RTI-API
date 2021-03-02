@@ -64,6 +64,10 @@ export default class Utils {
         return idMap;
     }
 
+    public static get_regex_list_from_query_string(queryString: string): RegExp[] {
+        return queryString.split(",").map(query => new RegExp(`^${escapeStringRegexp(query)}$`, "gi"));
+    }
+
     /**
      * Takes a date and time and formats it to a consistent datetime format (yyyy/MM/ddTHH:mm:ss).
      * @param date The date and time to format.

@@ -94,8 +94,7 @@ export class ListRaids extends HTTPRequest {
     private async db_filter(): Promise<Object> {
         const filters: Object[] = [];
         if (this.req.query["status"]) {
-            const filterStatus: RegExp[] = this.req.query["status"].toString()
-                .split(",").map(status => new RegExp(`^${escapeStringRegexp(status)}$`, "gi"));
+            const filterStatus: RegExp[] = Utils.get_regex_list_from_query_string(this.req.query["status"].toString());
             filters.push({ status: { $in: filterStatus }});
         }
         if (this.req.query["name"]) {
@@ -106,8 +105,7 @@ export class ListRaids extends HTTPRequest {
             filters.push({ $where: `this.name.replace(/${regex.source}/gi, '').toLowerCase().includes('${escapedName}')` });
         }
         if (this.req.query["comps"]) {
-            const filterComps: RegExp[] = this.req.query["comps"].toString()
-                .split(",").map(comp => new RegExp(`^${escapeStringRegexp(comp)}$`, "gi"));
+            const filterComps: RegExp[] = Utils.get_regex_list_from_query_string(this.req.query["comps"].toString());
             filters.push({ compositionName: { $in: filterComps } });
         }
         if (this.req.query["leader"]) {

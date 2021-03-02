@@ -270,6 +270,10 @@ traits:
     description: Gets a list of the saved training requests.
     is: ["requiresAuthentication", "supportsPagination", "multiFormat"]
     queryParameters:
+      users:
+        type: string
+        description: A comma-separated, case-sensitive string to filter the training requests by users' Discord names.
+        example: "Steven%231590,Rick%236631"
       keywords:
         type: string
         description: A comma-separated, case-insensitive list of keywords to search in the comments. Only results that contain all the keywords are returned.
