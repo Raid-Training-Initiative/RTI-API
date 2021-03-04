@@ -126,7 +126,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/raids?participants=Step.1285,Bunz.5789",
+									"raw": "{{baseUrl}}/raids?participants=Step%231937,Christin%230112",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -136,7 +136,7 @@
 									"query": [
 										{
 											"key": "participants",
-											"value": "Step.1285,Bunz.5789"
+											"value": "Step#1937,Christin#0112"
 										}
 									]
 								}
@@ -149,7 +149,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/raids?reserves=Step.1285",
+									"raw": "{{baseUrl}}/raids?reserves=Step%231937",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -159,7 +159,7 @@
 									"query": [
 										{
 											"key": "reserves",
-											"value": "Step.1285"
+											"value": "Step%231937"
 										}
 									]
 								}
