@@ -3,6 +3,7 @@
   "raidReminderNotificationTime": 60,
   "trainingRequestAutoSyncInterval": 3600,
   "trainingRequestInactiveDaysBeforeDisable": 30,
+  "raidAutoBroadcastTime": 10,
   "commanderRoles": [
     "400792057414811659",
     "747573522024628366"

@@ -29,12 +29,13 @@ export class GetGuildOptions extends HTTPRequest {
             raidReminderNotificationTime: document.raidReminderNotificationTime,
             trainingRequestAutoSyncInterval: document.trainingRequestAutoSyncInterval,
             trainingRequestInactiveDaysBeforeDisable: document.trainingRequestInactiveDaysBeforeDisable,
+            raidAutoBroadcastTime: document.raidAutoBroadcastTime,
             commanderRoles: document.commanderRoles,
             officerRoles: document.officerRoles,
             memberRoleId: document.memberRoleId,
             guildApplicationsChannelId: document.guildApplicationsChannelId,
             raidCategoryId: document.raidCategoryId,
-            raidDraftCategoryId: document.raidDraftCategoryId
+            raidDraftCategoryId: document.raidDraftCategoryId,
         };
         
         return formattedDocument;

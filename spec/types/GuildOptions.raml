@@ -18,6 +18,10 @@ properties:
     type: number
     description: The number of days that it takes for a training request to expire.
     example: 30
+  raidAutoBroadcastTime:
+    type: number
+    description: The number of minutes during which an open spot in a role can't be broadcast more than once.
+    example: 10
   commanderRoles:
     type: array
     description: The list of role IDs of roles that allow invoking of commander commands.
