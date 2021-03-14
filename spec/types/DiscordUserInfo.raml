@@ -1,28 +1,40 @@
 #%RAML 1.0 DataType
-description: Data type for a member.
+description: Data type for discord user info.
 
 properties:
-  gw2Name:
+  id:
     type: string
-    description: The gw2Name of the member.
-    example: "John.5231"
-  discordName:
-    type: string
-    description: The display name on Discord of the member.
-    example: "John"
-  discordTag:
-    type: string
-    description: The discordTag of the member.
-    example: "John#1529"
-  approver:
-    type: string
-    description: The discordTag of the person approving the member.
-    example: Tim#6391
-  userId:
-    type: string
-    description: The Discord ID of the member.
+    description: The discord ID of the user
     example: "645169823936151572"
-  banned:
+  username:
+    type: string
+    description: The discord name of the user
+    example: "John"
+  discriminator:
+    type: string
+    description: The discord tag of the user
+    example: "3124"
+  avatar:
+    type: string
+    description:
+    example: "b3eac06d5588a4f2e5afdeed504c8161"
+  public_flags:
+    type: number
+    description: The user's public flags (https://discord.com/developers/docs/resources/user)
+    example: 0
+  flags:
+    type: number
+    description: The user's flags (https://discord.com/developers/docs/resources/user)
+    example: 0
+  locale:
+    type: string
+    description: The locale for the user
+    example: "en-GB"
+  mfa_enabled:
     type: boolean
-    description: Whether or not the member is banned.
-    example: false
+    description: Whether the user has MFA enabled
+    example: true
+  premium_type:
+    type: number
+    description: The premium type (https://discord.com/developers/docs/resources/user)
+    example: 2
