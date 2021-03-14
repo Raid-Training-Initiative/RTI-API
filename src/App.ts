@@ -5,7 +5,7 @@ import DB from "./util/DB";
 import { Request, Response, NextFunction } from "express";
 import error_middleware from "./util/Error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
-import Auth from "./util/Auth";
+import Auth from "./util/Auth/Auth";
 import { Logger, Severity } from "./util/Logger";
 import { GetComp, ListComps } from "./requests/Comps";
 import { GetCategory, ListCategories } from "./requests/Categories";
@@ -14,6 +14,7 @@ import { GetMember, ListMembers } from "./requests/Members";
 import { ListTrainingRequests, GetTrainingRequest } from "./requests/TrainingRequests";
 import { GetStats, GetStatus } from "./requests/Other";
 import { GetGuildOptions } from "./requests/GuildOptions";
+import { GetDiscordAuth } from "./requests/DiscordAuth";
 
 export class App {
     private static _app: App | undefined;
@@ -41,11 +42,24 @@ export class App {
      */
     public async run() { 
         const server = express();
+        if (this._config.cors) {
+            const cors = require('cors');
+            server.use(cors());
+        }
         const port = 8080;
         Logger.log(Severity.Info, `Initialising API with DB ${this._config.db}`);
 
         await DB.create(this._config);
         await Auth.create(this._config);
+
+        // =========### Discord Auth ###=========
+        server.post("/discordauth", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /discordauth request initiated`);
+            const discordAuth = new GetDiscordAuth(req, res, next);
+            await discordAuth.run();
+            Logger.log(Severity.Info, `GET /discordauth request completed`);
+        });
+        
         
         // =========### Raids ###=========
         server.get("/raids", async (req: Request, res: Response, next: NextFunction) => {

@@ -3,13 +3,13 @@ import { NextFunction, Request, Response } from "express";
 import HTTPException from "../../exceptions/base/HTTPException";
 import ServerErrorException from "../../exceptions/ServerErrorException";
 import InvalidQueryParametersException from "../../exceptions/InvalidQueryParametersException";
-import Auth from "../../util/Auth";
-import UnauthorizedException from "../../exceptions/UnauthorizedException";
+import Auth from "../../util/Auth/Auth";
 import { Logger, Severity } from "../../util/Logger";
 import ResourceNotFoundException from "../../exceptions/ResourceNotFoundException";
 import BadSyntaxException from "../../exceptions/BadSyntaxException";
 import Utils from "../../util/Utils";
 import RequestOptions from "./RequestOptions";
+import InvalidAuthenticationException from "../../exceptions/InvalidAuthenticationException";
 
 export default abstract class HTTPRequest {
     public abstract validRequestQueryParameters: string[]; // A list of query parameters that this endpoint takes.
@@ -69,19 +69,19 @@ export default abstract class HTTPRequest {
 
     /**
      * Checks if the authentication is valid (i.e. Authorization header contains a valid client secret).
-     * @throws {UnauthorizedException} When the Authorization header is empty or contains an invalid client secret.
+     * @throws {InvalidAuthenticationException} When the Authorization header is empty or contains an invalid client secret.
      */
     private validate_authentication() {
         const auth: Auth = Auth.instance();
         const auth_header: string[] = (this.req.headers.authorization || "").split(" ");
         if (auth_header[0] != "Bearer") {
-            throw new UnauthorizedException();
+            throw new InvalidAuthenticationException();
         }
 
         const client_secret: string = auth_header[1] || "";
         this._client_id = auth.return_client_id(client_secret);
         if (this._client_id == undefined) {
-            throw new UnauthorizedException();
+            throw new InvalidAuthenticationException();
         }
 
         Logger.log_request(Severity.Debug, this.timestamp, `Request called by: ${this._client_id}`)
