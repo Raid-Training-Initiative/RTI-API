@@ -1,10 +1,10 @@
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { NextFunction, Request, Response } from "express";
 import InvalidQueryParametersException from "../../exceptions/InvalidQueryParametersException";
-import Auth from "../../util/Auth";
-import UnauthorizedException from "../../exceptions/UnauthorizedException";
+import Auth from "../../util/Auth/Auth";
 import { Logger, Severity } from "../../util/Logger";
 import RequestOptions from "./RequestOptions";
+import InvalidAuthenticationException from "../../exceptions/InvalidAuthenticationException";
 
 export default abstract class HTTPRequest {
     public abstract validRequestQueryParameters: string[]; // A list of query parameters that this endpoint takes.
@@ -45,7 +45,7 @@ export default abstract class HTTPRequest {
 
     /**
      * Checks if the authentication is valid (i.e. Authorization header contains a valid client secret).
-     * @throws {UnauthorizedException} When the Authorization header is empty or contains an invalid client secret.
+     * @throws {InvalidAuthenticationException} When the Authorization header is empty or contains an invalid client secret.
      */
     private validateAuthentication() {
         const auth: Auth = Auth.instance();
