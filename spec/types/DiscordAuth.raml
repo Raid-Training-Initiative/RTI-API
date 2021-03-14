@@ -1,28 +1,12 @@
 #%RAML 1.0 DataType
-description: Data type for a member.
+description: Data type for the data returned by the the discord authentication
 
 properties:
-  gw2Name:
+  token:
     type: string
-    description: The gw2Name of the member.
-    example: "John.5231"
-  discordName:
-    type: string
-    description: The display name on Discord of the member.
-    example: "John"
-  discordTag:
-    type: string
-    description: The discordTag of the member.
-    example: "John#1529"
-  approver:
-    type: string
-    description: The discordTag of the person approving the member.
-    example: Tim#6391
-  userId:
-    type: string
-    description: The Discord ID of the member.
-    example: "645169823936151572"
-  banned:
-    type: boolean
-    description: Whether or not the member is banned.
-    example: false
+    description: The access token that the user can use to access this api
+    example: "8CkCJtHJjYa5hDrGWA85Zx"
+  userInfo:
+    type: !include DiscordUserInfo.raml
+    description: The user info
+    example: !include ../examples/snippets/discordauth-userinfo.json
