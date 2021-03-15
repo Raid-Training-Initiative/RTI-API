@@ -8,6 +8,8 @@ import { TokenGenerator } from "ts-token-generator";
 import DB from "../DB";
 import UnauthorizedException from "../../exceptions/UnauthorizedException";
 import AuthenticatedDiscordUser from "./clients/AuthenticatedDiscordUser";
+import InvalidAuthenticationException from "../../exceptions/InvalidAuthenticationException";
+import SessionExpiredException from "../../exceptions/SessionExpiredException";
 
 export default class Auth {
     private static _instance: Auth;
@@ -48,9 +50,23 @@ export default class Auth {
      * Takes a client secret and returns a client ID or undefined if the secret was invalid.
      * @param client_secret The client secret.
      * @returns A string of the client_id that it succeeded in finding, or undefined if the secret was invalid.
+     * @throws {InvalidAuthenticationException} Raised when the client doens't have a session
+     * @throws {SessionExpiredException} Raised when the client has a session that has expired
      */
-    public return_client_id(client_secret: string): string | undefined {
-        return this._clients.get(client_secret)?.id;
+    public authenticate(client_secret: string): IAuthenticatedClient {
+        const client = this._clients.get(client_secret);
+
+        if (client === undefined) {
+            throw new InvalidAuthenticationException();
+        }
+
+        if (client.expired) {
+            throw new SessionExpiredException();
+        }
+
+        client.recordActivity();
+
+        return client;
     }
 
     /**
