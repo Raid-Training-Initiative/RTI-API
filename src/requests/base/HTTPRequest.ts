@@ -54,11 +54,9 @@ export default abstract class HTTPRequest {
             throw new UnauthorizedException();
         }
 
-        const clientSecret: string = authHeader[1] || "";
-        this._clientId = auth.returnClientId(clientSecret);
-        if (this._clientId == undefined) {
-            throw new UnauthorizedException();
-        }
+        const client_secret: string = authHeader[1] || "";
+        const client = auth.authenticate(client_secret);
+        this._clientId = client.id;
 
         Logger.logRequest(Severity.Debug, this._timestamp, `Request called by: ${this._clientId}`)
     }

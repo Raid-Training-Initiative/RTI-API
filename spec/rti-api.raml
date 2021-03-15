@@ -460,6 +460,11 @@ traits:
           application/json:
             description: Error response when syntax is invalid.
             example: !include examples/errors/invalid-query-parameters.json
+      440:
+        body:
+          application/json:
+            description: The session associated with this token has expired and the user must authenticate again
+            example: !include examples/errors/session-expired.json
       500:
         body:
           application/json:
