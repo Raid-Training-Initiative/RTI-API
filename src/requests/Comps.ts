@@ -6,7 +6,10 @@ import { NextFunction, Request, Response } from "express";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import DB from "../util/DB";
 import Utils from "../util/Utils";
+import * as fs from "fs";
+import ResourceAlreadyExistsException from "../exceptions/ResourceAlreadyExistsException";
 import { ObjectId } from "mongoose";
+import HTTPPostRequest from "./base/HTTPPostRequest";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 
 export class ListComps extends HTTPGetRequest {
@@ -97,5 +100,37 @@ export class GetComp extends HTTPGetRequest {
         };
         
         return formattedDocument;
+    }
+}
+
+export class CreateComp extends HTTPPostRequest {
+    public validRequestQueryParameters: string[] = [];
+    public requestBodyJsonSchema: object = JSON.parse(fs.readFileSync("resources/schemas/comp.schema.json", "utf8"));;
+
+    constructor(req: Request, res: Response, next: NextFunction) {
+        super(req, res, next, {authenticated: true});
+    }
+
+    /**
+     * Returns a comp after making a GET /comps/:comp request.
+     * @throws {ResourceAlreadyExistsException} When there's already a comp with the specified name.
+     * @throws {ResourceNotFoundException} When one of the specified categories cannot be found in the database.
+     * @returns An object representing a comp.
+     */
+    public async prepare_response() {
+        const compJson = this.req.body;
+        if (await DB.query_comp(compJson.name) != undefined) {
+            throw new ResourceAlreadyExistsException(compJson.name);
+        }
+
+        const categoryDocuments = await Utils.get_category_ids_map_from_categories(compJson.categories);
+        compJson.categories.forEach((category: string) => {
+            if (!categoryDocuments.has(category.toLowerCase())) {
+                throw new ResourceNotFoundException(category);
+            }
+        })
+        
+        const categoryIds: ObjectId[] = Array.from(categoryDocuments.values());
+        await DB.create_comp(compJson.name, compJson.roles, categoryIds);
     }
 }
