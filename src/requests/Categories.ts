@@ -4,10 +4,10 @@
 
 import { NextFunction, Request, Response } from "express";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
-import HTTPRequest from "./base/HTTPRequest";
 import DB from "../util/DB";
+import HTTPGetRequest from "./base/HTTPGetRequest";
 
-export class ListCategories extends HTTPRequest {
+export class ListCategories extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {
@@ -26,7 +26,7 @@ export class ListCategories extends HTTPRequest {
     }
 }
 
-export class GetCategory extends HTTPRequest {
+export class GetCategory extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {

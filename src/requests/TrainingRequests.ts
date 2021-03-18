@@ -5,12 +5,12 @@
 import { NextFunction, Request, Response } from "express";
 import DB from "../util/DB";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
-import HTTPRequest from "./base/HTTPRequest";
 import Utils from "../util/Utils";
 import { TrainingRequestDisabledReason } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
+import HTTPGetRequest from "./base/HTTPGetRequest";
 
-export class ListTrainingRequests extends HTTPRequest {
+export class ListTrainingRequests extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
         "users",
         "keywords",
@@ -146,7 +146,7 @@ export class ListTrainingRequests extends HTTPRequest {
     }
 }
 
-export class GetTrainingRequest extends HTTPRequest {
+export class GetTrainingRequest extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {

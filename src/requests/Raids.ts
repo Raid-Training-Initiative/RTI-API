@@ -4,13 +4,13 @@
 
 import { NextFunction, Request, Response } from "express";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
-import HTTPRequest from "./base/HTTPRequest";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import Utils from "../util/Utils";
 import escapeStringRegexp = require("escape-string-regexp");
 import DB from "../util/DB";
+import HTTPGetRequest from "./base/HTTPGetRequest";
 
-export class ListRaids extends HTTPRequest {
+export class ListRaids extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
         "status",
         "name",
@@ -134,7 +134,7 @@ export class ListRaids extends HTTPRequest {
     }
 }
 
-export class GetRaid extends HTTPRequest {
+export class GetRaid extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
         "names"
     ];
@@ -214,7 +214,7 @@ export class GetRaid extends HTTPRequest {
     }
 }
 
-export class GetRaidLog extends HTTPRequest {
+export class GetRaidLog extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
         "names"
     ];

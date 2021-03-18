@@ -4,11 +4,12 @@
 
 import { NextFunction, Request, Response } from "express";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
-import HTTPRequest from "./base/HTTPRequest";
 import DB from "../util/DB";
 import Utils from "../util/Utils";
+import { ObjectId } from "mongoose";
+import HTTPGetRequest from "./base/HTTPGetRequest";
 
-export class ListComps extends HTTPRequest {
+export class ListComps extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
         "categories"
     ];
@@ -50,7 +51,7 @@ export class ListComps extends HTTPRequest {
         const filters: Object[] = [];
         if (this.req.query["categories"]) {
             const filterCategories: string[] = this.req.query["categories"]?.toString().toLowerCase().split(",");
-            const filterCategoryIds: Map<string, string> = await Utils.get_category_ids_map_from_categories(filterCategories);
+            const filterCategoryIds: Map<string, ObjectId> = await Utils.get_category_ids_map_from_categories(filterCategories);
             filterCategories.forEach(filterCategory => {
                 if (filterCategoryIds.has(filterCategory)) {
                     filters.push({"categories": filterCategoryIds.get(filterCategory)});
@@ -64,11 +65,11 @@ export class ListComps extends HTTPRequest {
     }
 }
 
-export class GetComp extends HTTPRequest {
+export class GetComp extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next);
+        super(req, res, next, {authenticated: true});
     }
 
     /**

@@ -3,11 +3,11 @@
  */
 
 import { NextFunction, Request, Response } from "express";
-import HTTPRequest from "./base/HTTPRequest";
 import DB from "../util/DB";
 import ServerErrorException from "../exceptions/ServerErrorException";
+import HTTPGetRequest from "./base/HTTPGetRequest";
 
-export class GetGuildOptions extends HTTPRequest {
+export class GetGuildOptions extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {
