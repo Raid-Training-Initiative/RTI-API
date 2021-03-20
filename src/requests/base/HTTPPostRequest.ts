@@ -3,7 +3,6 @@ import HTTPException from "../../exceptions/base/HTTPException";
 import ServerErrorException from "../../exceptions/ServerErrorException";
 import { Logger, Severity } from "../../util/Logger";
 import ResourceNotFoundException from "../../exceptions/ResourceNotFoundException";
-import Utils from "../../util/Utils";
 import RequestOptions from "./RequestOptions";
 import JsonValidationErrorException from "../../exceptions/JsonValidationErrorException";
 import { Validator, ValidatorResult } from "jsonschema";
@@ -53,8 +52,8 @@ export default abstract class HTTPPostRequest extends HTTPRequest {
         {
             Logger.log_request(Severity.Debug, this.timestamp, `Request: ${this.req.method} ${this.req.url}`);
             this.validate_request();
-            await this.prepare_response();
-            this.send_response();
+            const document = await this.prepare_response();
+            this.send_response(document);
         } catch (exception) {
             if (exception instanceof HTTPException) {
                 Logger.log_http_error(Severity.Warn, this.timestamp, exception);
@@ -70,10 +69,10 @@ export default abstract class HTTPPostRequest extends HTTPRequest {
         }
     }
 
-    protected send_response() {
-        const filterString: string = Utils.generate_filter_string(this.validRequestQueryParameters, this.req);
-        Logger.log_request(Severity.Debug, this.timestamp, `Sending empty payload with ${filterString.length > 0 ? "filter - " + filterString : "no filter"}`);
+    protected send_response(document: Object) {
+        Logger.log_request(Severity.Debug, this.timestamp, `Sending successfully created resource`);
         this.res.status(201);
-        this.res.send();
+        this.res.set("Content-Type", "application/json");
+        this.res.send(document);
     }
 }

@@ -117,7 +117,7 @@ export class CreateComp extends HTTPPostRequest {
      * @throws {ResourceNotFoundException} When one of the specified categories cannot be found in the database.
      * @returns An object representing a comp.
      */
-    public async prepare_response() {
+    public async prepare_response(): Promise<Object> {
         const compJson = this.req.body;
         if (await DB.query_comp(compJson.name) != undefined) {
             throw new ResourceAlreadyExistsException(compJson.name);
@@ -131,6 +131,6 @@ export class CreateComp extends HTTPPostRequest {
         })
         
         const categoryIds: ObjectId[] = Array.from(categoryDocuments.values());
-        await DB.create_comp(compJson.name, compJson.roles, categoryIds);
+        return await DB.create_comp(compJson.name, compJson.roles, categoryIds);
     }
 }
