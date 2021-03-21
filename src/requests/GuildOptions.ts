@@ -18,8 +18,8 @@ export class GetGuildOptions extends HTTPRequest {
      * Returns the JSON string payload of a comp after making a GET /guildoptions request.
      * @returns An object representing a member.
      */
-    public async prepare_response(): Promise<Object> {
-        const document = await DB.query_guild_options();
+    public async prepareResponse(): Promise<Object> {
+        const document = await DB.queryGuildOptions();
         if (document == undefined) {
             throw new ServerErrorException("Guild options not found in database");
         }

@@ -9,7 +9,7 @@ export default class Auth {
     private constructor(private readonly _config: IConfig) {
         filewatch(this._config.clientsFile, (eventType, filename) => {
             if (eventType == "change") {
-                this.import_clients();
+                this.importClients();
             }
         });
     }
@@ -17,7 +17,7 @@ export default class Auth {
     /**
      * Reads the clients.json file and imports it into the clients object.
      */
-    private async import_clients() {
+    private async importClients() {
         try {
             // The clients file contains a JSON object of key/value pairs, where the key is the client secret and the value is the client ID. 
             const fileContent = await filepromises.readFile(this._config.clientsFile, "utf-8");
@@ -30,17 +30,17 @@ export default class Auth {
 
     /**
      * Takes a client secret and returns a client ID or undefined if the secret was invalid.
-     * @param client_secret The client secret.
-     * @returns A string of the client_id that it succeeded in finding, or undefined if the secret was invalid.
+     * @param clientSecret The client secret.
+     * @returns A string of the clientId that it succeeded in finding, or undefined if the secret was invalid.
      */
-    public return_client_id(client_secret: string): string | undefined {
-        return this.clients[client_secret];
+    public returnClientId(clientSecret: string): string | undefined {
+        return this.clients[clientSecret];
     }
 
     public static async create(config: IConfig) {
         if (!this._instance) {
             this._instance = new this(config)
-            await this._instance.import_clients();
+            await this._instance.importClients();
         } else {
             throw new ServerErrorException("Attempted to create duplicate authentication instance.");
         }
