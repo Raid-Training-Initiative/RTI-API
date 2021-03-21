@@ -24,7 +24,7 @@ export class Logger {
      * @param severity The type of severity of the log.
      * @param message The message to output in the log.
      */
-    public static log_request(severity: Severity, requestTimestamp: string, message: string) {
+    public static logRequest(severity: Severity, requestTimestamp: string, message: string) {
         const timeStr = new Date().toISOString().replace(/T/, " ").replace(/\..+/, "");
         const formattedMsg = `[${timeStr}][${severity}]${severity.length == 4 ? " " : ""} [${requestTimestamp}] ${message}`;
         console.log(formattedMsg);
@@ -35,8 +35,8 @@ export class Logger {
      * @param severity The severity of the error.
      * @param error The error to output in the log.
      */
-    public static log_http_error(severity: Severity, requestTimestamp: string, error: HTTPException) {
-        Logger.log_request(severity, requestTimestamp, `${error.name} - ${error.message} | Status code: ${error.status}`);
+    public static logHttpError(severity: Severity, requestTimestamp: string, error: HTTPException) {
+        Logger.logRequest(severity, requestTimestamp, `${error.name} - ${error.message} | Status code: ${error.status}`);
     }
 
     /**
@@ -44,7 +44,7 @@ export class Logger {
      * @param severity The severity of the error.
      * @param error The error to output in the log.
      */
-    public static log_error(severity: Severity, error: Error) {
+    public static logError(severity: Severity, error: Error) {
         Logger.log(severity, `Error: ${error.name} - ${error.message} | ${error.stack}`);
     }
 }
