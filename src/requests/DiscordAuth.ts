@@ -23,10 +23,10 @@ export class GetDiscordAuth extends HTTPRequest {
      * Validates the request with the basic HTTP request validation and then checks if the query parameters are correct.
      * @throws {BadSyntaxException} When a query parameter doesn't have the correct value.
      */
-    public validate_request() {
-        super.validate_request();
+    public validateRequest() {
+        super.validateRequest();
 
-        if (this.req.query["code"] == undefined) {
+        if (this._req.query["code"] == undefined) {
             throw new MissingQueryParameterException("code");
         }
     }
@@ -35,8 +35,8 @@ export class GetDiscordAuth extends HTTPRequest {
      * Returns the JSON string payload of a comp after making a GET /guildoptions request.
      * @returns An object representing a member.
      */
-    public async prepare_response(): Promise<Object> {
-        return await Auth.instance().authenticate_with_discord(this.req.query["code"] as string);
+    public async prepareResponse(): Promise<Object> {
+        return await Auth.instance().authenticateWithDiscord(this._req.query["code"] as string);
     }
 
 }

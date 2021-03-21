@@ -24,7 +24,7 @@ export default class Auth {
 
         filewatch(this._config.clientsFile, (eventType, filename) => {
             if (eventType == "change") {
-                this.import_service_clients();
+                this.importServiceClients();
             }
         });
     }
@@ -32,7 +32,7 @@ export default class Auth {
     public static async create(config: IConfig) {
         if (!this._instance) {
             this._instance = new this(config)
-            await this._instance.import_service_clients();
+            await this._instance.importServiceClients();
         } else {
             throw new ServerErrorException("Attempted to create duplicate authentication instance.");
         }
@@ -74,7 +74,7 @@ export default class Auth {
      * @param code The discord oauth authentication code
      * @throws {UnauthorizedException} if the user who initiated the authentication is not a discord member
      */
-    public async authenticate_with_discord(code: string) {
+    public async authenticateWithDiscord(code: string) {
         // Retreive the token for the Discord OAuth2 service
         const tokenInfo = await this._discordAuthService.getTokenInfo(code);
 
@@ -83,7 +83,7 @@ export default class Auth {
 
         // Check if the user is in the DB
         // TODO: check if the users has permissions
-        const member = await DB.query_member_by_id(userInfo.id);
+        const member = await DB.queryMemberById(userInfo.id);
         if (member) {
             // For now, being a member is enough to have access
 
@@ -110,7 +110,7 @@ export default class Auth {
     /**
      * Reads the clients.json file and imports it into the clients object.
      */
-    private async import_service_clients() {
+    private async importServiceClients() {
         try {
             // The clients file contains a JSON object of key/value pairs, where the key is the client secret and the value is the client ID. 
             const fileContent = await filepromises.readFile(this._config.clientsFile, "utf-8");

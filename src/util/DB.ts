@@ -243,7 +243,7 @@ export default class DB {
      * @returns A single member.
      */
     public static async query_member_populated_by_id(discordId?: string): Promise<IMemberPopulatedDocument> {
-        return (await this._instance.db.memberModel
+        return (await this._instance._db.memberModel
             .findOne({userId: discordId})
             .populate("roles")
             .exec()) as IMemberPopulatedDocument;
