@@ -32,8 +32,8 @@ export class ListRaids extends HTTPRequest {
      * Validates the request with the basic HTTP request validation and then checks if the query parameters are correct.
      * @throws {BadSyntaxException} When a query parameter doesn't have the correct value.
      */
-    public validateTequest() {
-        super.validateTequest();
+    public validateRequest() {
+        super.validateRequest();
 
         if (this._req.query["status"]) {
             const statusStrings: string[] = this._req.query["status"].toString().toLowerCase().split(",");
@@ -147,8 +147,8 @@ export class GetRaid extends HTTPRequest {
      * Perform specific validation for this endpoint.
      * @throws {BadSyntaxException} When the names query parameter exists and it's not a supported value.
      */
-    public validateTequest() {
-        super.validateTequest();
+    public validateRequest() {
+        super.validateRequest();
 
         if (this._req.query["names"]) {
             const nameString: string = this._req.query["names"]?.toString().toLowerCase();
@@ -227,8 +227,8 @@ export class GetRaidLog extends HTTPRequest {
      * Perform specific validation for this endpoint.
      * @throws {BadSyntaxException} When the names query parameter exists and it's not a supported value.
      */
-    public validateTequest() {
-        super.validateTequest();
+    public validateRequest() {
+        super.validateRequest();
 
         if (this._req.query["names"]) {
             const nameString: string = this._req.query["names"]?.toString().toLowerCase();

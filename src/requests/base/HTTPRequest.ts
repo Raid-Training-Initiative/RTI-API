@@ -47,7 +47,7 @@ export default abstract class HTTPRequest {
      * @throws {InvalidQueryParametersException} When a query parameter was specified that is not part of the accepted list of parameters.
      * @throws {BadSyntaxException} When a query parameter isn't one of the supported values.
      */
-    public validateTequest() {
+    public validateRequest() {
         if (this._authenticated) this.validateAuthentication();
         this.validateQueryParameters();
         if (this._paginated) this.validatePagination();
@@ -137,7 +137,7 @@ export default abstract class HTTPRequest {
         try
         {
             Logger.logRequest(Severity.Debug, this._timestamp, `Request: ${this._req.method} ${this._req.url}`);
-            this.validateTequest();
+            this.validateRequest();
             const documents: Object[] | Object = this._pagination ? await this.prepareResponse(this._pagination) : await this.prepareResponse();
             this.sendResponse(documents);
         } catch (exception) {

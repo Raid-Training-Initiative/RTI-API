@@ -28,8 +28,8 @@ export class ListMembers extends HTTPRequest {
      * Validates the request with the basic HTTP request validation and then checks if the query parameters are correct.
      * @throws {BadSyntaxException} When a query parameter doesn't have the correct value.
      */
-    public validateTequest() {
-        super.validateTequest();
+    public validateRequest() {
+        super.validateRequest();
 
         if (this._req.query["banned"]) {
             const publishedString: string = this._req.query["banned"].toString().toLowerCase();
