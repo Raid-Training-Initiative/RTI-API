@@ -1,3 +1,5 @@
+import { MemberPermission } from "../../../../RTIBot-DB/documents/IMemberRoleDocument";
+import DB from "../../DB";
 import IDiscordTokenInfo from "../discord/IDiscordTokenInfo";
 import IDiscordUserInfo from "../discord/IDiscordUserInfo";
 import IAuthenticatedClient from "./IAuthenticatedClient"
@@ -23,5 +25,24 @@ export default class AuthenticatedDiscordUser implements IAuthenticatedClient {
 
     public recordActivity() {
         this.lastActivityDate = new Date();
+    }
+
+    public async hasPermissions(permissions: MemberPermission[]) {
+        const user = await DB.query_member_populated_by_id(this.discordUserInfo.id);
+        if (user) {
+            const permissionsSet: Set<MemberPermission> = new Set();
+            user.roles.forEach(role => {
+                role.permissions.forEach(permission => permissionsSet.add(permission));
+            })
+
+            for (const permission of permissions) {
+                if (!permissionsSet.has(permission)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }
