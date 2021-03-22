@@ -205,6 +205,36 @@ traits:
           application/json:
             description: Error response when syntax is invalid.
             example: !include examples/errors/invalid-query-parameters.json
+  post:
+    description: Creates a raid squad composition in the database.
+    is: ["requiresAuthentication"]
+    body:
+      applicaton/json:
+        description: The comp to put in the database.
+        type: Comp
+        example: !include examples/requests/create-comp.json
+    responses:
+      201:
+        body:
+          application/json:
+            description: The comp that was created in the database.
+            type: Comp[]
+            example: !include examples/responses/json/create-comp.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/bad-syntax-bad-json.json
+      404:
+        body:
+          application/json:
+            description: Error response when a category in the comp to be created could not be found.
+            example: !include examples/errors/resource-not-found.json
+      422:
+        body:
+          application/json:
+            description: Error response when the comp to be created already exists.
+            example: !include examples/errors/resource-already-exists.json
   /{comp}:
     get:
       description: Gets a single raid squad composition by name.
@@ -216,6 +246,23 @@ traits:
               description: A composition.
               type: Comp
               example: !include examples/responses/json/get-comp.json
+        400:
+          body:
+            application/json:
+              description: Error response when syntax is invalid.
+              example: !include examples/errors/invalid-query-parameters.json 
+        404:
+          body:
+            application/json:
+              description: Error response when the requested comp could not be found.
+              example: !include examples/errors/resource-not-found.json
+    delete:
+      description: Deletes a single raid squad composition by name.
+      is: ["requiresAuthentication"]
+      responses:
+        204:
+          body:
+            text/plain: !null
         400:
           body:
             application/json:
