@@ -13,7 +13,8 @@
                     "name": { "type": "string" },
                     "requiredParticipants": { "type": "number" }
                 }
-            }
+            },
+            "minItems": 1
         }
     }
 }
