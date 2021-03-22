@@ -23,8 +23,8 @@ export class GetDiscordAuth extends HTTPRequest {
      * Validates the request with the basic HTTP request validation and then checks if the query parameters are correct.
      * @throws {BadSyntaxException} When a query parameter doesn't have the correct value.
      */
-    public validateRequest() {
-        super.validateRequest();
+    public async validateRequest() {
+        await super.validateRequest();
 
         if (this._req.query["code"] == undefined) {
             throw new MissingQueryParameterException("code");

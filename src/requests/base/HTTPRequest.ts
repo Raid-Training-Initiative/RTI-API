@@ -10,6 +10,9 @@ import BadSyntaxException from "../../exceptions/BadSyntaxException";
 import Utils from "../../util/Utils";
 import RequestOptions from "./RequestOptions";
 import InvalidAuthenticationException from "../../exceptions/InvalidAuthenticationException";
+import IAuthenticatedClient from "../../util/Auth/clients/IAuthenticatedClient";
+import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
+import UnauthorizedException from "../../exceptions/UnauthorizedException";
 
 export default abstract class HTTPRequest {
     public abstract validRequestQueryParameters: string[]; // A list of query parameters that this endpoint takes.
@@ -20,10 +23,11 @@ export default abstract class HTTPRequest {
     protected _next: NextFunction;
     protected _db: MongoDatabase;
     protected _timestamp: string;
-    protected _clientId: string | undefined;
+    protected _client: IAuthenticatedClient | undefined;
 
     private _paginated: boolean; // Does the request support pagination?
     private _authenticated: boolean; // Does the request require authentication?
+    private _requiredPermissions: MemberPermission[];
     private _multiFormat: boolean; // Does the request provide responses in multiple different formats?
     
     private _pagination: {page: number, pageSize: number};
@@ -34,11 +38,20 @@ export default abstract class HTTPRequest {
         this._next = next;
         this._timestamp = Date.now().toString();
         if (options) { // If additional options are specified.
-            this._authenticated = options.authenticated ? options.authenticated : false;
+            this._authenticated = options.authenticated !== undefined;
+            this._requiredPermissions = options.authenticated ? options.authenticated.permissions : [];
             this._paginated = options.paginated ? options.paginated : false;
             this._multiFormat = options.multiFormat ? options.multiFormat : false;
         }
         
+    }
+    
+    public get client(): IAuthenticatedClient | undefined {
+        return this._client;
+    }
+
+    public get clientId(): string | undefined {
+        return this._client?.id;
     }
 
     /**
@@ -47,8 +60,8 @@ export default abstract class HTTPRequest {
      * @throws {InvalidQueryParametersException} When a query parameter was specified that is not part of the accepted list of parameters.
      * @throws {BadSyntaxException} When a query parameter isn't one of the supported values.
      */
-    public validateRequest() {
-        if (this._authenticated) this.validateAuthentication();
+    public async validateRequest() {
+        if (this._authenticated) await this.validateAuthentication();
         this.validateQueryParameters();
         if (this._paginated) this.validatePagination();
         if (this._multiFormat) this.validateFormatParam();
@@ -71,18 +84,25 @@ export default abstract class HTTPRequest {
      * Checks if the authentication is valid (i.e. Authorization header contains a valid client secret).
      * @throws {InvalidAuthenticationException} When the Authorization header is empty or contains an invalid client secret.
      */
-    private validateAuthentication() {
+    private async validateAuthentication() {
         const auth: Auth = Auth.instance();
-        const auth_header: string[] = (this._req.headers.authorization || "").split(" ");
-        if (auth_header[0] != "Bearer") {
+        const authHeader: string[] = (this._req.headers.authorization || "").split(" ");
+        if (authHeader[0] != "Bearer") {
             throw new InvalidAuthenticationException();
         }
 
-        const client_secret: string = auth_header[1] || "";
-        const client = auth.authenticate(client_secret);
-        this._clientId = client.id;
+        const clientSecret: string = authHeader[1] || "";
+        this._client = auth.authenticate(clientSecret);
 
-        Logger.logRequest(Severity.Debug, this._timestamp, `Request called by: ${this._clientId}`)
+        await this.validatePermissions(this._client);
+
+        Logger.logRequest(Severity.Debug, this._timestamp, `Request called by: ${this._client.id}`)
+    }
+
+    private async validatePermissions(client: IAuthenticatedClient) {
+        if (!(await client.hasPermissions(this._requiredPermissions))) {
+            throw new UnauthorizedException("Invalid permissions");
+        }
     }
 
     /**
@@ -124,10 +144,6 @@ export default abstract class HTTPRequest {
         
     }
 
-    public get clientId() {
-        return this._clientId;
-    }
-
     /**
      * Executes the request and handles errors.
      */
@@ -135,7 +151,7 @@ export default abstract class HTTPRequest {
         try
         {
             Logger.logRequest(Severity.Debug, this._timestamp, `Request: ${this._req.method} ${this._req.url}`);
-            this.validateRequest();
+            await this.validateRequest();
             const documents: Object[] | Object = this._pagination ? await this.prepareResponse(this._pagination) : await this.prepareResponse();
             this.sendResponse(documents);
         } catch (exception) {

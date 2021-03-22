@@ -7,6 +7,7 @@ import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import HTTPRequest from "./base/HTTPRequest";
 import DB from "../util/DB";
 import Utils from "../util/Utils";
+import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 
 export class ListComps extends HTTPRequest {
     public validRequestQueryParameters: string[] = [
@@ -14,7 +15,11 @@ export class ListComps extends HTTPRequest {
     ];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true});
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_COMPS]
+            }
+        });
     }
 
     /**
@@ -68,7 +73,11 @@ export class GetComp extends HTTPRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next);
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_COMPS]
+            }
+        });
     }
 
     /**

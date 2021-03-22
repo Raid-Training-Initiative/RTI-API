@@ -6,12 +6,17 @@ import { NextFunction, Request, Response } from "express";
 import HTTPRequest from "./base/HTTPRequest";
 import DB from "../util/DB";
 import ServerErrorException from "../exceptions/ServerErrorException";
+import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 
 export class GetGuildOptions extends HTTPRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next);
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.BOT_MANAGEMENT]
+            }
+        });
     }
 
     /**
