@@ -6,6 +6,7 @@ import { NextFunction, Request, Response } from "express";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import DB from "../util/DB";
 import Utils from "../util/Utils";
+import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import * as fs from "fs";
 import ResourceAlreadyExistsException from "../exceptions/ResourceAlreadyExistsException";
 import { ObjectId } from "mongoose";
@@ -19,7 +20,11 @@ export class ListComps extends HTTPGetRequest {
     ];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true});
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_COMPS]
+            }
+        });
     }
 
     /**
@@ -73,7 +78,11 @@ export class GetComp extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true});
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_COMPS]
+            }
+        });
     }
 
     /**

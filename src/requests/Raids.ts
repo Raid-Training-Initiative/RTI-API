@@ -8,6 +8,7 @@ import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import Utils from "../util/Utils";
 import escapeStringRegexp = require("escape-string-regexp");
 import DB from "../util/DB";
+import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 
 export class ListRaids extends HTTPGetRequest {
@@ -25,15 +26,21 @@ export class ListRaids extends HTTPGetRequest {
     ];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true, paginated: true, multiFormat: true});
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_RAIDS]
+            }, 
+            paginated: true, 
+            multiFormat: true
+        });
     }
 
     /**
      * Validates the request with the basic HTTP request validation and then checks if the query parameters are correct.
      * @throws {BadSyntaxException} When a query parameter doesn't have the correct value.
      */
-    public validateRequest() {
-        super.validateRequest();
+    public async validateRequest() {
+        await super.validateRequest();
 
         if (this._req.query["status"]) {
             const statusStrings: string[] = this._req.query["status"].toString().toLowerCase().split(",");
@@ -140,15 +147,19 @@ export class GetRaid extends HTTPGetRequest {
     ];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next);
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_RAIDS]
+            }
+        });
     }
 
     /**
      * Perform specific validation for this endpoint.
      * @throws {BadSyntaxException} When the names query parameter exists and it's not a supported value.
      */
-    public validateRequest() {
-        super.validateRequest();
+    public async validateRequest() {
+        await super.validateRequest();
 
         if (this._req.query["names"]) {
             const nameString: string = this._req.query["names"]?.toString().toLowerCase();
@@ -220,15 +231,19 @@ export class GetRaidLog extends HTTPGetRequest {
     ];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next);
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_RAIDS]
+            }
+        });
     }
 
     /**
      * Perform specific validation for this endpoint.
      * @throws {BadSyntaxException} When the names query parameter exists and it's not a supported value.
      */
-    public validateRequest() {
-        super.validateRequest();
+    public async validateRequest() {
+        await super.validateRequest();
 
         if (this._req.query["names"]) {
             const nameString: string = this._req.query["names"]?.toString().toLowerCase();

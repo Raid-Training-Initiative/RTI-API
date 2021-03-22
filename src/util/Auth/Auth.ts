@@ -14,12 +14,12 @@ import SessionExpiredException from "../../exceptions/SessionExpiredException";
 export default class Auth {
     private static _instance: Auth;
     private readonly _clients: Map<string, IAuthenticatedClient>;
-    private readonly _discordAuthService: DiscordAuthService;
+    private readonly _discordAuthService: DiscordAuthService | undefined;
     private readonly _tokenGenerator: TokenGenerator
 
     private constructor(private readonly _config: IConfig) {
         this._clients = new Map();
-        this._discordAuthService  = new DiscordAuthService(_config.discordAuth);
+        this._discordAuthService  = this._config.discordAuth ? new DiscordAuthService(this._config.discordAuth) : undefined;
         this._tokenGenerator = new TokenGenerator();
 
         filewatch(this._config.clientsFile, (eventType, filename) => {
@@ -75,6 +75,10 @@ export default class Auth {
      * @throws {UnauthorizedException} if the user who initiated the authentication is not a discord member
      */
     public async authenticateWithDiscord(code: string) {
+        if (this._discordAuthService === undefined) {
+            throw new ServerErrorException("Discord Authentication is not enabled.")
+        }
+
         // Retreive the token for the Discord OAuth2 service
         const tokenInfo = await this._discordAuthService.getTokenInfo(code);
 

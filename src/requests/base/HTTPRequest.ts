@@ -5,6 +5,9 @@ import Auth from "../../util/Auth/Auth";
 import { Logger, Severity } from "../../util/Logger";
 import RequestOptions from "./RequestOptions";
 import InvalidAuthenticationException from "../../exceptions/InvalidAuthenticationException";
+import IAuthenticatedClient from "../../util/Auth/clients/IAuthenticatedClient";
+import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
+import UnauthorizedException from "../../exceptions/UnauthorizedException";
 
 export default abstract class HTTPRequest {
     public abstract validRequestQueryParameters: string[]; // A list of query parameters that this endpoint takes.
@@ -17,9 +20,11 @@ export default abstract class HTTPRequest {
     protected _next: NextFunction;
     protected _db: MongoDatabase;
     protected _timestamp: string;
-    protected _clientId: string | undefined;
+    protected _client: IAuthenticatedClient | undefined;
 
     private _authenticated: boolean; // Does the request require authentication?
+    private _requiredPermissions: MemberPermission[];
+
 
     constructor(req: Request, res: Response, next: NextFunction, options?: RequestOptions) {
         this._req = req;
@@ -27,8 +32,17 @@ export default abstract class HTTPRequest {
         this._next = next;
         this._timestamp = Date.now().toString();
         if (options) { // If additional options are specified.
-            this._authenticated = options.authenticated ? options.authenticated : false;
+            this._authenticated = options.authenticated !== undefined;
+            this._requiredPermissions = options.authenticated ? options.authenticated.permissions : [];
         }
+    }
+    
+    public get client(): IAuthenticatedClient | undefined {
+      	  return this._client;
+    }
+
+    public get clientId(): string | undefined {
+        return this._client?.id;
     }
 
     /**
@@ -38,8 +52,8 @@ export default abstract class HTTPRequest {
      * @throws {BadSyntaxException} When a query parameter isn't one of the supported values.
      * @throws {JsonValidationErrorException} When the request body does not follow the JSON schema.
      */
-    public validateRequest() {
-        if (this._authenticated) this.validateAuthentication();
+    public async validateRequest() {
+        if (this._authenticated) await this.validateAuthentication();
         this.validateQueryParameters();
     }
 
@@ -47,18 +61,25 @@ export default abstract class HTTPRequest {
      * Checks if the authentication is valid (i.e. Authorization header contains a valid client secret).
      * @throws {InvalidAuthenticationException} When the Authorization header is empty or contains an invalid client secret.
      */
-    private validateAuthentication() {
+    private async validateAuthentication() {
         const auth: Auth = Auth.instance();
         const authHeader: string[] = (this._req.headers.authorization || "").split(" ");
         if (authHeader[0] != "Bearer") {
-            throw new UnauthorizedException();
+            throw new InvalidAuthenticationException();
         }
 
-        const client_secret: string = authHeader[1] || "";
-        const client = auth.authenticate(client_secret);
-        this._clientId = client.id;
+        const clientSecret: string = authHeader[1] || "";
+        this._client = auth.authenticate(clientSecret);
 
-        Logger.logRequest(Severity.Debug, this._timestamp, `Request called by: ${this._clientId}`)
+        await this.validatePermissions(this._client);
+
+        Logger.logRequest(Severity.Debug, this._timestamp, `Request called by: ${this._client.id}`)
+    }
+
+    private async validatePermissions(client: IAuthenticatedClient) {
+        if (!(await client.hasPermissions(this._requiredPermissions))) {
+            throw new UnauthorizedException("Invalid permissions");
+        }
     }
 
     /**

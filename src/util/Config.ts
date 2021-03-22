@@ -8,5 +8,5 @@ export interface IConfig {
     guildId: string;
     clientsFile: string;
     cors?: boolean;
-    discordAuth: IDiscordAuthConfig;
+    discordAuth?: IDiscordAuthConfig;
 }
