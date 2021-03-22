@@ -7,7 +7,7 @@ import errorMiddleware from "./util/Error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
 import Auth from "./util/Auth";
 import { Logger, Severity } from "./util/Logger";
-import { CreateComp, GetComp, ListComps } from "./requests/Comps";
+import { CreateComp, DeleteComp, GetComp, ListComps } from "./requests/Comps";
 import { GetCategory, ListCategories } from "./requests/Categories";
 import { GetRaid, ListRaids, GetRaidLog } from "./requests/Raids";
 import { GetMember, ListMembers } from "./requests/Members";
@@ -106,6 +106,13 @@ export class App {
             const createComp = new CreateComp(req, res, next);
             await createComp.run();
             Logger.log(Severity.Info, `POST /comps request completed`);
+        });
+
+        server.delete("/comps/:comp", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `DELETE /comps/:comp request initiated`);
+            const deleteComp = new DeleteComp(req, res, next);
+            await deleteComp.run();
+            Logger.log(Severity.Info, `DELETE /comps/:comp request completed`);
         });
 
         // =========### Categories ###=========

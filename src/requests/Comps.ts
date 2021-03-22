@@ -135,3 +135,22 @@ export class CreateComp extends HTTPPostRequest {
         return await DB.createComp(compJson.name, compJson.roles, categoryIds);
     }
 }
+
+export class DeleteComp extends HTTPDeleteRequest {
+    public validRequestQueryParameters: string[] = [];
+
+    constructor(req: Request, res: Response, next: NextFunction) {
+        super(req, res, next, {authenticated: true});
+    }
+
+    /**
+     * Attempts a comp deletion after a DELETE /comps/:comp request.
+     * @throws {ResourceNotFoundException} When the comp cannot be found.
+     */
+     public async prepareResponse(): Promise<void> {
+        const deleted = await DB.deleteComp(this._req.params["comp"]);
+        if (!deleted) {
+            throw new ResourceNotFoundException(this._req.params["comp"]);
+        }
+    }
+}

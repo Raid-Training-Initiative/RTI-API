@@ -99,6 +99,15 @@ export default class DB {
     }
 
     /**
+     * Deletes a comp in the database.
+     * @param compName The name of the comp.
+     * @returns A boolean that is true if the comp was deleted and false otherwise.
+     */
+     public static async deleteComp(compName: string): Promise<boolean> {
+        return (await this._instance._db.raidCompositionModel.deleteOne({ name: compName })).deletedCount == 1;
+    }
+
+    /**
      * Adds a category for a comp in the database.
      * @param compName The name of the comp to add the cateogry to.
      * @param categoryId The ObjectId for the category to add.
