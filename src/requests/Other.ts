@@ -27,7 +27,7 @@ export class GetStatus extends HTTPGetRequest {
      * @throws {ServerErrorException} When the package.json file could not be loaded.
      * @returns An object representing information about the API.
      */
-    public async prepare_response(): Promise<Object> {
+    public async prepareResponse(): Promise<Object> {
         let packageJson: any;
         try {
             packageJson = require("../../../package.json");
@@ -47,7 +47,7 @@ export class GetStatus extends HTTPGetRequest {
                 apiName: packageJson.name,
                 apiVersion: packageJson.version,
                 guildId: this._config.guildId,
-                gitVersionInfo: Utils.get_commit_info()
+                gitVersionInfo: Utils.getCommitInfo()
             },
             systemInfo: {
                 platform: process.platform,
@@ -74,24 +74,24 @@ export class GetStats extends HTTPGetRequest {
      * Returns statistics about the data after a get stats request.
      * @returns An object representing statistics about the data.
      */
-    public async prepare_response(): Promise<Object> {
+    public async prepareResponse(): Promise<Object> {
         const statsObject = {
             comps: {
-                count: await DB.query_comps_count()
+                count: await DB.queryCompsCount()
             },
             categories: {
-                count: await DB.query_categories_count()
+                count: await DB.queryCategoriesCount()
             },
             raids: {
-                count: await DB.query_raids_count(),
-                countPublished: await DB.query_raids_count({ publishedDate: { "$exists" : true }})
+                count: await DB.queryRaidsCount(),
+                countPublished: await DB.queryRaidsCount({ publishedDate: { "$exists" : true }})
             },
             members: {
-                count: await DB.query_members_count()
+                count: await DB.queryMembersCount()
             },
             trainingRequests: {
-                count: await DB.query_training_requests_count(),
-                countActive: await DB.query_training_requests_count({ active: true })
+                count: await DB.queryTrainingRequestsCount(),
+                countActive: await DB.queryTrainingRequestsCount({ active: true })
             }
         }
 

@@ -3,7 +3,7 @@ import { IConfig } from "./util/Config";
 import express = require("express");
 import DB from "./util/DB";
 import { Request, Response, NextFunction } from "express";
-import error_middleware from "./util/Error.middleware";
+import errorMiddleware from "./util/Error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
 import Auth from "./util/Auth";
 import { Logger, Severity } from "./util/Logger";
@@ -161,7 +161,7 @@ export class App {
             Logger.log(Severity.Info, `GET /stats request completed`);
         });
 
-        server.get("*", async (req: Request, res: Response, next: NextFunction) => {
+        server.all("*", async (req: Request, res: Response, next: NextFunction) => {
             Logger.log(Severity.Info, `Request made to nonexistent resource`);
             next(new ResourceNotFoundException(req.url))
         });
@@ -171,7 +171,7 @@ export class App {
             Logger.log(Severity.Info, `Server started at http://localhost:${port}`);
         });
 
-        server.use(error_middleware);
+        server.use(errorMiddleware);
     }
 }
 
@@ -179,7 +179,7 @@ export class App {
  * Loads the correct config file depending on the argument passed / environment property value.
  * @returns Returns the config file that will be in use.
  */
-function load_configuration(): IConfig | null {
+function loadConfiguration(): IConfig | null {
     let config: string | undefined = process.argv[2];
     if (!config) {
         config = process.env.CONFIG;
@@ -206,8 +206,8 @@ function load_configuration(): IConfig | null {
     return require(confFile);
 }
 
-process.on("uncaughtException", (error) => Logger.log_error(Severity.Error, error));
-const conf = load_configuration();
+process.on("uncaughtException", (error) => Logger.logError(Severity.Error, error));
+const conf = loadConfiguration();
 if (conf) {
     App.initiate(conf);
     App.instance().run();

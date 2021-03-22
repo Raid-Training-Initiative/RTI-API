@@ -22,26 +22,26 @@ export default abstract class HTTPPostRequest extends HTTPRequest {
      * @throws {BadSyntaxException} When a query parameter isn't one of the supported values.
      * @throws {JsonValidationErrorException} When the request body does not follow the JSON schema.
      */
-    public validate_request() {
-        super.validate_request();
-        if (this.requestBodyJsonSchema != {}) this.validate_request_body();
+    public validateRequest() {
+        super.validateRequest();
+        if (this.requestBodyJsonSchema != {}) this.validateRequestBody();
     }
 
     /**
      * Checks if the request body is valid or not against the schema in the requestBodyJsonSchema field.
      * @throws {JsonValidationErrorException} When the JSON body doesn't match the schema.
      */
-    private validate_request_body() {
+    private validateRequestBody() {
         const validator: Validator = new Validator();
-        const result: ValidatorResult = validator.validate(this.req.body, this.requestBodyJsonSchema);
+        const result: ValidatorResult = validator.validate(this._req.body, this.requestBodyJsonSchema);
 
         if (!result.valid) {
             throw new JsonValidationErrorException(result.errors[0].stack); // Throw the top error message in the list.
         }
     }
 
-    public get client_id() {
-        return this._client_id;
+    public get clientId() {
+        return this._clientId;
     }
 
     /**
@@ -50,29 +50,29 @@ export default abstract class HTTPPostRequest extends HTTPRequest {
     public async run() {
         try
         {
-            Logger.log_request(Severity.Debug, this.timestamp, `Request: ${this.req.method} ${this.req.url}`);
-            this.validate_request();
-            const document = await this.prepare_response();
-            this.send_response(document);
+            Logger.logRequest(Severity.Debug, this._timestamp, `Request: ${this._req.method} ${this._req.url}`);
+            this.validateRequest();
+            const document = await this.prepareResponse();
+            this.sendResponse(document);
         } catch (exception) {
             if (exception instanceof HTTPException) {
-                Logger.log_http_error(Severity.Warn, this.timestamp, exception);
-                this.next(exception);
+                Logger.logHttpError(Severity.Warn, this._timestamp, exception);
+                this._next(exception);
             } else if (exception.kind == "ObjectId") { // If the object ID cast failed
                 const notFound: ResourceNotFoundException = new ResourceNotFoundException(exception.value);
-                Logger.log_http_error(Severity.Warn, this.timestamp, notFound);
-                this.next(notFound);
+                Logger.logHttpError(Severity.Warn, this._timestamp, notFound);
+                this._next(notFound);
             } else {
-                Logger.log_error(Severity.Error, exception);
-                this.next(new ServerErrorException(exception.message));
+                Logger.logError(Severity.Error, exception);
+                this._next(new ServerErrorException(exception.message));
             }
         }
     }
 
-    protected send_response(document: Object) {
-        Logger.log_request(Severity.Debug, this.timestamp, `Sending successfully created resource`);
-        this.res.status(201);
-        this.res.set("Content-Type", "application/json");
-        this.res.send(document);
+    protected sendResponse(document: Object) {
+        Logger.logRequest(Severity.Debug, this._timestamp, `Sending successfully created resource`);
+        this._res.status(201);
+        this._res.set("Content-Type", "application/json");
+        this._res.send(document);
     }
 }

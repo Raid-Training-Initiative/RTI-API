@@ -30,19 +30,19 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
      * @throws {InvalidQueryParametersException} When a query parameter was specified that is not part of the accepted list of parameters.
      * @throws {BadSyntaxException} When a query parameter isn't one of the supported values.
      */
-    public validate_request() {
-        super.validate_request();
-        if (this.paginated) this.validate_pagination();
-        if (this.multiFormat) this.validate_format_param();
+    public validateRequest() {
+        super.validateRequest();
+        if (this.paginated) this.validatePagination();
+        if (this.multiFormat) this.validateFormatParam();
     }
 
     /**
      * Validates the format query parameter and throws an error if validation fails.
      * @throws {BadSyntaxException} When the format query parameter isn't one of the supported values.
      */
-    public validate_format_param() {
-        if (this.req.query["format"]) {
-            const formatString: string = this.req.query["format"]?.toString().toLowerCase();
+    public validateFormatParam() {
+        if (this._req.query["format"]) {
+            const formatString: string = this._req.query["format"]?.toString().toLowerCase();
             if (formatString != "csv" && formatString != "json") {
                 throw new BadSyntaxException("Query parameter format must be either csv or json.");
             }
@@ -53,9 +53,9 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
      * Checks if the pagination query parameters entered into the request are valid or not. If they are, they are added as class variables.
      * @throws {BadSyntaxException} When query parameters are invalid (one of them is missing or they're not valid positive numbers).
      */
-    private validate_pagination() {
-        const page = this.req.query["page"]?.toString();
-        const pageSize = this.req.query["pageSize"]?.toString();
+    private validatePagination() {
+        const page = this._req.query["page"]?.toString();
+        const pageSize = this._req.query["pageSize"]?.toString();
         if (!(page == undefined && pageSize == undefined)) {
             if ((page == undefined || pageSize == undefined)) {
                 throw new BadSyntaxException("For pagination of response, both page and pageSize query parameters must be included");
@@ -75,8 +75,8 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
         }
     }
 
-    public get client_id() {
-        return this._client_id;
+    public get clientId() {
+        return this._clientId;
     }
 
     /**
@@ -85,39 +85,39 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
      public async run() {
         try
         {
-            Logger.log_request(Severity.Debug, this.timestamp, `Request: ${this.req.method} ${this.req.url}`);
-            this.validate_request();
-            const documents: Object[] | Object = this.pagination ? await this.prepare_response(this.pagination) : await this.prepare_response();
-            this.send_response(documents);
+            Logger.logRequest(Severity.Debug, this._timestamp, `Request: ${this._req.method} ${this._req.url}`);
+            this.validateRequest();
+            const documents: Object[] | Object = this.pagination ? await this.prepareResponse(this.pagination) : await this.prepareResponse();
+            this.sendResponse(documents);
         } catch (exception) {
             if (exception instanceof HTTPException) {
-                Logger.log_http_error(Severity.Warn, this.timestamp, exception);
-                this.next(exception);
+                Logger.logHttpError(Severity.Warn, this._timestamp, exception);
+                this._next(exception);
             } else if (exception.kind == "ObjectId") { // If the object ID cast failed
                 const notFound: ResourceNotFoundException = new ResourceNotFoundException(exception.value);
-                Logger.log_http_error(Severity.Warn, this.timestamp, notFound);
-                this.next(notFound);
+                Logger.logHttpError(Severity.Warn, this._timestamp, notFound);
+                this._next(notFound);
             } else {
-                Logger.log_error(Severity.Error, exception);
-                this.next(new ServerErrorException(exception.message));
+                Logger.logError(Severity.Error, exception);
+                this._next(new ServerErrorException(exception.message));
             }
         }
     }
 
-    protected send_response(documents: Object[] | Object) {
-        const filterString: string = Utils.generate_filter_string(this.validRequestQueryParameters, this.req);
-        Logger.log_request(Severity.Debug, this.timestamp, `Sending ${Array.isArray(documents) ? documents.length : 1} items in payload with ${filterString.length > 0 ? "filter - " + filterString : "no filter"}`);
+    protected sendResponse(documents: Object[] | Object) {
+        const filterString: string = Utils.generateFilterString(this.validRequestQueryParameters, this._req);
+        Logger.logRequest(Severity.Debug, this._timestamp, `Sending ${Array.isArray(documents) ? documents.length : 1} items in payload with ${filterString.length > 0 ? "filter - " + filterString : "no filter"}`);
         
         let payload: string = "";
-        const format: string | undefined = this.multiFormat && this.req.query["format"] ? this.req.query["format"].toString().toLowerCase() : undefined; 
+        const format: string | undefined = this.multiFormat && this._req.query["format"] ? this._req.query["format"].toString().toLowerCase() : undefined; 
         if (format == "csv") {
             payload = Array.isArray(documents) ? documents.join("\n") : payload;
-            this.res.set("Content-Type", "application/csv");
+            this._res.set("Content-Type", "application/csv");
         } else {
             payload = JSON.stringify(documents);
-            this.res.set("Content-Type", "application/json");
+            this._res.set("Content-Type", "application/json");
         }
         
-        this.res.send(payload);
+        this._res.send(payload);
     }
 }
