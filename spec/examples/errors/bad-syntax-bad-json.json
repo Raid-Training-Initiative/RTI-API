@@ -1,0 +1,5 @@
+{
+    "status": 400,
+    "name": "JsonValidationError",
+    "message": "Error in JSON request body: instance requires property \"roles\""
+}

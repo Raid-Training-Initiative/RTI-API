@@ -1,11 +1,12 @@
 import { IGuildOptionsData } from "@RTIBot-DB/documents/IGuildOptionsDocument";
 import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
-import { IRaidCompositionPopulatedDocument } from "@RTIBot-DB/documents/IRaidCompositionDocument";
+import { IRaidCompositionPopulatedDocument, IRaidCompositionRole } from "@RTIBot-DB/documents/IRaidCompositionDocument";
 import { IRaidEventDocument } from "@RTIBot-DB/documents/IRaidEventDocument";
 import { ITrainingRequestDocument } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { TrainingRequestSchema } from "@RTIBot-DB/schemas/TrainingRequestSchema";
+import { ObjectId } from "mongoose";
 import ServerErrorException from "../exceptions/ServerErrorException";
 import { IConfig } from "./Config";
 
@@ -83,6 +84,41 @@ export default class DB {
     }
 
     /**
+     * Creates a comp in the database.
+     * @param name The name of the comp.
+     * @param roles A list of roles (with each role having a name and requiredParticipants).
+     * @param categories A list of ObjectIds linking to categories.
+     * @returns The comp that was created.
+     */
+    public static async createComp(name: string, roles: IRaidCompositionRole[], categories: ObjectId[]): Promise<IRaidCompositionPopulatedDocument> {
+        return (await this._instance._db.raidCompositionModel.create({
+            name: name,
+            roles: roles,
+            categories: categories
+        })).execPopulate();
+    }
+
+    /**
+     * Deletes a comp in the database.
+     * @param compName The name of the comp.
+     * @returns A boolean that is true if the comp was deleted and false otherwise.
+     */
+     public static async deleteComp(compName: string): Promise<boolean> {
+        return (await this._instance._db.raidCompositionModel.deleteOne({ name: compName })).deletedCount == 1;
+    }
+
+    /**
+     * Adds a category for a comp in the database.
+     * @param compName The name of the comp to add the cateogry to.
+     * @param categoryId The ObjectId for the category to add.
+     */
+    public static async add_category_to_comp(compName: string, categoryId: ObjectId): Promise<void> {
+        const document = await this.queryComp(compName);
+        document.categories.addToSet(categoryId);
+        await document.save();
+    }
+
+    /**
      * Queries the database and retrieves a list of categories.
      * @param filter An object to pass into the database query that filters the results.
      * @returns A list of categories.
@@ -113,6 +149,17 @@ export default class DB {
         return (await this._instance._db.raidCompositionCategoryModel
             .count(filter ? filter: {})
             .exec()) as number;
+    }
+
+    /**
+     * Creates a category in the database.
+     * @param name The name of the category.
+     * @returns The category that was created.
+     */
+     public static async createCategory(name: string): Promise<IRaidCompositionCategoryDocument> {
+        return (await this._instance._db.raidCompositionCategoryModel.create({
+            name: name
+        }));
     }
 
     /**

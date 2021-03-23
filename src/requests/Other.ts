@@ -4,16 +4,16 @@
 
 import { NextFunction, Request, Response } from "express";
 import Utils from "../util/Utils";
-import HTTPRequest from "./base/HTTPRequest";
 import { IConfig } from "../util/Config";
 import ServerErrorException from "../exceptions/ServerErrorException";
 import * as os from "os";
 import DB from "../util/DB";
 import moment = require("moment-timezone");
 import momentDurationFormatSetup = require("moment-duration-format");
+import HTTPGetRequest from "./base/HTTPGetRequest";
 momentDurationFormatSetup(moment);
 
-export class GetStatus extends HTTPRequest {
+export class GetStatus extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
     private readonly _config: IConfig;
 
@@ -63,7 +63,7 @@ export class GetStatus extends HTTPRequest {
     }
 }
 
-export class GetStats extends HTTPRequest {
+export class GetStats extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {

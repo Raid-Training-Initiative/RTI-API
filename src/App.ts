@@ -7,7 +7,7 @@ import errorMiddleware from "./util/Error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
 import Auth from "./util/Auth";
 import { Logger, Severity } from "./util/Logger";
-import { GetComp, ListComps } from "./requests/Comps";
+import { CreateComp, DeleteComp, GetComp, ListComps } from "./requests/Comps";
 import { GetCategory, ListCategories } from "./requests/Categories";
 import { GetRaid, ListRaids, GetRaidLog } from "./requests/Raids";
 import { GetMember, ListMembers } from "./requests/Members";
@@ -46,6 +46,8 @@ export class App {
 
         await DB.create(this._config);
         await Auth.create(this._config);
+
+        server.use(express.json());
         
         // =========### Raids ###=========
         server.get("/raids", async (req: Request, res: Response, next: NextFunction) => {
@@ -97,6 +99,20 @@ export class App {
             const getComp = new GetComp(req, res, next);
             await getComp.run();
             Logger.log(Severity.Info, `GET /comps/:comp request completed`);
+        });
+
+        server.post("/comps", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `POST /comps request initiated`);
+            const createComp = new CreateComp(req, res, next);
+            await createComp.run();
+            Logger.log(Severity.Info, `POST /comps request completed`);
+        });
+
+        server.delete("/comps/:comp", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `DELETE /comps/:comp request initiated`);
+            const deleteComp = new DeleteComp(req, res, next);
+            await deleteComp.run();
+            Logger.log(Severity.Info, `DELETE /comps/:comp request completed`);
         });
 
         // =========### Categories ###=========
@@ -152,7 +168,7 @@ export class App {
             Logger.log(Severity.Info, `GET /stats request completed`);
         });
 
-        server.get("*", async (req: Request, res: Response, next: NextFunction) => {
+        server.all("*", async (req: Request, res: Response, next: NextFunction) => {
             Logger.log(Severity.Info, `Request made to nonexistent resource`);
             next(new ResourceNotFoundException(req.url))
         });

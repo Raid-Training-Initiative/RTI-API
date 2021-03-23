@@ -1,0 +1,39 @@
+#%RAML 1.0 DataType
+description: Data type for a raid composition after being added to the database.
+
+properties:
+  name:
+    type: string
+    description: The name of the comp.
+    example: "DoubleChrono"
+  categories:
+    type: string[]
+    description: The name of the comp's category.
+    example: [
+      "Generic"
+    ]
+  roles:
+    type: array
+    description: A list of roles that this comp is comprised of.
+    items:
+      properties:
+        name:
+          type: string
+          description: The name of the role.
+          example: "🟣 Chrono"
+        requiredParticipants:
+          type: number
+          description: The max number of participants that can sign up to that role.
+          example: 2
+        _id:
+          type: string
+          description: The ID of the role in the database.
+          example: "60590a738c58a017c47e4274"
+  _id:
+    type: string
+    description: The ID of the comp in the database.
+    example: "60590a738c58a017c47e4273"
+  __v:
+    type: number
+    description: The version number in the database.
+    example: 0

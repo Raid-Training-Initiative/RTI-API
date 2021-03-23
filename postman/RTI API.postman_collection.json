@@ -316,10 +316,12 @@
 									"            \"status\": { \"type\": \"string\", \"enum\": [\"Archived\", \"Draft\", \"Published\"] },",
 									"            \"startTime\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
 									"            \"endTime\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"            \"publishedDate\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
 									"            \"leader\": { \"type\": \"string\" },",
 									"            \"comp\": { \"type\": \"string\" },",
 									"            \"id\": { \"type\": \"string\" }",
-									"        }",
+									"        },",
+									"        \"additionalProperties\": false",
 									"    }",
 									"}",
 									"",
@@ -377,13 +379,13 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/raids/6027115a0e73df0012dfa185?names=gw2",
+									"raw": "{{baseUrl}}/raids/602711570e73df0012df74f9?names=gw2",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"raids",
-										"6027115a0e73df0012dfa185"
+										"602711570e73df0012df74f9"
 									],
 									"query": [
 										{
@@ -440,9 +442,11 @@
 									"    \"required\": [\"name\", \"status\", \"startTime\", \"endTime\", \"leader\", \"id\", \"participants\", \"reserves\"],",
 									"    \"properties\": {",
 									"        \"name\": { \"type\": \"string\" },",
+									"        \"description\": { \"type\": \"string\" },",
 									"        \"status\": { \"type\": \"string\", \"enum\": [\"Archived\", \"Draft\", \"Published\"] },",
 									"        \"startTime\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
 									"        \"endTime\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"        \"publishedDate\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
 									"        \"leader\": { \"type\": \"string\" },",
 									"        \"comp\": { \"type\": \"string\" },",
 									"        \"participants\": {",
@@ -452,7 +456,8 @@
 									"                    \"role\": { \"type\": \"string\" },",
 									"                    \"requiredParticipants\": { \"type\": \"number\" },",
 									"                    \"members\": { \"type\": \"array\", \"items\": { \"type\": [\"string\", \"null\"]}}",
-									"                }",
+									"                },",
+									"                \"additionalProperties\": false",
 									"            }",
 									"        },",
 									"        \"reserves\": {",
@@ -462,11 +467,13 @@
 									"                    \"role\": { \"type\": \"string\" },",
 									"                    \"requiredParticipants\": { \"type\": \"number\" },",
 									"                    \"members\": { \"type\": \"array\", \"items\": { \"type\": [\"string\", \"null\"]}}",
-									"                }",
+									"                },",
+									"                \"additionalProperties\": false",
 									"            }",
 									"        },",
 									"        \"id\": { \"type\": \"string\" }",
-									"    }",
+									"    },",
+									"    \"additionalProperties\": false",
 									"}",
 									"",
 									"pm.test(\"Status test\", function () {",
@@ -1075,7 +1082,8 @@
 									"            \"approver\": { \"type\": \"string\" },",
 									"            \"userId\": { \"type\": \"string\" },",
 									"            \"banned\": { \"type\": \"boolean\" }",
-									"        }",
+									"        },",
+									"        \"additionalProperties\": false",
 									"    }",
 									"}",
 									"",
@@ -1142,7 +1150,8 @@
 									"        \"approver\": { \"type\": \"string\" },",
 									"        \"userId\": { \"type\": \"string\" },",
 									"        \"banned\": { \"type\": \"boolean\" }",
-									"    }",
+									"    },",
+									"    \"additionalProperties\": false",
 									"}",
 									"",
 									"pm.test(\"Status test\", function () {",
@@ -1516,10 +1525,11 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All comps have one of the specified categories\", () => {\r",
+											"    const queryCategoriesList = pm.request.url.getQueryString().split(\"=\")[1].replace(\"%20\", \" \").toLowerCase().split(\",\");\r",
 											"    _.each(jsonData, (item) => {\r",
-											"        item.categories.forEach(category =>\r",
-											"            pm.expect(category.toString().toLowerCase()).to.be.oneOf(pm.request.url.getQueryString().split(\"=\")[1].replace(\"%20\", \" \").toLowerCase().split(\",\"))\r",
-											"        );\r",
+											"        const itemCategoriesList = item.categories.map(category => category.toLowerCase());\r",
+											"        const filteredList = queryCategoriesList.filter(category => itemCategoriesList.includes(category));\r",
+											"        pm.expect(filteredList.length).to.be.greaterThan(0);\r",
 											"    })\r",
 											"})"
 										],
@@ -1580,10 +1590,12 @@
 									"                    \"properties\": {",
 									"                        \"name\": { \"type\": \"string\" },",
 									"                        \"requiredParticipants\": { \"type\": \"number\" }",
-									"                    }",
+									"                    },",
+									"                    \"additionalProperties\": false",
 									"                }",
 									"            },",
-									"        }",
+									"        },",
+									"        \"additionalProperties\": false",
 									"    }",
 									"}",
 									"",
@@ -1654,10 +1666,12 @@
 									"                \"properties\": {",
 									"                    \"name\": { \"type\": \"string\" },",
 									"                    \"requiredParticipants\": { \"type\": \"number\" }",
-									"                }",
+									"                },",
+									"                \"additionalProperties\": false",
 									"            }",
 									"        },",
-									"    }",
+									"    },",
+									"    \"additionalProperties\": false",
 									"}",
 									"",
 									"pm.test(\"Status test\", function () {",
@@ -1673,6 +1687,124 @@
 									"});"
 								]
 							}
+						}
+					]
+				},
+				{
+					"name": "Create",
+					"item": [
+						{
+							"name": "Create Comp",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"CompTest\",\r\n    \"roles\": [\r\n        {\r\n            \"name\": \"Test\",\r\n            \"requiredParticipants\": 5\r\n        },\r\n        {\r\n            \"name\": \"Test2\",\r\n            \"requiredParticipants\": 3\r\n        }\r\n    ],\r\n    \"categories\": [\r\n        \"Niche\",\r\n        \"Generic\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/comps",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"comps"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const schema = {",
+									"    \"type\": \"object\",",
+									"    \"required\": [\"name\", \"_id\", \"categories\", \"roles\", \"__v\"],",
+									"    \"properties\": {",
+									"        \"name\": { \"type\": \"string\" },",
+									"        \"categories\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },",
+									"        \"roles\": {",
+									"            \"type\": \"array\",",
+									"            \"items\": {",
+									"                \"type\": \"object\",",
+									"                \"required\": [\"name\", \"requiredParticipants\"],",
+									"                \"properties\": {",
+									"                    \"name\": { \"type\": \"string\" },",
+									"                    \"requiredParticipants\": { \"type\": \"number\" },",
+									"                    \"_id\": { \"type\": \"string\" }",
+									"                },",
+									"                \"additionalProperties\": false",
+									"            }",
+									"        },",
+									"        \"__v\": { \"type\": \"number\" },",
+									"        \"_id\": { \"type\": \"string\" }",
+									"    },",
+									"    \"additionalProperties\": false",
+									"}",
+									"",
+									"pm.test(\"Status test\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is present\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"pm.test(\"Schema test\", function () {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Delete",
+					"item": [
+						{
+							"name": "Delete Comp",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/comps/CompTest",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"comps",
+										"CompTest"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -1784,6 +1916,163 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Existing Comp",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"DoubleChrono\",\r\n    \"roles\": [\r\n        {\r\n            \"name\": \"DPS\",\r\n            \"requiredParticipants\": 8\r\n        },\r\n        {\r\n            \"name\": \"Chrono\",\r\n            \"requiredParticipants\": 2\r\n        }\r\n    ],\r\n    \"categories\": [\r\n        \"Generic\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/comps",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"comps"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Comp With Bad Body",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"CompTest\",\r\n    \"role\": [\r\n        {\r\n            \"name\": \"Test\",\r\n            \"requiredParticipants\": 5\r\n        },\r\n        {\r\n            \"name\": \"Test2\",\r\n            \"requiredParticipants\": 3\r\n        }\r\n    ],\r\n    \"categories\": [\r\n        \"Niche\",\r\n        \"Generic\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/comps",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"comps"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Comp With No Roles",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"CompTest\",\r\n    \"roles\": [],\r\n    \"categories\": [\r\n        \"Niche\",\r\n        \"Generic\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/comps",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"comps"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Nonexistent Comp",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status test\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/comps/DoubleChron",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"comps",
+										"DoubleChron"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				}
@@ -1835,7 +2124,8 @@
 									"        \"type\": \"object\",",
 									"        \"properties\": {",
 									"            \"name\": { \"type\": \"string\" }",
-									"        }",
+									"        },",
+									"        \"additionalProperties\": false",
 									"    }",
 									"}",
 									"",
@@ -1897,7 +2187,8 @@
 									"    \"required\": [\"name\"],",
 									"    \"properties\": {",
 									"        \"name\": { \"type\": \"string\" }",
-									"    }",
+									"    },",
+									"    \"additionalProperties\": false",
 									"}",
 									"",
 									"pm.test(\"Status test\", function () {",
@@ -2328,7 +2619,8 @@
 									"                ]",
 									"            },",
 									"            \"userId\": { \"type\": \"string\" }",
-									"        }",
+									"        },",
+									"        \"additionalProperties\": false",
 									"    }",
 									"}",
 									"",
@@ -2427,10 +2719,12 @@
 									"                \"properties\": {",
 									"                    \"requested\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
 									"                    \"cleared\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"                }",
+									"                },",
+									"                \"additionalProperties\": false",
 									"            }",
 									"        }",
-									"    }",
+									"    },",
+									"    \"additionalProperties\": false",
 									"}",
 									"",
 									"pm.test(\"Status test\", function () {",
@@ -2837,19 +3131,21 @@
 								"exec": [
 									"const schema = {",
 									"    \"type\": \"object\",",
-									"    \"required\": [\"raidUnregisterNotificationTime\", \"raidReminderNotificationTime\", \"trainingRequestAutoSyncInterval\", \"trainingRequestInactiveDaysBeforeDisable\", \"commanderRoles\", \"officerRoles\"],",
+									"    \"required\": [\"raidUnregisterNotificationTime\", \"raidReminderNotificationTime\", \"trainingRequestAutoSyncInterval\", \"trainingRequestInactiveDaysBeforeDisable\", \"raidAutoBroadcastTime\", \"commanderRoles\", \"officerRoles\"],",
 									"    \"properties\": {",
 									"        \"raidUnregisterNotificationTime\": { \"type\": \"number\" },",
 									"        \"raidReminderNotificationTime\": { \"type\": \"number\" },",
 									"        \"trainingRequestAutoSyncInterval\": {  \"type\": \"number\" },",
 									"        \"trainingRequestInactiveDaysBeforeDisable\": { \"type\": \"number\" },",
+									"        \"raidAutoBroadcastTime\": { \"type\": \"number\" },",
 									"        \"commanderRoles\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }},",
 									"        \"officerRoles\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }},",
 									"        \"memberRoleId\": { \"type\": \"string\" },",
 									"        \"guildApplicationsChannelId\": { \"type\": \"string\" },",
 									"        \"raidCategoryId\": { \"type\": \"string\" },",
 									"        \"raidDraftCategoryId\": { \"type\": \"string\" }",
-									"    }",
+									"    },",
+									"    \"additionalProperties\": false",
 									"}",
 									"",
 									"pm.test(\"Status test\", function () {",
@@ -2895,7 +3191,8 @@
 									"                    \"pid\": { \"type\": \"number\" },\r",
 									"                    \"title\": { \"type\": \"string\" },\r",
 									"                    \"environment\": { \"type\": \"string\", \"enum\": [\"Debug\", \"Release\"] }\r",
-									"                }\r",
+									"                },\r",
+									"                \"additionalProperties\": false\r",
 									"            },\r",
 									"            \"apiInfo\": {\r",
 									"                \"type\": \"object\",\r",
@@ -2911,7 +3208,8 @@
 									"                            \"commitId\": { \"type\": \"string\" }\r",
 									"                        }\r",
 									"                    }\r",
-									"                }\r",
+									"                },\r",
+									"                \"additionalProperties\": false\r",
 									"            },\r",
 									"            \"systemInfo\": {\r",
 									"                \"type\": \"object\",\r",
@@ -2923,9 +3221,11 @@
 									"                    \"release\": { \"type\": \"string\" },\r",
 									"                    \"memory\": { \"type\": \"number\" },\r",
 									"                    \"cores\": { \"type\": \"number\" }\r",
-									"                }\r",
+									"                },\r",
+									"                \"additionalProperties\": false\r",
 									"            },\r",
-									"        }\r",
+									"        },\r",
+									"        \"additionalProperties\": false\r",
 									"    }\r",
 									"}\r",
 									"\r",

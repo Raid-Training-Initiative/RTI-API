@@ -1,20 +1,20 @@
 {
-  "raidUnregisterNotificationTime": 1,
-  "raidReminderNotificationTime": 60,
-  "trainingRequestAutoSyncInterval": 3600,
-  "trainingRequestInactiveDaysBeforeDisable": 30,
-  "raidAutoBroadcastTime": 10,
-  "commanderRoles": [
-    "400792057414811659",
-    "747573522024628366"
-  ],
-  "officerRoles": [
-    "365835222765273091",
-    "156176400619929600",
-    "716291728440819832"
-  ],
-  "memberRoleId": "732546429645750372",
-  "guildApplicationsChannelId": "733078503595180103",
-  "raidCategoryId": "717131712014057483",
-  "raidDraftCategoryId": "680874903259316421"
+    "raidUnregisterNotificationTime": 1,
+    "raidReminderNotificationTime": 60,
+    "trainingRequestAutoSyncInterval": 3600,
+    "trainingRequestInactiveDaysBeforeDisable": 30,
+    "raidAutoBroadcastTime": 10,
+    "commanderRoles": [
+        "400792057414811659",
+        "747573522024628366"
+    ],
+    "officerRoles": [
+        "365835222765273091",
+        "156176400619929600",
+        "716291728440819832"
+    ],
+    "memberRoleId": "732546429645750372",
+    "guildApplicationsChannelId": "733078503595180103",
+    "raidCategoryId": "717131712014057483",
+    "raidDraftCategoryId": "680874903259316421"
 }

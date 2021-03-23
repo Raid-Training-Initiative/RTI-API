@@ -4,12 +4,12 @@
 
 import { NextFunction, Request, Response } from "express";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
-import HTTPRequest from "./base/HTTPRequest";
 import DB from "../util/DB";
 import Utils from "../util/Utils";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
+import HTTPGetRequest from "./base/HTTPGetRequest";
 
-export class ListMembers extends HTTPRequest {
+export class ListMembers extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
         "gw2Name",
         "discordTag",
@@ -103,7 +103,7 @@ export class ListMembers extends HTTPRequest {
     }
 }
 
-export class GetMember extends HTTPRequest {
+export class GetMember extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {

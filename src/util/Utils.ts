@@ -3,6 +3,7 @@ import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidComp
 import { execSync } from "child_process";
 import escapeStringRegexp = require("escape-string-regexp");
 import { Request } from "express";
+import { ObjectId } from "mongoose";
 import DB from "./DB";
 import { Logger, Severity } from "./Logger";
 
@@ -55,15 +56,20 @@ export default class Utils {
      * @param categories A list of strings representing the categories to get the database IDs of.
      * @returns A map with the keys being the lowercased category names and the values being the database IDs.
      */
-    public static async getCategoryIdsMapFromCategories(categories: string[]): Promise<Map<string, string>> {
-        const idMap = new Map<string, string>();
+    public static async getCategoryIdsMapFromCategories(categories: string[]): Promise<Map<string, ObjectId>> {
+        const idMap = new Map<string, ObjectId>();
         const categoriesRegex: RegExp[] = categories.map(category => new RegExp(category, "gi"));
         const documents: IRaidCompositionCategoryDocument[] = await DB.queryCategories({name: {$in: categoriesRegex}});
-        documents.forEach(document => idMap.set(document.name.toLowerCase(), document._id.toHexString()));
+        documents.forEach(document => idMap.set(document.name.toLowerCase(), document._id));
         
         return idMap;
     }
 
+    /**
+     * Returns a list of regex expressions for each query in string.
+     * @param queryString A comma-separated string of elements. For example: chrono,druid,warrior.
+     * @returns A list of regex expressions. For example: [/^chrono$/gi, /^druid$/gi, /^warrior$/gi].
+     */
     public static getRegexListFromQueryString(queryString: string): RegExp[] {
         return queryString.split(",").map(query => new RegExp(`^${escapeStringRegexp(query)}$`, "gi"));
     }
