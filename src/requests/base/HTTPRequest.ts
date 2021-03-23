@@ -3,11 +3,8 @@ import { NextFunction, Request, Response } from "express";
 import InvalidQueryParametersException from "../../exceptions/InvalidQueryParametersException";
 import Auth from "../../util/Auth/Auth";
 import { Logger, Severity } from "../../util/Logger";
-import RequestOptions from "./RequestOptions";
-import ResourceNotFoundException from "../../exceptions/ResourceNotFoundException";
+import IRequestOptions from "./IRequestOptions";
 import BadSyntaxException from "../../exceptions/BadSyntaxException";
-import Utils from "../../util/Utils";
-import RequestOptions from "./IRequestOptions";
 import IAuthenticatedClient from "../../util/Auth/clients/IAuthenticatedClient";
 import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import UnauthorizedException from "../../exceptions/UnauthorizedException";
@@ -29,7 +26,7 @@ export default abstract class HTTPRequest {
     private _requiredPermissions: MemberPermission[];
 
 
-    constructor(req: Request, res: Response, next: NextFunction, options?: RequestOptions) {
+    constructor(req: Request, res: Response, next: NextFunction, options?: IRequestOptions) {
         this._req = req;
         this._res = res;
         this._next = next;

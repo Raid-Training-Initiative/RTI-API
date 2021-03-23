@@ -5,7 +5,7 @@ import { Logger, Severity } from "../../util/Logger";
 import ResourceNotFoundException from "../../exceptions/ResourceNotFoundException";
 import BadSyntaxException from "../../exceptions/BadSyntaxException";
 import Utils from "../../util/Utils";
-import RequestOptions from "./RequestOptions";
+import IRequestOptions from "./IRequestOptions";
 import HTTPRequest from "./HTTPRequest";
 
 export default abstract class HTTPGetRequest extends HTTPRequest {
@@ -16,7 +16,7 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
     
     private pagination: {page: number, pageSize: number};
 
-    constructor(req: Request, res: Response, next: NextFunction, options?: RequestOptions) {
+    constructor(req: Request, res: Response, next: NextFunction, options?: IRequestOptions) {
         super(req, res, next, options);
         if (options) { // If additional options are specified.
             this.paginated = options.paginated ? options.paginated : false;
@@ -30,8 +30,8 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
      * @throws {InvalidQueryParametersException} When a query parameter was specified that is not part of the accepted list of parameters.
      * @throws {BadSyntaxException} When a query parameter isn't one of the supported values.
      */
-    public validateRequest() {
-        super.validateRequest();
+    public async validateRequest() {
+        await super.validateRequest();
         if (this.paginated) this.validatePagination();
         if (this.multiFormat) this.validateFormatParam();
     }
@@ -82,7 +82,7 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
         try
         {
             Logger.logRequest(Severity.Debug, this._timestamp, `Request: ${this._req.method} ${this._req.url}`);
-            this.validateRequest();
+            await this.validateRequest();
             const documents: Object[] | Object = this.pagination ? await this.prepareResponse(this.pagination) : await this.prepareResponse();
             this.sendResponse(documents);
         } catch (exception) {

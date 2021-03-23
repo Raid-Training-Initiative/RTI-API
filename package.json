@@ -15,7 +15,6 @@
     "moment-duration-format": "^2.3.2",
     "moment-timezone": "^0.5.31",
     "mongoose": "^5.11.0",
-    "ts-mongoose": "0.0.21",
     "ts-token-generator": "^1.0.4"
   },
   "devDependencies": {

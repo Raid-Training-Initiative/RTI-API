@@ -118,7 +118,11 @@ export class CreateComp extends HTTPPostRequest {
     public requestBodyJsonSchema: object = JSON.parse(fs.readFileSync("resources/schemas/comp.schema.json", "utf8"));;
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true});
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.EDIT_COMPS]
+            }
+        });
     }
 
     /**
@@ -149,7 +153,11 @@ export class DeleteComp extends HTTPDeleteRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true});
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.EDIT_COMPS]
+            }
+        });
     }
 
     /**

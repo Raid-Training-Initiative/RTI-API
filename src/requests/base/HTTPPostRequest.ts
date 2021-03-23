@@ -3,7 +3,7 @@ import HTTPException from "../../exceptions/base/HTTPException";
 import ServerErrorException from "../../exceptions/ServerErrorException";
 import { Logger, Severity } from "../../util/Logger";
 import ResourceNotFoundException from "../../exceptions/ResourceNotFoundException";
-import RequestOptions from "./RequestOptions";
+import IRequestOptions from "./IRequestOptions";
 import JsonValidationErrorException from "../../exceptions/JsonValidationErrorException";
 import { Validator, ValidatorResult } from "jsonschema";
 import HTTPRequest from "./HTTPRequest";
@@ -11,7 +11,7 @@ import HTTPRequest from "./HTTPRequest";
 export default abstract class HTTPPostRequest extends HTTPRequest {
     public abstract requestBodyJsonSchema: object; // A JSON schema to match the request body to.
 
-    constructor(req: Request, res: Response, next: NextFunction, options?: RequestOptions) {
+    constructor(req: Request, res: Response, next: NextFunction, options?: IRequestOptions) {
         super(req, res, next, options);
     }
 
@@ -22,8 +22,8 @@ export default abstract class HTTPPostRequest extends HTTPRequest {
      * @throws {BadSyntaxException} When a query parameter isn't one of the supported values.
      * @throws {JsonValidationErrorException} When the request body does not follow the JSON schema.
      */
-    public validateRequest() {
-        super.validateRequest();
+    public async validateRequest() {
+        await super.validateRequest();
         if (this.requestBodyJsonSchema != {}) this.validateRequestBody();
     }
 
@@ -47,7 +47,7 @@ export default abstract class HTTPPostRequest extends HTTPRequest {
         try
         {
             Logger.logRequest(Severity.Debug, this._timestamp, `Request: ${this._req.method} ${this._req.url}`);
-            this.validateRequest();
+            await this.validateRequest();
             const document = await this.prepareResponse();
             this.sendResponse(document);
         } catch (exception) {

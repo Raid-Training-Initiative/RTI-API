@@ -1,6 +1,6 @@
 import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 
-export default interface RequestOptions {
+export default interface IRequestOptions {
     authenticated?: {
         permissions: MemberPermission[],
     }

@@ -14,7 +14,7 @@ import { GetMember, ListMembers } from "./requests/Members";
 import { ListTrainingRequests, GetTrainingRequest } from "./requests/TrainingRequests";
 import { GetStats, GetStatus } from "./requests/Other";
 import { GetGuildOptions } from "./requests/GuildOptions";
-import { GetDiscordAuth } from "./requests/DiscordAuth";
+import { DiscordAuth } from "./requests/DiscordAuth";
 
 export class App {
     private static _app: App | undefined;
@@ -53,14 +53,6 @@ export class App {
         await Auth.create(this._config);
 
         server.use(express.json());
-        
-        // =========### Discord Auth ###=========
-        server.post("/discordauth", async (req: Request, res: Response, next: NextFunction) => {
-            Logger.log(Severity.Info, `GET /discordauth request initiated`);
-            const discordAuth = new GetDiscordAuth(req, res, next);
-            await discordAuth.run();
-            Logger.log(Severity.Info, `GET /discordauth request completed`);
-        });
                 
         // =========### Raids ###=========
         server.get("/raids", async (req: Request, res: Response, next: NextFunction) => {
@@ -168,10 +160,10 @@ export class App {
 
         // =========### Discord Auth ###=========
         server.post("/discordauth", async (req: Request, res: Response, next: NextFunction) => {
-            Logger.log(Severity.Info, `GET /discordauth request initiated`);
-            const discordAuth = new GetDiscordAuth(req, res, next);
+            Logger.log(Severity.Info, `POST /discordauth request initiated`);
+            const discordAuth = new DiscordAuth(req, res, next);
             await discordAuth.run();
-            Logger.log(Severity.Info, `GET /discordauth request completed`);
+            Logger.log(Severity.Info, `POST /discordauth request completed`);
         });
 
         // =========### Other ###=========
