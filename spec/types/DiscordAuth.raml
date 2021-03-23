@@ -1,12 +1,12 @@
 #%RAML 1.0 DataType
-description: Data type for the data returned by the the discord authentication
+description: Data type for the data returned by the the Discord authentication.
 
 properties:
   token:
     type: string
-    description: The access token that the user can use to access this api
+    description: The access token that the user can use to access this API.
     example: "8CkCJtHJjYa5hDrGWA85Zx"
   userInfo:
     type: !include DiscordUserInfo.raml
-    description: The user info
+    description: The user info.
     example: !include ../examples/snippets/discordauth-userinfo.json

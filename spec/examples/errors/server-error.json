@@ -1,5 +1,5 @@
 {
     "status": 500,
     "name": "ServerError",
-    "message": "Internal error: Error Description"
+    "message": "Internal error: Error description."
 }

@@ -20,7 +20,7 @@ export class GetGuildOptions extends HTTPRequest {
     }
 
     /**
-     * Returns the JSON string payload of a comp after making a GET /guildoptions request.
+     * Returns the JSON string payload of a discord server's options after making a GET /guildoptions request.
      * @returns An object representing a member.
      */
     public async prepareResponse(): Promise<Object> {

@@ -191,11 +191,11 @@ export default class DB {
     }
 
     /**
-     * Queries the database and retrieves member by its discord ID, populated reference fields
+     * Queries the database and retrieves member by its discord ID with populated reference fields.
      * @param discordId The discord ID of the member.
-     * @returns A single member.
+     * @returns A single populated member.
      */
-    public static async query_member_populated_by_id(discordId?: string): Promise<IMemberPopulatedDocument> {
+    public static async queryMemberPopulatedById(discordId?: string): Promise<IMemberPopulatedDocument> {
         return (await this._instance._db.memberModel
             .findOne({userId: discordId})
             .populate("roles")

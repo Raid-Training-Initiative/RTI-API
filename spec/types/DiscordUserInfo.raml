@@ -1,40 +1,40 @@
 #%RAML 1.0 DataType
-description: Data type for discord user info.
+description: Data type for Discord user info.
 
 properties:
   id:
     type: string
-    description: The discord ID of the user
+    description: The Discord ID of the user.
     example: "645169823936151572"
   username:
     type: string
-    description: The discord name of the user
+    description: The Discord name of the user.
     example: "John"
   discriminator:
     type: string
-    description: The discord tag of the user
+    description: The Discord tag of the user.
     example: "3124"
   avatar:
     type: string
-    description:
+    description: The ID of the Discord's avatar.
     example: "b3eac06d5588a4f2e5afdeed504c8161"
   public_flags:
     type: number
-    description: The user's public flags (https://discord.com/developers/docs/resources/user)
+    description: The user's public flags (https://Discord.com/developers/docs/resources/user).
     example: 0
   flags:
     type: number
-    description: The user's flags (https://discord.com/developers/docs/resources/user)
+    description: The user's flags (https://Discord.com/developers/docs/resources/user).
     example: 0
   locale:
     type: string
-    description: The locale for the user
+    description: The locale for the user.
     example: "en-GB"
   mfa_enabled:
     type: boolean
-    description: Whether the user has MFA enabled
+    description: Whether the user has multi-factor authentication enabled.
     example: true
   premium_type:
     type: number
-    description: The premium type (https://discord.com/developers/docs/resources/user)
+    description: The premium type (https://Discord.com/developers/docs/resources/user).
     example: 2

@@ -12,10 +12,10 @@ export default class DiscordAuthService {
     }
 
     /**
-     * Uses the Discord OAuth2 api endpoint to retreive a token using the provided code
-     * @param code The OAuth2 code passed in by the user
-     * @returns The token info
-     * @throws {ServerErrorException} if the request to the discord API fails
+     * Uses the Discord OAuth2 api endpoint to retreive a token using the provided code.
+     * @param code The OAuth2 code passed in by the user.
+     * @returns The token info.
+     * @throws {ServerErrorException} if the request to the discord API fails.
      */
     public async getTokenInfo(code: string): Promise<IDiscordTokenInfo> {
         const data = {
@@ -45,9 +45,9 @@ export default class DiscordAuthService {
             if (err.isAxiosError) {
                 const axiosError = err as AxiosError;
                 if (axiosError.response) {
-                    throw new ServerErrorException(`Discord Token Request failed with code ${axiosError.response.status}:\n ${JSON.stringify(axiosError.response.data)}`);
+                    throw new ServerErrorException(`Discord token request failed with code ${axiosError.response.status}:\n ${JSON.stringify(axiosError.response.data)}`);
                 } else {
-                    throw new ServerErrorException(`Discord Token Request failed with code ${axiosError.code}`);
+                    throw new ServerErrorException(`Discord token request failed with code ${axiosError.code}`);
                 }
             }
             else {
@@ -57,10 +57,10 @@ export default class DiscordAuthService {
     }
 
     /**
-     * Retreives information about the user for a given token
-     * @param tokenInfo The token info to use for authentication with the discord API
-     * @returns Information about the user
-     * @throws {ServerErrorException} if the request to the discord API fails
+     * Retreives information about the user for a given token.
+     * @param tokenInfo The token info to use for authentication with the discord API.
+     * @returns Information about the user.
+     * @throws {ServerErrorException} if the request to the discord API fails.
      */
     public async getUserInfo(tokenInfo: IDiscordTokenInfo): Promise<IDiscordUserInfo> {
         const options: AxiosRequestConfig = {

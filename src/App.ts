@@ -52,15 +52,6 @@ export class App {
         await DB.create(this._config);
         await Auth.create(this._config);
 
-        // =========### Discord Auth ###=========
-        server.post("/discordauth", async (req: Request, res: Response, next: NextFunction) => {
-            Logger.log(Severity.Info, `GET /discordauth request initiated`);
-            const discordAuth = new GetDiscordAuth(req, res, next);
-            await discordAuth.run();
-            Logger.log(Severity.Info, `GET /discordauth request completed`);
-        });
-        
-        
         // =========### Raids ###=========
         server.get("/raids", async (req: Request, res: Response, next: NextFunction) => {
             Logger.log(Severity.Info, `GET /raids request initiated`);
@@ -149,6 +140,14 @@ export class App {
             const getGuildOptions = new GetGuildOptions(req, res, next);
             await getGuildOptions.run();
             Logger.log(Severity.Info, `GET /guildoptions request completed`);
+        });
+
+        // =========### Discord Auth ###=========
+        server.post("/discordauth", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /discordauth request initiated`);
+            const discordAuth = new GetDiscordAuth(req, res, next);
+            await discordAuth.run();
+            Logger.log(Severity.Info, `GET /discordauth request completed`);
         });
 
         // =========### Other ###=========

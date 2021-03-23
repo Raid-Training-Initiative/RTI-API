@@ -8,7 +8,7 @@ import { Logger, Severity } from "../../util/Logger";
 import ResourceNotFoundException from "../../exceptions/ResourceNotFoundException";
 import BadSyntaxException from "../../exceptions/BadSyntaxException";
 import Utils from "../../util/Utils";
-import RequestOptions from "./RequestOptions";
+import RequestOptions from "./IRequestOptions";
 import InvalidAuthenticationException from "../../exceptions/InvalidAuthenticationException";
 import IAuthenticatedClient from "../../util/Auth/clients/IAuthenticatedClient";
 import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
@@ -43,7 +43,6 @@ export default abstract class HTTPRequest {
             this._paginated = options.paginated ? options.paginated : false;
             this._multiFormat = options.multiFormat ? options.multiFormat : false;
         }
-        
     }
     
     public get client(): IAuthenticatedClient | undefined {
@@ -99,6 +98,11 @@ export default abstract class HTTPRequest {
         Logger.logRequest(Severity.Debug, this._timestamp, `Request called by: ${this._client.id}`)
     }
 
+    /**
+     * Checks if the client making the request has the necessary permissions.
+     * @param client The client holding the permissions.
+     * @throws {UnauthorizedException} When the permissions are not sufficient for making the request.
+     */
     private async validatePermissions(client: IAuthenticatedClient) {
         if (!(await client.hasPermissions(this._requiredPermissions))) {
             throw new UnauthorizedException("Invalid permissions");
@@ -141,7 +145,6 @@ export default abstract class HTTPRequest {
                 }
             }
         }
-        
     }
 
     /**
