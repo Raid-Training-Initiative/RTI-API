@@ -86,7 +86,7 @@ mongorestore --gzip --archive=<your_dump_archive>
 ```json
 {
     // ...
-    "cors": "true",
+    "cors": "false",
     "discordAuth": {
         "clientId": "dicord application client ID here",
         "clientSecret": "discord application client secret here"
