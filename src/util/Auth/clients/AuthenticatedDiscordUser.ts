@@ -23,10 +23,18 @@ export default class AuthenticatedDiscordUser implements IAuthenticatedClient {
         return Date.now() > (this.lastActivityDate.getTime() + AuthenticatedDiscordUser.EXPIRES_IN * 1000);
     }
 
+    /**
+     * Called by the parent when the user makes a request.
+     */
     public recordActivity() {
         this.lastActivityDate = new Date();
     }
 
+    /**
+     * Returns whether the user has the required permissions.
+     * @param permissions An array of permissions. 
+     * @returns True if the user has all the permissions.
+     */
     public async hasPermissions(permissions: MemberPermission[]): Promise<boolean> {
         const user = await DB.queryMemberPopulatedById(this.discordUserInfo.id);
         if (user) {
