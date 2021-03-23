@@ -1,5 +1,5 @@
 /**
- * File for classes that handle requests for compositions.
+ * File for classes that handle requests for discord auth tokens.
  */
 
 import { NextFunction, Request, Response } from "express";
@@ -12,10 +12,7 @@ export class GetDiscordAuth extends HTTPRequest {
         "code",
     ];
 
-    constructor(
-        req: Request, 
-        res: Response, 
-        next: NextFunction) {
+    constructor(req: Request, res: Response, next: NextFunction) {
         super(req, res, next);
     }
 
@@ -32,11 +29,10 @@ export class GetDiscordAuth extends HTTPRequest {
     }
 
     /**
-     * Returns the JSON string payload of a comp after making a GET /guildoptions request.
+     * Returns the JSON object containing user info and token after making a POST /discordauth request.
      * @returns An object representing a member.
      */
     public async prepareResponse(): Promise<Object> {
         return await Auth.instance().authenticateWithDiscord(this._req.query["code"] as string);
     }
-
 }

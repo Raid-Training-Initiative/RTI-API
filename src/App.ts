@@ -166,6 +166,14 @@ export class App {
             Logger.log(Severity.Info, `GET /guildoptions request completed`);
         });
 
+        // =========### Discord Auth ###=========
+        server.post("/discordauth", async (req: Request, res: Response, next: NextFunction) => {
+            Logger.log(Severity.Info, `GET /discordauth request initiated`);
+            const discordAuth = new GetDiscordAuth(req, res, next);
+            await discordAuth.run();
+            Logger.log(Severity.Info, `GET /discordauth request completed`);
+        });
+
         // =========### Other ###=========
         server.get("/status", async (req: Request, res: Response, next: NextFunction) => {
             Logger.log(Severity.Info, `GET /status request initiated`);

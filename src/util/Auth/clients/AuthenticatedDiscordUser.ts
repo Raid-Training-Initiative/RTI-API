@@ -28,7 +28,7 @@ export default class AuthenticatedDiscordUser implements IAuthenticatedClient {
     }
 
     public async hasPermissions(permissions: MemberPermission[]): Promise<boolean> {
-        const user = await DB.query_member_populated_by_id(this.discordUserInfo.id);
+        const user = await DB.queryMemberPopulatedById(this.discordUserInfo.id);
         if (user) {
             const permissionsSet: Set<MemberPermission> = new Set();
             user.roles.forEach(role => {
