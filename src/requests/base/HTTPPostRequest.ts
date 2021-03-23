@@ -40,10 +40,6 @@ export default abstract class HTTPPostRequest extends HTTPRequest {
         }
     }
 
-    public get clientId() {
-        return this._clientId;
-    }
-
     /**
      * Executes the request and handles errors.
      */

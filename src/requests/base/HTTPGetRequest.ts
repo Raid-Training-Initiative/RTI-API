@@ -74,11 +74,7 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
             }
         }
     }
-
-    public get clientId() {
-        return this._clientId;
-    }
-
+    
     /**
      * Executes the request and handles errors.
      */

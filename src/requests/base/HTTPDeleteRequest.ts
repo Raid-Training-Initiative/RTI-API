@@ -12,10 +12,6 @@ export default abstract class HTTPDeleteRequest extends HTTPRequest {
         super(req, res, next, options);
     }
 
-    public get clientId() {
-        return this._clientId;
-    }
-
     /**
      * Executes the request and handles errors.
      */
