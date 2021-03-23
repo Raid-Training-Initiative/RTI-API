@@ -8,7 +8,6 @@ import { TokenGenerator } from "ts-token-generator";
 import DB from "../DB";
 import UnauthorizedException from "../../exceptions/UnauthorizedException";
 import AuthenticatedDiscordUser from "./clients/AuthenticatedDiscordUser";
-import InvalidAuthenticationException from "../../exceptions/InvalidAuthenticationException";
 import SessionExpiredException from "../../exceptions/SessionExpiredException";
 
 export default class Auth {
@@ -66,7 +65,7 @@ export default class Auth {
         const client = this._clients.get(client_secret);
 
         if (client === undefined) {
-            throw new InvalidAuthenticationException();
+            throw new UnauthorizedException("Invalid token");
         }
 
         if (client.expired) {

@@ -8,7 +8,6 @@ import ResourceNotFoundException from "../../exceptions/ResourceNotFoundExceptio
 import BadSyntaxException from "../../exceptions/BadSyntaxException";
 import Utils from "../../util/Utils";
 import RequestOptions from "./IRequestOptions";
-import InvalidAuthenticationException from "../../exceptions/InvalidAuthenticationException";
 import IAuthenticatedClient from "../../util/Auth/clients/IAuthenticatedClient";
 import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import UnauthorizedException from "../../exceptions/UnauthorizedException";
@@ -63,13 +62,13 @@ export default abstract class HTTPRequest {
 
     /**
      * Checks if the authentication is valid (i.e. Authorization header contains a valid client secret).
-     * @throws {InvalidAuthenticationException} When the Authorization header is empty or contains an invalid client secret.
+     * @throws {BadSyntaxException} When the Authorization header is empty or contains an invalid client secret.
      */
     private async validateAuthentication() {
         const auth: Auth = Auth.instance();
         const authHeader: string[] = (this._req.headers.authorization || "").split(" ");
         if (authHeader[0] != "Bearer") {
-            throw new InvalidAuthenticationException();
+            throw new BadSyntaxException(`The Authorization header should be in the form "Bearer AUTH_TOKEN"`);
         }
 
         const clientSecret: string = authHeader[1] || "";

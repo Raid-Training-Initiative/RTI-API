@@ -4,13 +4,17 @@
 
 import { NextFunction, Request, Response } from "express";
 import HTTPRequest from "./base/HTTPRequest";
-import MissingQueryParameterException from "../exceptions/MissingQueryParameterException";
 import Auth from "../util/Auth/Auth";
+import { Validator } from "jsonschema";
+import JsonValidationError from "../exceptions/JsonValidationErrorException";
 
 export class GetDiscordAuth extends HTTPRequest {
     public validRequestQueryParameters: string[] = [
-        "code",
     ];
+
+    public requestBodyJsonSchema: Object = {
+        "code": "string",
+    }
 
     constructor(req: Request, res: Response, next: NextFunction) {
         super(req, res, next);
@@ -22,10 +26,7 @@ export class GetDiscordAuth extends HTTPRequest {
      */
     public async validateRequest() {
         await super.validateRequest();
-
-        if (this._req.query["code"] == undefined) {
-            throw new MissingQueryParameterException("code");
-        }
+        this.validateRequestBody();
     }
 
     /**
@@ -33,6 +34,19 @@ export class GetDiscordAuth extends HTTPRequest {
      * @returns An object representing a member.
      */
     public async prepareResponse(): Promise<Object> {
-        return await Auth.instance().authenticateWithDiscord(this._req.query["code"] as string);
+        return await Auth.instance().authenticateWithDiscord(this._req.body.code as string);
+    }
+
+    /**
+     * Checks if the request body is valid or not against the schema in the requestBodyJsonSchema field
+     * @throws {JsonValidationErrorException} when the JSON body doesn't match the schema
+     */
+    private validateRequestBody() {
+        const validator = new Validator();
+        const result = validator.validate(this._req.body, this.requestBodyJsonSchema);
+
+        if (!result.valid) {
+            throw new JsonValidationError(result.errors[0].stack);
+        }
     }
 }
