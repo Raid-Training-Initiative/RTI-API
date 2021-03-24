@@ -7,7 +7,7 @@ import HTTPPostRequest from "./base/HTTPPostRequest";
 import Auth from "../util/Auth/Auth";
 import * as fs from "fs";
 
-export class DiscordAuth extends HTTPPostRequest {
+export class PostDiscordAuth extends HTTPPostRequest {
     public validRequestQueryParameters: string[] = [];
 
     public requestBodyJsonSchema: object = JSON.parse(fs.readFileSync("resources/schemas/discordauth.schema.json", "utf8"));;

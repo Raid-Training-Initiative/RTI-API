@@ -14,7 +14,7 @@ import { GetMember, ListMembers } from "./requests/Members";
 import { ListTrainingRequests, GetTrainingRequest } from "./requests/TrainingRequests";
 import { GetStats, GetStatus } from "./requests/Other";
 import { GetGuildOptions } from "./requests/GuildOptions";
-import { DiscordAuth } from "./requests/DiscordAuth";
+import { PostDiscordAuth } from "./requests/DiscordAuth";
 
 export class App {
     private static _app: App | undefined;
@@ -161,7 +161,7 @@ export class App {
         // =========### Discord Auth ###=========
         server.post("/discordauth", async (req: Request, res: Response, next: NextFunction) => {
             Logger.log(Severity.Info, `POST /discordauth request initiated`);
-            const discordAuth = new DiscordAuth(req, res, next);
+            const discordAuth = new PostDiscordAuth(req, res, next);
             await discordAuth.run();
             Logger.log(Severity.Info, `POST /discordauth request completed`);
         });
