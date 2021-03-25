@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "82507df5-6055-439d-92e2-188679c3e1a1",
+		"_postman_id": "39bd48fd-c148-4178-bbb0-ee9a2b754518",
 		"name": "RTI API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -3091,7 +3091,7 @@
 			]
 		},
 		{
-			"name": "GuildOptions",
+			"name": "Guild Options",
 			"item": [
 				{
 					"name": "Get",
@@ -3293,6 +3293,45 @@
 						}
 					},
 					"response": []
+				}
+			]
+		},
+		{
+			"name": "Discord Auth",
+			"item": [
+				{
+					"name": "Post",
+					"item": [
+						{
+							"name": "Post Discord Auth",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"code\": \"DISCORD_OAUTH2_CODE\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/discordauth",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"discordauth"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		}
