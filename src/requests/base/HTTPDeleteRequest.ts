@@ -3,12 +3,12 @@ import HTTPException from "../../exceptions/base/HTTPException";
 import ServerErrorException from "../../exceptions/ServerErrorException";
 import { Logger, Severity } from "../../util/Logger";
 import ResourceNotFoundException from "../../exceptions/ResourceNotFoundException";
-import RequestOptions from "./RequestOptions";
+import IRequestOptions from "./IRequestOptions";
 import HTTPRequest from "./HTTPRequest";
 
 export default abstract class HTTPDeleteRequest extends HTTPRequest {
 
-    constructor(req: Request, res: Response, next: NextFunction, options?: RequestOptions) {
+    constructor(req: Request, res: Response, next: NextFunction, options?: IRequestOptions) {
         super(req, res, next, options);
     }
 
@@ -19,7 +19,7 @@ export default abstract class HTTPDeleteRequest extends HTTPRequest {
         try
         {
             Logger.logRequest(Severity.Debug, this._timestamp, `Request: ${this._req.method} ${this._req.url}`);
-            this.validateRequest();
+            await this.validateRequest();
             await this.prepareResponse();
             this.sendResponse();
         } catch (exception) {

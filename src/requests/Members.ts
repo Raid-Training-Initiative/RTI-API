@@ -7,6 +7,7 @@ import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import DB from "../util/DB";
 import Utils from "../util/Utils";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
+import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 
 export class ListMembers extends HTTPGetRequest {
@@ -21,15 +22,21 @@ export class ListMembers extends HTTPGetRequest {
     ];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true, paginated: true, multiFormat: true});
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_MEMBERS]
+            },
+            paginated: true, 
+            multiFormat: true
+        });
     }
 
     /**
      * Validates the request with the basic HTTP request validation and then checks if the query parameters are correct.
      * @throws {BadSyntaxException} When a query parameter doesn't have the correct value.
      */
-    public validateRequest() {
-        super.validateRequest();
+    public async validateRequest() {
+        await super.validateRequest();
 
         if (this._req.query["banned"]) {
             const publishedString: string = this._req.query["banned"].toString().toLowerCase();
@@ -107,7 +114,11 @@ export class GetMember extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next);
+        super(req, res, next, {
+            authenticated : {
+                permissions: [MemberPermission.VIEW_MEMBERS]
+            }
+        });
     }
 
     /**

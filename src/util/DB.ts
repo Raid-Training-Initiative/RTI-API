@@ -1,5 +1,5 @@
 import { IGuildOptionsData } from "@RTIBot-DB/documents/IGuildOptionsDocument";
-import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
+import { IMemberDocument, IMemberPopulatedDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
 import { IRaidCompositionPopulatedDocument, IRaidCompositionRole } from "@RTIBot-DB/documents/IRaidCompositionDocument";
 import { IRaidEventDocument } from "@RTIBot-DB/documents/IRaidEventDocument";
@@ -235,6 +235,18 @@ export default class DB {
         return (await this._instance._db.memberModel
             .findOne({userId: discordId})
             .exec()) as IMemberDocument;
+    }
+
+    /**
+     * Queries the database and retrieves member by its discord ID with populated reference fields.
+     * @param discordId The discord ID of the member.
+     * @returns A single populated member.
+     */
+    public static async queryMemberPopulatedById(discordId?: string): Promise<IMemberPopulatedDocument> {
+        return (await this._instance._db.memberModel
+            .findOne({userId: discordId})
+            .populate("roles")
+            .exec()) as IMemberPopulatedDocument;
     }
 
      /**

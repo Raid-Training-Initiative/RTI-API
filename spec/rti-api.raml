@@ -11,6 +11,7 @@ types:
   TrainingRequestSummary: !include types/TrainingRequestSummary.raml
   GuildOptions: !include types/GuildOptions.raml
   Status: !include types/Status.raml
+  DiscordAuth: !include types/DiscordAuth.raml
 traits:
   requiresAuthentication: !include traits/RequiresAuthentication.raml
   supportsPagination: !include traits/SupportsPagination.raml
@@ -403,6 +404,37 @@ traits:
           application/json:
             description: Error response when the guild options aren't found in the database.
             example: !include examples/errors/no-guild-options.json
+
+/discordauth:
+  post:
+    description: Returns the user's info and an access token in exchange for a Discord OAuth2 access code.
+    queryParameters:
+      code:
+        type: string
+        description: The code obtained through the Discord OAuth process.
+        example: "ARUwr5OIQhy06TCnsGHoRyI6dg3qND"
+    responses:
+      200:
+        body:
+          application/json:
+            description: A DiscordAuth object.
+            type: DiscordAuth
+            example: !include examples/responses/json/post-discordauth.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json
+      440:
+        body:
+          application/json:
+            description: Error response when the session associated with this token has expired and the user must authenticate again.
+            example: !include examples/errors/session-expired.json
+      500:
+        body:
+          application/json:
+            description: Error response when an internal error occurs, most likely because the Discord API call failed.
+            example: !include examples/errors/server-error.json
 
 /status:
   get:
