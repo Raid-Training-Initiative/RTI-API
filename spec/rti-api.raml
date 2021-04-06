@@ -11,6 +11,7 @@ types:
   TrainingRequestSummary: !include types/TrainingRequestSummary.raml
   GuildOptions: !include types/GuildOptions.raml
   Status: !include types/Status.raml
+  DiscordAuth: !include types/DiscordAuth.raml
 traits:
   requiresAuthentication: !include traits/RequiresAuthentication.raml
   supportsPagination: !include traits/SupportsPagination.raml
@@ -205,6 +206,36 @@ traits:
           application/json:
             description: Error response when syntax is invalid.
             example: !include examples/errors/invalid-query-parameters.json
+  post:
+    description: Creates a raid squad composition in the database.
+    is: ["requiresAuthentication"]
+    body:
+      applicaton/json:
+        description: The comp to put in the database.
+        type: Comp
+        example: !include examples/requests/create-comp.json
+    responses:
+      201:
+        body:
+          application/json:
+            description: The comp that was created in the database.
+            type: Comp
+            example: !include examples/responses/json/create-comp.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/bad-syntax-bad-json.json
+      404:
+        body:
+          application/json:
+            description: Error response when a category in the comp to be created could not be found.
+            example: !include examples/errors/resource-not-found.json
+      422:
+        body:
+          application/json:
+            description: Error response when the comp to be created already exists.
+            example: !include examples/errors/resource-already-exists.json
   /{comp}:
     get:
       description: Gets a single raid squad composition by name.
@@ -216,6 +247,23 @@ traits:
               description: A composition.
               type: Comp
               example: !include examples/responses/json/get-comp.json
+        400:
+          body:
+            application/json:
+              description: Error response when syntax is invalid.
+              example: !include examples/errors/invalid-query-parameters.json 
+        404:
+          body:
+            application/json:
+              description: Error response when the requested comp could not be found.
+              example: !include examples/errors/resource-not-found.json
+    delete:
+      description: Deletes a single raid squad composition by name.
+      is: ["requiresAuthentication"]
+      responses:
+        204:
+          body:
+            text/plain: !null
         400:
           body:
             application/json:
@@ -356,6 +404,37 @@ traits:
           application/json:
             description: Error response when the guild options aren't found in the database.
             example: !include examples/errors/no-guild-options.json
+
+/discordauth:
+  post:
+    description: Returns the user's info and an access token in exchange for a Discord OAuth2 access code.
+    queryParameters:
+      code:
+        type: string
+        description: The code obtained through the Discord OAuth process.
+        example: "ARUwr5OIQhy06TCnsGHoRyI6dg3qND"
+    responses:
+      200:
+        body:
+          application/json:
+            description: A DiscordAuth object.
+            type: DiscordAuth
+            example: !include examples/responses/json/post-discordauth.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json
+      440:
+        body:
+          application/json:
+            description: Error response when the session associated with this token has expired and the user must authenticate again.
+            example: !include examples/errors/session-expired.json
+      500:
+        body:
+          application/json:
+            description: Error response when an internal error occurs, most likely because the Discord API call failed.
+            example: !include examples/errors/server-error.json
 
 /status:
   get:

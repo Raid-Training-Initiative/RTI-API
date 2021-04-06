@@ -4,33 +4,42 @@
 
 import { NextFunction, Request, Response } from "express";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
-import HTTPRequest from "./base/HTTPRequest";
 import DB from "../util/DB";
+import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
+import HTTPGetRequest from "./base/HTTPGetRequest";
 
-export class ListCategories extends HTTPRequest {
+export class ListCategories extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true});
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_COMPS]
+            }
+        });
     }
 
     /**
      * Returns the list of categories after making a GET /categories request.
      * @returns A list of objects representing categories.
      */
-    public async prepare_response(): Promise<Object[]> {
-        const documents = await DB.query_categories();
+    public async prepareResponse(): Promise<Object[]> {
+        const documents = await DB.queryCategories();
         const formattedDocuments = documents.map(document => { return { name: document.name } });
 
         return formattedDocuments;
     }
 }
 
-export class GetCategory extends HTTPRequest {
+export class GetCategory extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next);
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_COMPS]
+            }
+        });
     }
 
     /**
@@ -38,10 +47,10 @@ export class GetCategory extends HTTPRequest {
      * @throws {ResourceNotFoundException} When the category cannot be found.
      * @returns An object representing a category.
      */
-    public async prepare_response(): Promise<Object> {
-        const document = await DB.query_category(this.req.params["category"]);
+    public async prepareResponse(): Promise<Object> {
+        const document = await DB.queryCategory(this._req.params["category"]);
         if (document == undefined) {
-            throw new ResourceNotFoundException(this.req.params["category"]);
+            throw new ResourceNotFoundException(this._req.params["category"]);
         }
         const formattedDocument = {
             name: document.name

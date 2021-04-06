@@ -5,12 +5,13 @@
 import { NextFunction, Request, Response } from "express";
 import DB from "../util/DB";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
-import HTTPRequest from "./base/HTTPRequest";
 import Utils from "../util/Utils";
 import { TrainingRequestDisabledReason } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
+import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
+import HTTPGetRequest from "./base/HTTPGetRequest";
 
-export class ListTrainingRequests extends HTTPRequest {
+export class ListTrainingRequests extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
         "users",
         "keywords",
@@ -23,24 +24,30 @@ export class ListTrainingRequests extends HTTPRequest {
     ];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next, {authenticated: true, paginated: true, multiFormat: true});
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_TR]
+            }, 
+            paginated: true, 
+            multiFormat: true
+        });
     }
 
     /**
      * Validates the request with the basic HTTP request validation and then checks if the query parameters are correct.
      * @throws {BadSyntaxException} When a query parameter doesn't have the correct value.
      */
-    public validate_request() {
-        super.validate_request();
+    public async validateRequest() {
+        await super.validateRequest();
         
-        if (this.req.query["active"]) {
-            const activeString: string = this.req.query["active"].toString().toLowerCase();
+        if (this._req.query["active"]) {
+            const activeString: string = this._req.query["active"].toString().toLowerCase();
             if (activeString != "true" && activeString != "false") {
                 throw new BadSyntaxException("Query parameter active must be either true or false.");
             }
         }
-        if (this.req.query["disabledReasons"]) {
-            const disabledReasonStrings: string[] = this.req.query["disabledReasons"].toString().toLowerCase().split(",");
+        if (this._req.query["disabledReasons"]) {
+            const disabledReasonStrings: string[] = this._req.query["disabledReasons"].toString().toLowerCase().split(",");
             disabledReasonStrings.forEach(disabledReasonString => {
                 const supportedValues: string[] = Object.values(TrainingRequestDisabledReason);
                 const supportedValuesLowercase: string[] = supportedValues.map(value => value.toLowerCase());
@@ -49,8 +56,8 @@ export class ListTrainingRequests extends HTTPRequest {
                 }
             })
         }
-        if (this.req.query["wings"]) {
-            const wingStrings: string[] = this.req.query["wings"].toString().toLowerCase().split(",");
+        if (this._req.query["wings"]) {
+            const wingStrings: string[] = this._req.query["wings"].toString().toLowerCase().split(",");
             wingStrings.forEach(wingString => {
                 if (!Number.parseInt(wingString)) {
                     throw new BadSyntaxException("Query parameter wings must include only numbers.");
@@ -63,16 +70,16 @@ export class ListTrainingRequests extends HTTPRequest {
      * Returns a list of training requests after making a GET /trainingrequests request.
      * @returns A list of objects representing training requests.
      */
-    public async prepare_response(paginated?: {page: number, pageSize: number}): Promise<Object[]> {
-        const documents = await DB.query_training_requests(await this.db_filter(), paginated);
+    public async prepareResponse(paginated?: {page: number, pageSize: number}): Promise<Object[]> {
+        const documents = await DB.queryTrainingRequests(await this.dbFilter(), paginated);
 
         // Resolve the IDs to names.
         const idArray = new Array<string>();
         documents.forEach(document => idArray.push(document.userId));
-        const idMap: Map<string, string | undefined> = await Utils.ids_to_map(idArray);
+        const idMap: Map<string, string | undefined> = await Utils.idsToMap(idArray);
 
         let formattedDocuments: Object[];
-        if ((this.req.query["format"]) && (this.req.query["format"].toString().toLowerCase() == "csv")) {
+        if ((this._req.query["format"]) && (this._req.query["format"].toString().toLowerCase() == "csv")) {
             formattedDocuments = documents
                 .filter(document => idMap.get(document.userId)) // Filtering out the users that aren't on the Discord anymore.
                 .map(document => {
@@ -101,8 +108,8 @@ export class ListTrainingRequests extends HTTPRequest {
                     active: document.active,
                     requestedWings: document.requestedWings,
                     comment: document.comment,
-                    created: Utils.format_datetime_string(document.creationDate),
-                    edited: Utils.format_datetime_string(document.lastEditedTimestamp),
+                    created: Utils.formatDatetimeString(document.creationDate),
+                    edited: Utils.formatDatetimeString(document.lastEditedTimestamp),
                     disabledReason: document.disabledReason,
                     userId: document.userId
                 };
@@ -116,29 +123,29 @@ export class ListTrainingRequests extends HTTPRequest {
      * Filters the documents according to the filters specified in the query parameters.
      * @returns A filter to pass into the database query.
      */
-    private async db_filter(): Promise<Object> {
+    private async dbFilter(): Promise<Object> {
         const filters: Object[] = [];
 
-        if (this.req.query["users"]) {
-            const filterUsers: string[] = this.req.query["users"].toString().split(",");
-            const memberMap: Map<string | undefined, string> = await Utils.names_to_map(filterUsers);
+        if (this._req.query["users"]) {
+            const filterUsers: string[] = this._req.query["users"].toString().split(",");
+            const memberMap: Map<string | undefined, string> = await Utils.namesToMap(filterUsers);
             filters.push({ userId: { $in: Array.from(memberMap.values()) } });
         }
-        if (this.req.query["keywords"]) {
-            const filterKeywords: string[] = this.req.query["keywords"].toString().split(",");
+        if (this._req.query["keywords"]) {
+            const filterKeywords: string[] = this._req.query["keywords"].toString().split(",");
             const keywordQuery: string = `"${filterKeywords.join("\",\"")}"`;
             filters.push({ $text: { $search: keywordQuery }});
         }
-        if (this.req.query["active"]) {
-            filters.push({ active: this.req.query["active"].toString().toLowerCase() == "true" });
+        if (this._req.query["active"]) {
+            filters.push({ active: this._req.query["active"].toString().toLowerCase() == "true" });
         }
-        if (this.req.query["wings"]) {
-            const filterWings: number[] = this.req.query["wings"].toString()
+        if (this._req.query["wings"]) {
+            const filterWings: number[] = this._req.query["wings"].toString()
                 .split(",").map(wing => Number.parseInt(wing));
             filters.push({ requestedWings: { $in: filterWings }});
         }
-        if (this.req.query["disabledReasons"]) {
-            const filterDisabledReasons: RegExp[] = Utils.get_regex_list_from_query_string(this.req.query["disabledReasons"].toString());
+        if (this._req.query["disabledReasons"]) {
+            const filterDisabledReasons: RegExp[] = Utils.getRegexListFromQueryString(this._req.query["disabledReasons"].toString());
             filters.push({ disabledReason: { $in: filterDisabledReasons }});
         }
         
@@ -146,11 +153,15 @@ export class ListTrainingRequests extends HTTPRequest {
     }
 }
 
-export class GetTrainingRequest extends HTTPRequest {
+export class GetTrainingRequest extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
 
     constructor(req: Request, res: Response, next: NextFunction) {
-        super(req, res, next);
+        super(req, res, next, {
+            authenticated: {
+                permissions: [MemberPermission.VIEW_TR]
+            }
+        });
     }
 
     /**
@@ -158,17 +169,17 @@ export class GetTrainingRequest extends HTTPRequest {
      * @throws {ResourceNotFoundException} When the raid cannot be found.
      * @returns An object representing a raid.
      */
-    public async prepare_response(): Promise<Object> {
-        const document = await DB.query_training_request(this.req.params["userid"]);
+    public async prepareResponse(): Promise<Object> {
+        const document = await DB.queryTrainingRequest(this._req.params["userid"]);
         if (document == undefined) {
-            throw new ResourceNotFoundException(this.req.params["userid"])
+            throw new ResourceNotFoundException(this._req.params["userid"])
         }
-        const discordTag = (await Utils.ids_to_map([document.userId])).get(document.userId);
+        const discordTag = (await Utils.idsToMap([document.userId])).get(document.userId);
         const historyMap: Object = {};
         document.history.forEach((value, key) =>
             historyMap[key] = {
-                requested: Utils.format_datetime_string(value.requestedDate),
-                cleared: Utils.format_datetime_string(value.clearedDate)
+                requested: Utils.formatDatetimeString(value.requestedDate),
+                cleared: Utils.formatDatetimeString(value.clearedDate)
             });
 
         const formattedDocument = {
@@ -176,8 +187,8 @@ export class GetTrainingRequest extends HTTPRequest {
             active: document.active,
             requestedWings: document.requestedWings,
             comment: document.comment,
-            created: Utils.format_datetime_string(document.creationDate),
-            edited: Utils.format_datetime_string(document.lastEditedTimestamp),
+            created: Utils.formatDatetimeString(document.creationDate),
+            edited: Utils.formatDatetimeString(document.lastEditedTimestamp),
             disabledReason: document.disabledReason,
             userId: document.userId,
             history: historyMap

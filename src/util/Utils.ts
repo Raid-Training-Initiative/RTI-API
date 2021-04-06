@@ -3,6 +3,7 @@ import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidComp
 import { execSync } from "child_process";
 import escapeStringRegexp = require("escape-string-regexp");
 import { Request } from "express";
+import { ObjectId } from "mongoose";
 import DB from "./DB";
 import { Logger, Severity } from "./Logger";
 
@@ -13,9 +14,9 @@ export default class Utils {
      * @param options An object containing a boolean specifying whether to return GW2 names (true) or discord names (false).
      * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
-    public static async ids_to_map(ids: string[], options?: {returnGW2Names: boolean}): Promise<Map<string, string | undefined>> {
+    public static async idsToMap(ids: string[], options?: {returnGW2Names: boolean}): Promise<Map<string, string | undefined>> {
         const idMap = new Map<string, string | undefined>();
-        const documents: IMemberDocument[] = await DB.query_members({userId: {$in: ids}});
+        const documents: IMemberDocument[] = await DB.queryMembers({userId: {$in: ids}});
         documents.forEach(document => idMap.set(document.userId, options?. returnGW2Names ? document.gw2Name : document.discordTag));
 
         return idMap;
@@ -26,9 +27,9 @@ export default class Utils {
      * @param names A string array of discord names.
      * @returns A map with the keys being discord names and the values being discord IDs.
      */
-    public static async names_to_map(names: string[]): Promise<Map<string | undefined, string>> {
+    public static async namesToMap(names: string[]): Promise<Map<string | undefined, string>> {
         const idMap = new Map<string | undefined, string>();
-        const documents: IMemberDocument[] = await DB.query_members({discordTag: {$in: names}});
+        const documents: IMemberDocument[] = await DB.queryMembers({discordTag: {$in: names}});
         documents.forEach(document => idMap.set(document.discordTag, document.userId));
 
         return idMap;
@@ -40,11 +41,11 @@ export default class Utils {
      * @param options An object containing a boolean specifying whether to return GW2 names (true) or discord names (false).
      * @returns A map with the keys being discord IDs and the values being discord or GW2 names.
      */
-    public static async matches_name_id_map(name: string, options?: {returnGW2Names: boolean}): Promise<Map<string, string | undefined>> {
+    public static async matchesNameIdMap(name: string, options?: {returnGW2Names: boolean}): Promise<Map<string, string | undefined>> {
         const idMap = new Map<string, string | undefined>();
         name = escapeStringRegexp(name);
         const regex: RegExp = new RegExp(name, "gi");
-        const documents: IMemberDocument[] = await DB.query_members(options?.returnGW2Names ? { gw2Name: regex } : { discordTag: regex });
+        const documents: IMemberDocument[] = await DB.queryMembers(options?.returnGW2Names ? { gw2Name: regex } : { discordTag: regex });
         documents.forEach(document => idMap.set(document.userId, options?.returnGW2Names ? document.gw2Name : document.discordTag));
 
         return idMap;
@@ -55,16 +56,21 @@ export default class Utils {
      * @param categories A list of strings representing the categories to get the database IDs of.
      * @returns A map with the keys being the lowercased category names and the values being the database IDs.
      */
-    public static async get_category_ids_map_from_categories(categories: string[]): Promise<Map<string, string>> {
-        const idMap = new Map<string, string>();
+    public static async getCategoryIdsMapFromCategories(categories: string[]): Promise<Map<string, ObjectId>> {
+        const idMap = new Map<string, ObjectId>();
         const categoriesRegex: RegExp[] = categories.map(category => new RegExp(category, "gi"));
-        const documents: IRaidCompositionCategoryDocument[] = await DB.query_categories({name: {$in: categoriesRegex}});
-        documents.forEach(document => idMap.set(document.name.toLowerCase(), document._id.toHexString()));
+        const documents: IRaidCompositionCategoryDocument[] = await DB.queryCategories({name: {$in: categoriesRegex}});
+        documents.forEach(document => idMap.set(document.name.toLowerCase(), document._id));
         
         return idMap;
     }
 
-    public static get_regex_list_from_query_string(queryString: string): RegExp[] {
+    /**
+     * Returns a list of regex expressions for each query in string.
+     * @param queryString A comma-separated string of elements. For example: chrono,druid,warrior.
+     * @returns A list of regex expressions. For example: [/^chrono$/gi, /^druid$/gi, /^warrior$/gi].
+     */
+    public static getRegexListFromQueryString(queryString: string): RegExp[] {
         return queryString.split(",").map(query => new RegExp(`^${escapeStringRegexp(query)}$`, "gi"));
     }
 
@@ -73,7 +79,7 @@ export default class Utils {
      * @param date The date and time to format.
      * @returns The formatted datetime as a string.
      */
-    public static format_datetime_string(date: Date | undefined): string | undefined {
+    public static formatDatetimeString(date: Date | undefined): string | undefined {
         return date?.toISOString().replace(/\.\d+Z/, "");
     }
 
@@ -82,7 +88,7 @@ export default class Utils {
      * @param date The date and time to format.
      * @returns The formatted date as a string.
      */
-    public static format_date_string(date: Date | undefined): string | undefined {
+    public static formatDateString(date: Date | undefined): string | undefined {
         return date?.toISOString().split("T")[0];
     }
 
@@ -92,7 +98,7 @@ export default class Utils {
      * @param req The request being made.
      * @returns A string to use to output to a log.
      */
-    public static generate_filter_string(validRequestQueryParameters: string[], req: Request): string {
+    public static generateFilterString(validRequestQueryParameters: string[], req: Request): string {
         const filterString: string[] = [];
         validRequestQueryParameters.forEach(queryParam => {
             if (req.query[queryParam]) {
@@ -107,7 +113,7 @@ export default class Utils {
      * Return the commit info (short hash + branch name) of the repository that is currently active.
      * @returns An object containing branch and commitId as strings with git info.
      */
-    public static get_commit_info(): Object | undefined {
+    public static getCommitInfo(): Object | undefined {
         if (process.env.COMMIT_ID && process.env.BRANCH) { // If the environment variables were set (running on Docker).
             return {
                 branch: process.env.BRANCH.trim(),
@@ -123,7 +129,7 @@ export default class Utils {
                     commitId: execSync(commitHashCommand).toString().trim()
                 }
             } catch (exception) {
-                Logger.log_error(Severity.Error, exception.message);
+                Logger.logError(Severity.Error, exception.message);
             }
 
             return commitInfo;

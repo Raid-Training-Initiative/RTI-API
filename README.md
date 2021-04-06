@@ -79,6 +79,22 @@ mongorestore
 mongorestore --gzip --archive=<your_dump_archive>
 ```
 
+## Enabling Discord Authentication (optional)
+* Step 1: Head over to the [Discord Developer Portal](https://discord.com/developers/) and create an application/reuse an existing applicaiton.
+* Step 2: Add the following line to your ConfigDebug.json
+
+```json
+{
+    // ...
+    "cors": "false",
+    "discordAuth": {
+        "clientId": "dicord application client ID here",
+        "clientSecret": "discord application client secret here"
+    }
+}
+```
+* Step 3: Restart the application
+
 ## Setting up Postman
 Postman is a free software that will allow you to easily send requests to the API. Included in the `postman` folder are files you can import into Postman to immediately have a collection of requests you can make and an environment you can use.
 

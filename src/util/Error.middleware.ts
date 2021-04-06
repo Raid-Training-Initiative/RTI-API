@@ -8,7 +8,7 @@ import HTTPException from "../exceptions/base/HTTPException";
  * @param response The HTTP response being returned.
  * @param next The next function to run in the stack before returning the response.
  */
-export default function error_middleware(error: HTTPException, request: Request, response: Response, next: NextFunction) {
+export default function errorMiddleware(error: HTTPException, request: Request, response: Response, next: NextFunction) {
   const status = error.status || 500;
   const name = error.name || "Unknown";
   const message = error.message || "Something went wrong";

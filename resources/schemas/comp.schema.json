@@ -1,0 +1,20 @@
+{
+    "type": "object",
+    "required": ["name", "categories", "roles"],
+    "properties": {
+        "name": { "type": "string" },
+        "categories": { "type": "array", "items": { "type": "string" } },
+        "roles": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["name", "requiredParticipants"],
+                "properties": {
+                    "name": { "type": "string" },
+                    "requiredParticipants": { "type": "number" }
+                }
+            },
+            "minItems": 1
+        }
+    }
+}

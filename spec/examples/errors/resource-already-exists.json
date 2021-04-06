@@ -1,0 +1,5 @@
+{
+    "status": 422,
+    "name": "ResourceAlreadyExists",
+    "message": "Resource DoubleChrono already exists."
+}

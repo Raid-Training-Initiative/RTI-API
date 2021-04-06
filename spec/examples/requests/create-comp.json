@@ -1,0 +1,36 @@
+{
+    "categories": [
+        "Generic"
+    ],
+    "name": "DoubleChrono-RR",
+    "roles": [
+        {
+            "name": "🔴 DPS",
+            "requiredParticipants": 3
+        },
+        {
+            "name": "🟠 Condi Renegade (RR)",
+            "requiredParticipants": 2
+        },
+        {
+            "name": "🟡 BS",
+            "requiredParticipants": 1
+        },
+        {
+            "name": "🟢 Druid",
+            "requiredParticipants": 1
+        },
+        {
+            "name": "💚 Off-Heal",
+            "requiredParticipants": 1
+        },
+        {
+            "name": "🟪 Chrono (Tank)",
+            "requiredParticipants": 1
+        },
+        {
+            "name": "🟣 Chrono",
+            "requiredParticipants": 1
+        }
+    ]
+}

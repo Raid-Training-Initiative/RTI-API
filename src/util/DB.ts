@@ -1,35 +1,36 @@
 import { IGuildOptionsData } from "@RTIBot-DB/documents/IGuildOptionsDocument";
-import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
+import { IMemberDocument, IMemberPopulatedDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
-import { IRaidCompositionPopulatedDocument } from "@RTIBot-DB/documents/IRaidCompositionDocument";
+import { IRaidCompositionPopulatedDocument, IRaidCompositionRole } from "@RTIBot-DB/documents/IRaidCompositionDocument";
 import { IRaidEventDocument } from "@RTIBot-DB/documents/IRaidEventDocument";
 import { ITrainingRequestDocument } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { TrainingRequestSchema } from "@RTIBot-DB/schemas/TrainingRequestSchema";
+import { ObjectId } from "mongoose";
 import ServerErrorException from "../exceptions/ServerErrorException";
 import { IConfig } from "./Config";
 
 export default class DB {
     private static _instance: DB;
-    private db: MongoDatabase;
+    private _db: MongoDatabase;
 
-    private constructor(_config: IConfig) {
-        this.db = new MongoDatabase(_config.db, _config.guildId)
+    private constructor(config: IConfig) {
+        this._db = new MongoDatabase(config.db, config.guildId)
     }
 
     /**
      * Creates an instance of this class if it does not exist already, connects to the database, and creates the indexes.
-     * @param _config The configuration which includes the database details.
+     * @param config The configuration which includes the database details.
      * @throws {ServerErrorException} When this method is called after the instance is already created.
      */
-    public static async create(_config: IConfig) {
+    public static async create(config: IConfig) {
         if (!this._instance) {
-            this._instance = new this(_config)
-            await this._instance.db.connect();
+            this._instance = new this(config)
+            await this._instance._db.connect();
 
             // Create the indexes required for database queries.
             TrainingRequestSchema.index({comment: "text"});
-            this._instance.db.trainingRequestModel.createIndexes();
+            this._instance._db.trainingRequestModel.createIndexes();
         } else {
             throw new ServerErrorException("Attempted to create existing database instance.");
         }
@@ -52,8 +53,8 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns A list of comps.
      */
-    public static async query_comps(filter?: Object): Promise<IRaidCompositionPopulatedDocument[]> {
-        return (await this._instance.db.raidCompositionModel
+    public static async queryComps(filter?: Object): Promise<IRaidCompositionPopulatedDocument[]> {
+        return (await this._instance._db.raidCompositionModel
             .find(filter ? filter: {})
             .populate("categories")
             .exec()) as IRaidCompositionPopulatedDocument[];
@@ -64,8 +65,8 @@ export default class DB {
      * @param compName The name of the comp.
      * @returns A single comp.
      */
-    public static async query_comp(compName: string): Promise<IRaidCompositionPopulatedDocument> {
-        return (await this._instance.db.raidCompositionModel
+    public static async queryComp(compName: string): Promise<IRaidCompositionPopulatedDocument> {
+        return (await this._instance._db.raidCompositionModel
             .findOne({name: compName})
             .populate("categories")
             .exec()) as IRaidCompositionPopulatedDocument;
@@ -76,10 +77,45 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns The count of comps.
      */
-    public static async query_comps_count(filter?: Object): Promise<number> {
-        return (await this._instance.db.raidCompositionModel
+    public static async queryCompsCount(filter?: Object): Promise<number> {
+        return (await this._instance._db.raidCompositionModel
             .count(filter ? filter: {})
             .exec()) as number;
+    }
+
+    /**
+     * Creates a comp in the database.
+     * @param name The name of the comp.
+     * @param roles A list of roles (with each role having a name and requiredParticipants).
+     * @param categories A list of ObjectIds linking to categories.
+     * @returns The comp that was created.
+     */
+    public static async createComp(name: string, roles: IRaidCompositionRole[], categories: ObjectId[]): Promise<IRaidCompositionPopulatedDocument> {
+        return (await this._instance._db.raidCompositionModel.create({
+            name: name,
+            roles: roles,
+            categories: categories
+        })).execPopulate();
+    }
+
+    /**
+     * Deletes a comp in the database.
+     * @param compName The name of the comp.
+     * @returns A boolean that is true if the comp was deleted and false otherwise.
+     */
+     public static async deleteComp(compName: string): Promise<boolean> {
+        return (await this._instance._db.raidCompositionModel.deleteOne({ name: compName })).deletedCount == 1;
+    }
+
+    /**
+     * Adds a category for a comp in the database.
+     * @param compName The name of the comp to add the cateogry to.
+     * @param categoryId The ObjectId for the category to add.
+     */
+    public static async addCategoryToComp(compName: string, categoryId: ObjectId): Promise<void> {
+        const document = await this.queryComp(compName);
+        document.categories.addToSet(categoryId);
+        await document.save();
     }
 
     /**
@@ -87,8 +123,8 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns A list of categories.
      */
-    public static async query_categories(filter?: Object): Promise<IRaidCompositionCategoryDocument[]> {
-        return (await this._instance.db.raidCompositionCategoryModel
+    public static async queryCategories(filter?: Object): Promise<IRaidCompositionCategoryDocument[]> {
+        return (await this._instance._db.raidCompositionCategoryModel
             .find(filter ? filter : {})
             .exec()) as IRaidCompositionCategoryDocument[];
     }
@@ -98,8 +134,8 @@ export default class DB {
      * @param categoryName The name of the category.
      * @returns A single category.
      */
-    public static async query_category(categoryName: string): Promise<IRaidCompositionCategoryDocument> {
-        return (await this._instance.db.raidCompositionCategoryModel
+    public static async queryCategory(categoryName: string): Promise<IRaidCompositionCategoryDocument> {
+        return (await this._instance._db.raidCompositionCategoryModel
             .findOne({name: categoryName})
             .exec()) as IRaidCompositionCategoryDocument;
     }
@@ -109,10 +145,21 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns The count of categories.
      */
-    public static async query_categories_count(filter?: Object): Promise<number> {
-        return (await this._instance.db.raidCompositionCategoryModel
+    public static async queryCategoriesCount(filter?: Object): Promise<number> {
+        return (await this._instance._db.raidCompositionCategoryModel
             .count(filter ? filter: {})
             .exec()) as number;
+    }
+
+    /**
+     * Creates a category in the database.
+     * @param name The name of the category.
+     * @returns The category that was created.
+     */
+     public static async createCategory(name: string): Promise<IRaidCompositionCategoryDocument> {
+        return (await this._instance._db.raidCompositionCategoryModel.create({
+            name: name
+        }));
     }
 
     /**
@@ -121,16 +168,16 @@ export default class DB {
      * @param pagination Settings for paginating the result.
      * @returns A list of raids.
      */
-    public static async query_raids(filter?: Object, pagination?: {page: number, pageSize: number}): Promise<IRaidEventDocument[]> {
+    public static async queryRaids(filter?: Object, pagination?: {page: number, pageSize: number}): Promise<IRaidEventDocument[]> {
         if (pagination) {
-            return (await this._instance.db.raidEventModel
+            return (await this._instance._db.raidEventModel
                 .find(filter ? filter : {})
                 .sort({startTime: -1, _id: 1})
                 .skip(pagination.pageSize * (pagination.page - 1))
                 .limit(pagination.pageSize)
                 .exec()) as IRaidEventDocument[];
         } else {
-            return (await this._instance.db.raidEventModel
+            return (await this._instance._db.raidEventModel
                 .find(filter ? filter : {})
                 .sort({startTime: -1, _id: 1})
                 .exec()) as IRaidEventDocument[];
@@ -142,8 +189,8 @@ export default class DB {
      * @param raidId The internal database ID of the raid.
      * @returns A single raid.
      */
-    public static async query_raid(raidId: string): Promise<IRaidEventDocument> {
-        return (await this._instance.db.raidEventModel
+    public static async queryRaid(raidId: string): Promise<IRaidEventDocument> {
+        return (await this._instance._db.raidEventModel
             .findOne({_id: raidId})
             .exec()) as IRaidEventDocument;
     }
@@ -153,8 +200,8 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns The count of raids.
      */
-    public static async query_raids_count(filter?: Object): Promise<number> {
-        return (await this._instance.db.raidEventModel
+    public static async queryRaidsCount(filter?: Object): Promise<number> {
+        return (await this._instance._db.raidEventModel
             .count(filter ? filter: {})
             .exec()) as number;
     }
@@ -165,15 +212,15 @@ export default class DB {
      * @param pagination Settings for paginating the result.
      * @returns A list of members.
      */
-    public static async query_members(filter?: Object, pagination?: {page: number, pageSize: number}): Promise<IMemberDocument[]> {
+    public static async queryMembers(filter?: Object, pagination?: {page: number, pageSize: number}): Promise<IMemberDocument[]> {
         if (pagination) {
-            return (await this._instance.db.memberModel
+            return (await this._instance._db.memberModel
                 .find(filter ? filter : {})
                 .skip(pagination.pageSize * (pagination.page - 1))
                 .limit(pagination.pageSize)
                 .exec()) as IMemberDocument[];
         } else {
-            return (await this._instance.db.memberModel
+            return (await this._instance._db.memberModel
                 .find(filter ? filter : {})
                 .exec()) as IMemberDocument[];
         }
@@ -184,10 +231,22 @@ export default class DB {
      * @param discordId The discord ID of the member.
      * @returns A single member.
      */
-    public static async query_member_by_id(discordId?: string): Promise<IMemberDocument> {
-        return (await this._instance.db.memberModel
+    public static async queryMemberById(discordId?: string): Promise<IMemberDocument> {
+        return (await this._instance._db.memberModel
             .findOne({userId: discordId})
             .exec()) as IMemberDocument;
+    }
+
+    /**
+     * Queries the database and retrieves member by its discord ID with populated reference fields.
+     * @param discordId The discord ID of the member.
+     * @returns A single populated member.
+     */
+    public static async queryMemberPopulatedById(discordId?: string): Promise<IMemberPopulatedDocument> {
+        return (await this._instance._db.memberModel
+            .findOne({userId: discordId})
+            .populate("roles")
+            .exec()) as IMemberPopulatedDocument;
     }
 
      /**
@@ -196,13 +255,13 @@ export default class DB {
      * @param options Whether to use GW2 names or discord names.
      * @returns A single member.
      */
-    public static async query_member_by_name(name?: string, options?: {useGW2Name: boolean}): Promise<IMemberDocument> {
+    public static async queryMemberByName(name?: string, options?: {useGW2Name: boolean}): Promise<IMemberDocument> {
         if (options?.useGW2Name) {
-            return (await this._instance.db.memberModel
+            return (await this._instance._db.memberModel
                 .findOne({gw2Name: name})
                 .exec()) as IMemberDocument;
         } else {
-            return (await this._instance.db.memberModel
+            return (await this._instance._db.memberModel
                 .findOne({discordTag: name})
                 .exec()) as IMemberDocument;
         }
@@ -213,8 +272,8 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns The count of members.
      */
-    public static async query_members_count(filter?: Object): Promise<number> {
-        return (await this._instance.db.memberModel
+    public static async queryMembersCount(filter?: Object): Promise<number> {
+        return (await this._instance._db.memberModel
             .count(filter ? filter: {})
             .exec()) as number;
     }
@@ -224,15 +283,15 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns A list of training requests.
      */
-    public static async query_training_requests(filter?: Object, pagination?: {page: number, pageSize: number}): Promise<ITrainingRequestDocument[]> {
+    public static async queryTrainingRequests(filter?: Object, pagination?: {page: number, pageSize: number}): Promise<ITrainingRequestDocument[]> {
         if (pagination) {
-            return (await this._instance.db.trainingRequestModel
+            return (await this._instance._db.trainingRequestModel
                 .find(filter ? filter : {})
                 .skip(pagination.pageSize * (pagination.page - 1))
                 .limit(pagination.pageSize)
                 .exec()) as ITrainingRequestDocument[];
         } else {
-            return (await this._instance.db.trainingRequestModel
+            return (await this._instance._db.trainingRequestModel
                 .find(filter ? filter : {})
                 .exec()) as ITrainingRequestDocument[];
         }
@@ -243,8 +302,8 @@ export default class DB {
      * @param userId The user ID of the member who performed the training request.
      * @returns A single training request.
      */
-    public static async query_training_request(userId: string): Promise<ITrainingRequestDocument> {
-        return (await this._instance.db.trainingRequestModel
+    public static async queryTrainingRequest(userId: string): Promise<ITrainingRequestDocument> {
+        return (await this._instance._db.trainingRequestModel
             .findOne({userId: userId})
             .exec()) as ITrainingRequestDocument;
     }
@@ -254,8 +313,8 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns The count of training requests.
      */
-    public static async query_training_requests_count(filter?: Object): Promise<number> {
-        return (await this._instance.db.trainingRequestModel
+    public static async queryTrainingRequestsCount(filter?: Object): Promise<number> {
+        return (await this._instance._db.trainingRequestModel
             .count(filter ? filter: {})
             .exec()) as number;
     }
@@ -264,8 +323,8 @@ export default class DB {
      * Queries the database and retrieves the guild options.
      * @returns An object representing the guild options.
      */
-    public static async query_guild_options(): Promise<IGuildOptionsData> {
-        return (await this._instance.db.guildOptionsModel
+    public static async queryGuildOptions(): Promise<IGuildOptionsData> {
+        return (await this._instance._db.guildOptionsModel
             .findOne()
             .exec()) as IGuildOptionsData;
     }
