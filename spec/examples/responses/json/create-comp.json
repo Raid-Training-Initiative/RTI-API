@@ -1,0 +1,45 @@
+{
+    "categories": [
+        "602711550e73df0012df71b4"
+    ],
+    "_id": "60590a738c58a017c47e4267",
+    "name": "DoubleChrono-RR",
+    "roles": [
+        {
+            "_id": "60590a738c58a017c47e4270",
+            "name": "🔴 DPS",
+            "requiredParticipants": 3
+        },
+        {
+            "_id": "60590a738c58a017c47e4270",
+            "name": "🟠 Condi Renegade (RR)",
+            "requiredParticipants": 2
+        },
+        {
+            "_id": "60590a738c58a017c47e4271",
+            "name": "🟡 BS",
+            "requiredParticipants": 1
+        },
+        {
+            "_id": "60590a738c58a017c47e4272",
+            "name": "🟢 Druid",
+            "requiredParticipants": 1
+        },
+        {
+            "_id": "60590a738c58a017c47e4273",
+            "name": "💚 Off-Heal",
+            "requiredParticipants": 1
+        },
+        {
+            "_id": "60590a738c58a017c47e4274",
+            "name": "🟪 Chrono (Tank)",
+            "requiredParticipants": 1
+        },
+        {
+            "_id": "60590a738c58a017c47e4275",
+            "name": "🟣 Chrono",
+            "requiredParticipants": 1
+        }
+    ],
+    "__v": 0
+}

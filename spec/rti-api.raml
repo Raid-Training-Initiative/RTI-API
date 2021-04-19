@@ -7,38 +7,15 @@ types:
   Log: !include types/Log.raml
   Comp: !include types/Comp.raml
   Category: !include types/Category.raml
+  TrainingRequest: !include types/TrainingRequest.raml
+  TrainingRequestSummary: !include types/TrainingRequestSummary.raml
+  GuildOptions: !include types/GuildOptions.raml
   Status: !include types/Status.raml
+  DiscordAuth: !include types/DiscordAuth.raml
 traits:
-  requiresAuthentication:
-    headers:
-      Authorization:
-        description: Basic authentication with a 64-character client secret.
-        type: string
-        required: true
-        example: "Basic 22AB6BsFYJgqqclNbknmUr7gG0nn5qtiXgdxJP7G0dTnkUjSN5nZNFca3M8Wfe3k"
-    responses:
-      401:
-        body:
-          application/json:
-            description: Error response when authentication failed.
-            example: !include examples/errors/unauthorized.json
-  supportsPagination:
-    queryParameters:
-      page:
-        type: number
-        description: A number greater than 0 indicating what page of results to return.
-        example: 4
-      pageSize:
-        type: number
-        description: A number greater than 0 indicating how many results to return per page.
-        example: 20
-  multiFormat:
-    queryParameters:
-      format:
-        type: string
-        description: A case-insensitive string to define whether to return a JSON or CSV response.
-        enum: ["csv", "json"]
-
+  requiresAuthentication: !include traits/RequiresAuthentication.raml
+  supportsPagination: !include traits/SupportsPagination.raml
+  multiFormat: !include traits/multiFormat.raml
 
 /raids:
   get:
@@ -47,16 +24,16 @@ traits:
     queryParameters:
       status:
         type: string
-        description: A case-insensitive string to filter the raids by status.
-        enum: ["Published", "Draft", "Archived"]
+        description: A comma-separated, case-insensitive string to filter the raids by status.
+        example: "draft,published,archived"
       name:
         type: string
         description: A case-insensitive string to filter the raids by name. Returns raids whose name contains the filter query string as a substring.
         example: "continuation"
-      comp:
+      comps:
         type: string
-        description: A case-insensitive string to filter the raids by comp name.
-        example: "DoubleChrono"
+        description: A comma-separated, case-insensitive string to filter the raids by comp names.
+        example: "DoubleChrono,Dhuum-RR"
       leader:
         type: string
         description: A case-insensitive string with all numbers and dots and hashtags removed to filter the raids by leader name.
@@ -65,6 +42,14 @@ traits:
         type: boolean
         description: A boolean indicating whether or not to only output published raids.
         example: true
+      participants:
+        type: string
+        description: A comma-separated, case-sensitive string to filter the raids by participants' Discord names. All participants in this query list have to be present as participants in the raid.
+        example: "Step%231937,Christin%230112"
+      reserves:
+        type: string
+        description: A comma-separated, case-sensitive string to filter the raids by reserves' Discord names. All reserves in this query list have to be present as reserves in the raid.
+        example: "Step%231937,Christin%230112"
     responses:
       200:
         body:
@@ -80,6 +65,11 @@ traits:
           application/json:
             description: Error response when syntax is invalid.
             example: !include examples/errors/bad-syntax-bad-status.json
+      404:
+        body:
+          application/json:
+            description: Error response when the specified leader was not found.
+            example: !include examples/errors/resource-not-found.json
   /{id}:
     get:
       description: Gets a single raid.
@@ -141,14 +131,18 @@ traits:
         type: string
         description: Filter by gw2Name of the member (can be incomplete).
         example: John.5231
-      discordName:
+      discordTag:
         type: string
-        description: Filter by discordName of the member (can be incomplete).
-        example: John#1529
+        description: Filter by discordTag of the member (can be incomplete). Needs to be URI-safe, so use %23 instead of hashtags!
+        example: John%231529
       approver:
         type: string
-        description: Filter by the discordName of the approver of the member.
-        example: Tim#6391
+        description: Filter by the discordTag of the approver of the member.
+        example: Tim%236391
+      banned:
+        type: boolean
+        description: Filter by whether or not the member is currently banned.
+        example: true
     responses:
       200:
         body:
@@ -198,7 +192,7 @@ traits:
     queryParameters:
       category:
         type: string
-        description: A URI-safe, comma-separated list of composition categories
+        description: A comma-separated, case-insensitive string to filter compositions by categories.
         example: "Generic,Other,Wing%205"
     responses:
       200:
@@ -212,6 +206,36 @@ traits:
           application/json:
             description: Error response when syntax is invalid.
             example: !include examples/errors/invalid-query-parameters.json
+  post:
+    description: Creates a raid squad composition in the database.
+    is: ["requiresAuthentication"]
+    body:
+      applicaton/json:
+        description: The comp to put in the database.
+        type: Comp
+        example: !include examples/requests/create-comp.json
+    responses:
+      201:
+        body:
+          application/json:
+            description: The comp that was created in the database.
+            type: Comp
+            example: !include examples/responses/json/create-comp.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/bad-syntax-bad-json.json
+      404:
+        body:
+          application/json:
+            description: Error response when a category in the comp to be created could not be found.
+            example: !include examples/errors/resource-not-found.json
+      422:
+        body:
+          application/json:
+            description: Error response when the comp to be created already exists.
+            example: !include examples/errors/resource-already-exists.json
   /{comp}:
     get:
       description: Gets a single raid squad composition by name.
@@ -223,6 +247,23 @@ traits:
               description: A composition.
               type: Comp
               example: !include examples/responses/json/get-comp.json
+        400:
+          body:
+            application/json:
+              description: Error response when syntax is invalid.
+              example: !include examples/errors/invalid-query-parameters.json 
+        404:
+          body:
+            application/json:
+              description: Error response when the requested comp could not be found.
+              example: !include examples/errors/resource-not-found.json
+    delete:
+      description: Deletes a single raid squad composition by name.
+      is: ["requiresAuthentication"]
+      responses:
+        204:
+          body:
+            text/plain: !null
         400:
           body:
             application/json:
@@ -272,6 +313,129 @@ traits:
               description: Error response when the requested category could not be found.
               example: !include examples/errors/resource-not-found.json
 
+/trainingrequests:
+  get:
+    description: Gets a list of the saved training requests.
+    is: ["requiresAuthentication", "supportsPagination", "multiFormat"]
+    queryParameters:
+      users:
+        type: string
+        description: A comma-separated, case-sensitive string to filter the training requests by users' Discord names.
+        example: "Steven%231590,Rick%236631"
+      keywords:
+        type: string
+        description: A comma-separated, case-insensitive list of keywords to search in the comments. Only results that contain all the keywords are returned.
+        example: "dhuum,only,dps"
+      active:
+        type: boolean
+        description: A boolean indicating whether or not to only output active training requests.
+        example: true
+      wings:
+        type: string
+        description: A comma-separated list of wing numbers to filter the training requests by requested wings.
+        example: "4,5,7"
+      disabledReasons:
+        type: string
+        description: A comma-separated, case-insensitive list of disabled reasons to filter the training requests with.
+        enum: [
+          "None",
+          "Manually by User",
+          "Manually by Officer",
+          "Fulfilled",
+          "API Key Removed",
+          "Invalid API Key",
+          "No Longer Member",
+          "Expired"
+        ]
+    responses:
+      200:
+        body:
+          application/json:
+            description: A list of training requests in JSON format.
+            type: TrainingRequestSummary[]
+            example: !include examples/responses/json/list-training-requests.json
+          application/csv:
+            description: A list of training requests in CSV format.
+            example: !include examples/responses/csv/list-training-requests.csv
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json 
+  /{userid}:
+    get:
+      description: Gets a single training request by the user ID of the member that made it.
+      is: ["requiresAuthentication"]
+      responses:
+        200:
+          body:
+            application/json:
+              description: A training request.
+              type: TrainingRequest
+              example: !include examples/responses/json/get-training-request.json
+        400:
+          body:
+            application/json:
+              description: Error response when syntax is invalid.
+              example: !include examples/errors/invalid-query-parameters.json 
+        404:
+          body:
+            application/json:
+              description: Error response when the requested category could not be found.
+              example: !include examples/errors/resource-not-found.json
+
+/guildoptions:
+  get:
+    description: Returns an object specifying the guild option values.
+    responses:
+      200:
+        body:
+          application/json:
+            description: A guild options object.
+            type: GuildOptions
+            example: !include examples/responses/json/get-guild-options.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json
+      500:
+        body:
+          application/json:
+            description: Error response when the guild options aren't found in the database.
+            example: !include examples/errors/no-guild-options.json
+
+/discordauth:
+  post:
+    description: Returns the user's info and an access token in exchange for a Discord OAuth2 access code.
+    queryParameters:
+      code:
+        type: string
+        description: The code obtained through the Discord OAuth process.
+        example: "ARUwr5OIQhy06TCnsGHoRyI6dg3qND"
+    responses:
+      200:
+        body:
+          application/json:
+            description: A DiscordAuth object.
+            type: DiscordAuth
+            example: !include examples/responses/json/post-discordauth.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json
+      440:
+        body:
+          application/json:
+            description: Error response when the session associated with this token has expired and the user must authenticate again.
+            example: !include examples/errors/session-expired.json
+      500:
+        body:
+          application/json:
+            description: Error response when an internal error occurs, most likely because the Discord API call failed.
+            example: !include examples/errors/server-error.json
+
 /status:
   get:
     description: Returns an object providing details on the API.
@@ -292,3 +456,18 @@ traits:
           application/json:
             description: Error response when package.json file could not be found.
             example: !include examples/errors/package-json-not-found.json
+
+/stats:
+  get:
+    description: Returns an object providing statistics about the data.
+    responses:
+      200:
+        body:
+          application/json:
+            description: An object with statistics about the data.
+            example: !include examples/responses/json/get-stats.json
+      400:
+        body:
+          application/json:
+            description: Error response when syntax is invalid.
+            example: !include examples/errors/invalid-query-parameters.json

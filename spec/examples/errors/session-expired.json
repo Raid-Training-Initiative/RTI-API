@@ -1,0 +1,5 @@
+{
+    "status": 440,
+    "name": "SessionExpired",
+    "message": "The session associated with this token expired. Please authenticate again."
+}

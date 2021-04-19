@@ -1,14 +1,16 @@
 [
     {
         "gw2Name": "Kim.7518",
-        "discordName": "Kimmington#4229",
+        "discordName": "Kimmington",
+        "discordTag": "Kimmington#4229",
         "approver": "Tim#6391",
         "userId": "254689054833115146",
         "banned": false
     },
     {
         "gw2Name": "Pam.7132",
-        "discordName": "Pam Kebab#2561",
+        "discordName": "Pam",
+        "discordTag": "Pam Kebab#2561",
         "approver": "Mike#4201",
         "userId": "439457720542953475",
         "banned": true

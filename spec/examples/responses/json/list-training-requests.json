@@ -1,0 +1,26 @@
+[
+	{
+        "discordTag": "TheOni#4209",
+        "active": true,
+        "requestedWings": [
+            4
+        ],
+        "comment": "Power BS",
+        "created": "2020-11-22T18:56:15",
+        "edited": "2020-11-22T18:56:15",
+        "disabledReason": "None",
+        "userId": "549696779149626713"
+    },
+    {
+        "active": false,
+        "requestedWings": [
+            5,
+            7
+        ],
+        "comment": "Absolutely new to raids",
+        "created": "2020-11-22T20:07:01",
+        "edited": "2020-11-22T20:07:01",
+        "disabledReason": "Manually by Officer",
+        "userId": "139696578004674311"
+    }
+]
