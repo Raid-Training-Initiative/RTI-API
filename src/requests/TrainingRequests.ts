@@ -99,7 +99,7 @@ export class ListTrainingRequests extends HTTPGetRequest {
                             wingsData.push(`Not requested`);
                         }
                     }
-                    return `${idMap.get(document.userId)},${document.userId},${document.active},${wingsData.join(",")}`;
+                    return `"${idMap.get(document.userId)}","${document.userId}","${document.active}","${wingsData.join(",")}"`;
                 });
         } else {
             formattedDocuments = documents.map(document => {

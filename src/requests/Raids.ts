@@ -73,7 +73,7 @@ export class ListRaids extends HTTPGetRequest {
         let formattedDocuments: Object[];
         if ((this._req.query["format"]) && (this._req.query["format"].toString().toLowerCase() == "csv")) {
             formattedDocuments = documents.map(document => {
-                return `${idMap.get(document.leaderId)},${document.name},${document.startTime.toISOString().split("T")[0]},${document.startTime.toISOString().split("T")[1].replace(/:\d+\.\d+Z/, "")}`;
+                return `"${idMap.get(document.leaderId)}","${document.name}","${document.startTime.toISOString().split("T")[0]}","${document.startTime.toISOString().split("T")[1].replace(/:\d+\.\d+Z/, "")}"`;
             });
         } else {
             formattedDocuments = documents.map(document => {
