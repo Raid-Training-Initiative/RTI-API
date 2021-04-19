@@ -6,6 +6,7 @@ RUN npm install --silent
 RUN npm install --silent --global typescript
 COPY src src/
 COPY RTIBot-DB RTIBot-DB/
+COPY resources resources/
 RUN tsc -p tsconfig.json
 
 FROM node:12.14.1-stretch
