@@ -1,11 +1,11 @@
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
 import { NextFunction, Request, Response } from "express";
 import InvalidQueryParametersException from "../../exceptions/InvalidQueryParametersException";
-import Auth from "../../util/Auth/Auth";
+import Auth from "../../util/auth/Auth";
 import { Logger, Severity } from "../../util/Logger";
 import IRequestOptions from "./IRequestOptions";
 import BadSyntaxException from "../../exceptions/BadSyntaxException";
-import IAuthenticatedClient from "../../util/Auth/clients/IAuthenticatedClient";
+import IAuthenticatedClient from "../../util/auth/clients/IAuthenticatedClient";
 import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import UnauthorizedException from "../../exceptions/UnauthorizedException";
 
