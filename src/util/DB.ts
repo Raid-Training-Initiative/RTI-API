@@ -112,7 +112,7 @@ export default class DB {
      * @param compName The name of the comp to add the cateogry to.
      * @param categoryId The ObjectId for the category to add.
      */
-    public static async add_category_to_comp(compName: string, categoryId: ObjectId): Promise<void> {
+    public static async addCategoryToComp(compName: string, categoryId: ObjectId): Promise<void> {
         const document = await this.queryComp(compName);
         document.categories.addToSet(categoryId);
         await document.save();
