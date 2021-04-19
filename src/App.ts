@@ -5,7 +5,7 @@ import DB from "./util/DB";
 import { Request, Response, NextFunction } from "express";
 import errorMiddleware from "./util/Error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
-import Auth from "./util/Auth/Auth";
+import Auth from "./util/auth/Auth";
 import { Logger, Severity } from "./util/Logger";
 import { CreateComp, DeleteComp, GetComp, ListComps } from "./requests/Comps";
 import { GetCategory, ListCategories } from "./requests/Categories";

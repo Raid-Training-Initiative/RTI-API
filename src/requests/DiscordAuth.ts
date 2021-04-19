@@ -4,7 +4,7 @@
 
 import { NextFunction, Request, Response } from "express";
 import HTTPPostRequest from "./base/HTTPPostRequest";
-import Auth from "../util/Auth/Auth";
+import Auth from "../util/auth/Auth";
 import * as fs from "fs";
 
 export class PostDiscordAuth extends HTTPPostRequest {
