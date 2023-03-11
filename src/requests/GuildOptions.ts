@@ -36,8 +36,6 @@ export class GetGuildOptions extends HTTPGetRequest {
       trainingRequestInactiveDaysBeforeDisable:
         document.trainingRequestInactiveDaysBeforeDisable,
       raidAutoBroadcastTime: document.raidAutoBroadcastTime,
-      commanderRoles: document.commanderRoles,
-      officerRoles: document.officerRoles,
       memberRoleId: document.memberRoleId,
       guildApplicationsChannelId: document.guildApplicationsChannelId,
       raidCategoryId: document.raidCategoryId,

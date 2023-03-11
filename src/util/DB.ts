@@ -5,6 +5,7 @@ import {
 } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
 import {
+  IRaidCompositionDocument,
   IRaidCompositionPopulatedDocument,
   IRaidCompositionRole,
 } from "@RTIBot-DB/documents/IRaidCompositionDocument";
@@ -106,7 +107,7 @@ export default class DB {
     name: string,
     roles: IRaidCompositionRole[],
     categories: ObjectId[]
-  ): Promise<IRaidCompositionPopulatedDocument> {
+  ): Promise<IRaidCompositionDocument> {
     return (
       await this._instance._db.raidCompositionModel.create({
         name: name,
