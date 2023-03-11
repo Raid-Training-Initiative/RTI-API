@@ -29,7 +29,8 @@
     "typescript": "^4.1.3"
   },
   "scripts": {
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "dev": "nodemon --inspect=0.0.0.0:9229 src/App.ts"
   },
   "_moduleAliases": {
     "@RTIBot-DB": "dist/RTIBot-DB"
