@@ -4,15 +4,18 @@ services:
   api:
     image: rtibot-api
     build: .
+    restart: unless-stopped
     environment:
       NODE_ENV: production
     volumes:
-      - ./clients:/clients      
+      - ./clients:/clients
+      - ./Config.json:/app/Config.json
     ports:
-      - 8080:8080      
+      - 8080:8080
     networks:
       - RTIBot-network-prod
     container_name: RTI-API
+
 networks:
   RTIBot-network-prod:
     external: true
