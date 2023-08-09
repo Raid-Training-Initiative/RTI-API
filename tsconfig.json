@@ -1,24 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es2019",
+    "target": "es2020",
     "module": "commonjs",
     "outDir": "dist",
     "sourceMap": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,
     "baseUrl": ".",
-    "lib": ["ES2020"],
+    "moduleResolution": "node",
+    "typeRoots": ["node_modules/@types"],
     "paths": {
       "@RTIBot-DB/*": ["RTIBot-DB/*"]
-    }
+    },
+    "types": ["discord.js/typings"]
   },
-  "files": [
-    "./node_modules/@types/node/index.d.ts"
-  ],
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["./src/"],
+  "exclude": ["node_modules", "dist"]
 }
