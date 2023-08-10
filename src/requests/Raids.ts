@@ -2,14 +2,15 @@
  * File for classes that handle requests for raids.
  */
 
+import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import { NextFunction, Request, Response } from "express";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
-import Utils from "../util/Utils";
-import escapeStringRegexp = require("escape-string-regexp");
 import DB from "../util/DB";
-import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
+import Utils from "../util/Utils";
 import HTTPGetRequest from "./base/HTTPGetRequest";
+import escapeStringRegexp = require("escape-string-regexp");
+import { Mongoose } from "mongoose";
 
 export class ListRaids extends HTTPGetRequest {
   public validRequestQueryParameters: string[] = [
@@ -23,6 +24,9 @@ export class ListRaids extends HTTPGetRequest {
     "format",
     "page",
     "pageSize",
+    "dateFrom",
+    "dateTo",
+    "showParticipants",
   ];
 
   constructor(req: Request, res: Response, next: NextFunction) {
@@ -37,7 +41,7 @@ export class ListRaids extends HTTPGetRequest {
 
   /**
    * Validates the request with the basic HTTP request validation and then checks if the query parameters are correct.
-   * @throws {BadSyntaxException} When a query parameter doesn't have the correct value.
+   * @throws {BadSyntaxException} When a query parameter doesn't have the correct value/format.
    */
   public async validateRequest() {
     await super.validateRequest();
@@ -69,6 +73,46 @@ export class ListRaids extends HTTPGetRequest {
         );
       }
     }
+    if (this._req.query["dateFrom"] || this._req.query["dateTo"]) {
+      const timestampFrom: string | undefined =
+        this._req.query["dateFrom"]?.toString();
+      const timestampTo: string | undefined =
+        this._req.query["dateTo"]?.toString();
+      const regex: RegExp =
+        /^(19|20)\d\d-(0[1-9]|1[012])-([012]\d|3[01])T([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/i;
+      if (timestampFrom && !regex.test(timestampFrom)) {
+        throw new BadSyntaxException(
+          "Query parameter dateFrom must be in the format yyyy-MM-ddTHH:mm:ss"
+        );
+      }
+      if (timestampTo && !regex.test(timestampTo)) {
+        throw new BadSyntaxException(
+          "Query parameter dateTo must be in the format yyyy-MM-ddTHH:mm:ss"
+        );
+      }
+      if (
+        timestampFrom &&
+        timestampTo &&
+        Date.parse(timestampFrom) > Date.parse(timestampTo)
+      ) {
+        throw new BadSyntaxException(
+          "Query parameter dateFrom must be set to a date before query parameter dateTo"
+        );
+      }
+    }
+    if (this._req.query["showParticipants"]) {
+      const showParticipantsString: string = this._req.query["showParticipants"]
+        .toString()
+        .toLowerCase();
+      if (
+        showParticipantsString != "true" &&
+        showParticipantsString != "false"
+      ) {
+        throw new BadSyntaxException(
+          "Query parameter showParticipants must be either true or false."
+        );
+      }
+    }
   }
 
   /**
@@ -81,9 +125,20 @@ export class ListRaids extends HTTPGetRequest {
   }): Promise<Object[]> {
     const documents = await DB.queryRaids(await this.dbFilter(), paginated);
 
-    // Resolve the IDs to names.
     const idArray = new Array<string>();
+    if (
+      this._req.query["showParticipants"] &&
+      this._req.query["showParticipants"].toString().toLowerCase() == "true"
+    ) {
+      documents.forEach((document) =>
+        document.roles.forEach((role) => {
+          role.participants.forEach((participant) => idArray.push(participant));
+        })
+      );
+    }
     documents.forEach((document) => idArray.push(document.leaderId));
+
+    // Resolve the IDs to names.
     const idMap: Map<string, string | undefined> = await Utils.idsToMap(
       idArray
     );
@@ -111,6 +166,13 @@ export class ListRaids extends HTTPGetRequest {
           leader: idMap.get(document.leaderId),
           comp: document.compositionName,
           publishedDate: Utils.formatDatetimeString(document.publishedDate),
+          ...(this._req.query["showParticipants"] &&
+            this._req.query["showParticipants"].toString().toLowerCase() ===
+              "true" && {
+              participants: document.roles.flatMap((role) =>
+                role.participants.map((participant) => idMap.get(participant))
+              ),
+            }),
           id: document._id.toHexString(),
         };
       });
@@ -187,6 +249,22 @@ export class ListRaids extends HTTPGetRequest {
       );
       filters.push({
         "roles.reserves": { $all: Array.from(memberMap.values()) },
+      });
+    }
+    if (this._req.query["dateFrom"]) {
+      const fromDate: string = this._req.query["dateFrom"].toString();
+      filters.push({
+        startTime: {
+          $gte: fromDate,
+        },
+      });
+    }
+    if (this._req.query["dateTo"]) {
+      const toDate: string = this._req.query["dateTo"].toString();
+      filters.push({
+        startTime: {
+          $lte: toDate,
+        },
       });
     }
 

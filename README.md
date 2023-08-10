@@ -47,7 +47,7 @@ For most endpoints, a Bearer token will need to be provided. Below are steps for
 * Step 2: Point to the `clients.json` file in your `ConfigDebug.json` file. Example `ConfigDebug.json`:
 ```json
 {
-    "db": "mongodb://localhost:27017/",
+    "db": "mongodb://0.0.0.0:27017/",
     "guildId": "156175293055369216",
     "clientsFile": "./clients.json"
 }

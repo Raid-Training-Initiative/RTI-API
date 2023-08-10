@@ -37,7 +37,7 @@ traits:
       leader:
         type: string
         description: A case-insensitive string with all numbers and dots and hashtags removed to filter the raids by leader name.
-        example: Step
+        example: "Step"
       published:
         type: boolean
         description: A boolean indicating whether or not to only output published raids.
@@ -50,6 +50,31 @@ traits:
         type: string
         description: A comma-separated, case-sensitive string to filter the raids by reserves' Discord names. All reserves in this query list have to be present as reserves in the raid.
         example: "step%230,akronox%230"
+      format:
+        type: string
+        description: A case-insensitive string specifying what format to return.
+        enum: ["json", "csv"]
+      page:
+        type: number
+        description: The page to return. If this query parameter is specified, then pageSize must also be specified.
+        example: 1
+      pageSize:
+        type: number
+        description: The number of elements in each page in the response. If this query parameter is specified, then page must also be specified.
+        example: 20
+      dateFrom:
+        type: string
+        description: The timestamp to filter for raids scheduled after this date and time. In the format yyyy-MM-ddTHH:mm:ss. dateFrom must be before dateTo.
+        example: "2021-10-06T00:00:00"
+      dateTo:
+        type: string
+        description: The timestamp to filter for raids scheduled before this date and time. In the format yyyy-MM-ddTHH:mm:ss. dateTo must be after dateFrom.
+        example: "2022-10-06T00:00:00"
+      showParticipants:
+        type: boolean
+        description: Whether to output the list of participants under each raid or not.
+        example: true
+        default: false
     responses:
       200:
         body:
