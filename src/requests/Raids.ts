@@ -154,7 +154,9 @@ export class ListRaids extends HTTPGetRequest {
         }","${document.startTime
           .toISOString()
           .split("T")[1]
-          .replace(/:\d+\.\d+Z/, "")}"`;
+          .replace(/:\d+\.\d+Z/, "")}","${document.compositionName}","${
+          document._id
+        }"`;
       });
     } else {
       formattedDocuments = documents.map((document) => {

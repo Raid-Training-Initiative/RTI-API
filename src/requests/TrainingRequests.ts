@@ -149,7 +149,7 @@ export class ListTrainingRequests extends HTTPGetRequest {
           }
           return `"${idMap.get(document.userId)}","${document.userId}","${
             document.active
-          }","${wingsData.join(",")}"`;
+          }","${wingsData.join('","')}","${document._id}"`;
         });
     } else {
       formattedDocuments = documents.map((document) => {

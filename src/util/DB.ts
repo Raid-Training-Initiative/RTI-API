@@ -209,14 +209,14 @@ export default class DB {
     if (pagination) {
       return (await this._instance._db.raidEventModel
         .find(filter ? filter : {})
-        .sort({ startTime: -1, _id: 1 })
+        .sort({ _id: -1 })
         .skip(pagination.pageSize * (pagination.page - 1))
         .limit(pagination.pageSize)
         .exec()) as IRaidEventDocument[];
     } else {
       return (await this._instance._db.raidEventModel
         .find(filter ? filter : {})
-        .sort({ startTime: -1, _id: 1 })
+        .sort({ _id: -1 })
         .exec()) as IRaidEventDocument[];
     }
   }
@@ -256,12 +256,14 @@ export default class DB {
     if (pagination) {
       return (await this._instance._db.memberModel
         .find(filter ? filter : {})
+        .sort({ _id: -1 })
         .skip(pagination.pageSize * (pagination.page - 1))
         .limit(pagination.pageSize)
         .exec()) as IMemberDocument[];
     } else {
       return (await this._instance._db.memberModel
         .find(filter ? filter : {})
+        .sort({ _id: -1 })
         .exec()) as IMemberDocument[];
     }
   }
@@ -337,12 +339,14 @@ export default class DB {
     if (pagination) {
       return (await this._instance._db.trainingRequestModel
         .find(filter ? filter : {})
+        .sort({ _id: -1 })
         .skip(pagination.pageSize * (pagination.page - 1))
         .limit(pagination.pageSize)
         .exec()) as ITrainingRequestDocument[];
     } else {
       return (await this._instance._db.trainingRequestModel
         .find(filter ? filter : {})
+        .sort({ _id: -1 })
         .exec()) as ITrainingRequestDocument[];
     }
   }

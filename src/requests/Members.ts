@@ -73,9 +73,9 @@ export class ListMembers extends HTTPGetRequest {
       this._req.query["format"].toString().toLowerCase() == "csv"
     ) {
       formattedDocuments = documents.map((document) => {
-        return `${idMap.get(document.approverId)},${document.gw2Name},${
+        return `"${idMap.get(document.approverId)}","${document.gw2Name}","${
           document.discordTag
-        }`;
+        }","${document._id}"`;
       });
     } else {
       formattedDocuments = documents.map((document) => {
