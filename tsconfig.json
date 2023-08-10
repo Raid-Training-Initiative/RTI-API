@@ -5,10 +5,10 @@
     "outDir": "dist",
     "sourceMap": true,
     "strictNullChecks": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "baseUrl": ".",
     "moduleResolution": "node",
-    "typeRoots": ["node_modules/@types"],
+    "typeRoots": ["node_modules/"],
     "paths": {
       "@RTIBot-DB/*": ["RTIBot-DB/*"]
     },

@@ -30,6 +30,15 @@ properties:
     type: datetime-only
     description: The date and time that the raid is scheduled to start. In the format yyyy-MM-ddTHH:mm:ss.
     example: "2021-01-31T14:37:21"
+  participants:
+    type: array
+    description: A list of participants outputted as Discord names.
+    required: false
+    example: [
+      "John#1562",
+      "Bob Brown#6293",
+      "Step#1937"
+    ]
   id:
     type: string
     description: The internal ID of the raid as a 12-byte hexadecimal string.
