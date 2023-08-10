@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - release
+      - feature/*
+      - fix/*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          token: ${{ secrets.RTIBOT_DB_TOKEN }}
+      - name: Inject slug variables
+        uses: rlespinasse/github-slug-action@v4
+        with:
+          short-length: 8
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker
+        uses: docker/login-action@v2
+        with:
+          registry: docker.khaji.it
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: docker.khaji.it/rtiapi/${{ env.GITHUB_REF_SLUG }}
+          build-args: commitId=${{ env.GITHUB_REF_HASH }}", branch=${{ env.GITHUB_SHA_SHORT }}"

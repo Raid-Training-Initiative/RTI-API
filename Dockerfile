@@ -25,7 +25,7 @@ VOLUME /data
 COPY package*.json .
 COPY --from=builder /build/dist /app/dist
 
-RUN npm ci --production
+RUN npm ci --omit=dev
 
 ENV COMMIT_ID=$commitId BRANCH=$branch
 
