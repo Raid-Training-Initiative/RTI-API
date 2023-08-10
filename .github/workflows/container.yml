@@ -36,4 +36,6 @@ jobs:
           context: .
           push: true
           tags: docker.khaji.it/rtiapi/${{ env.GITHUB_REF_SLUG }}
-          build-args: commitId=${{ env.GITHUB_REF_HASH }}", branch=${{ env.GITHUB_SHA_SHORT }}"
+          build-args: |
+            commitId=${{ env.GITHUB_REF_HASH }}
+            branch=${{ env.GITHUB_SHA_SHORT }}

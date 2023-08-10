@@ -16,8 +16,7 @@ FROM builder
 
 ENV NODE_ENV production
 ENV CONFIG Release
-ARG commitId
-ARG branch
+
 
 WORKDIR /app
 VOLUME /data
@@ -27,6 +26,9 @@ COPY --from=builder /build/dist /app/dist
 
 RUN npm ci --omit=dev
 
-ENV COMMIT_ID=$commitId BRANCH=$branch
+ARG commitId
+ARG branch
+ENV COMMIT_ID=$commitId
+ENV BRANCH=$branch
 
 CMD [ "node", "dist/src/App.js" ]
