@@ -7,7 +7,6 @@ import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import DB from "../util/DB";
 import Utils from "../util/Utils";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
-import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 
 export class ListMembers extends HTTPGetRequest {
@@ -23,11 +22,9 @@ export class ListMembers extends HTTPGetRequest {
 
   constructor(req: Request, res: Response, next: NextFunction) {
     super(req, res, next, {
-      authenticated: {
-        permissions: [MemberPermission.VIEW_MEMBERS],
-      },
       paginated: true,
       multiFormat: true,
+      authenticated: true,
     });
   }
 
@@ -139,11 +136,7 @@ export class GetMember extends HTTPGetRequest {
   public validRequestQueryParameters: string[] = [];
 
   constructor(req: Request, res: Response, next: NextFunction) {
-    super(req, res, next, {
-      authenticated: {
-        permissions: [MemberPermission.VIEW_MEMBERS],
-      },
-    });
+    super(req, res, next, { authenticated: true });
   }
 
   /**

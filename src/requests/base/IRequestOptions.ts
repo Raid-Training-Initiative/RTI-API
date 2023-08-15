@@ -1,9 +1,5 @@
-import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
-
 export default interface IRequestOptions {
-  authenticated?: {
-    permissions: MemberPermission[];
-  };
+  authenticated?: boolean;
   paginated?: boolean;
   multiFormat?: boolean;
 }

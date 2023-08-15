@@ -6,7 +6,6 @@ import { Logger, Severity } from "../../util/Logger";
 import IRequestOptions from "./IRequestOptions";
 import BadSyntaxException from "../../exceptions/BadSyntaxException";
 import IAuthenticatedClient from "../../util/auth/clients/IAuthenticatedClient";
-import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import UnauthorizedException from "../../exceptions/UnauthorizedException";
 
 export default abstract class HTTPRequest {
@@ -24,9 +23,7 @@ export default abstract class HTTPRequest {
   protected _db: MongoDatabase;
   protected _timestamp: string;
   protected _client: IAuthenticatedClient | undefined;
-
-  private _authenticated: boolean; // Does the request require authentication?
-  private _requiredPermissions: MemberPermission[];
+  protected _authenticated: boolean;
 
   constructor(
     req: Request,
@@ -37,14 +34,8 @@ export default abstract class HTTPRequest {
     this._req = req;
     this._res = res;
     this._next = next;
+    this._authenticated = options?.authenticated ?? false;
     this._timestamp = Date.now().toString();
-    if (options) {
-      // If additional options are specified.
-      this._authenticated = options.authenticated !== undefined;
-      this._requiredPermissions = options.authenticated
-        ? options.authenticated.permissions
-        : [];
-    }
   }
 
   public get client(): IAuthenticatedClient | undefined {
@@ -63,7 +54,9 @@ export default abstract class HTTPRequest {
    * @throws {JsonValidationErrorException} When the request body does not follow the JSON schema.
    */
   public async validateRequest() {
-    if (this._authenticated) await this.validateAuthentication();
+    if (this._authenticated) {
+      await this.validateAuthentication();
+    }
     this.validateQueryParameters();
   }
 
@@ -85,24 +78,11 @@ export default abstract class HTTPRequest {
     const clientSecret: string = authHeader[1] || "";
     this._client = auth.authenticate(clientSecret);
 
-    await this.validatePermissions(this._client);
-
     Logger.logRequest(
       Severity.Debug,
       this._timestamp,
       `Request called by: ${this._client.id}`
     );
-  }
-
-  /**
-   * Checks if the client making the request has the necessary permissions.
-   * @param client The client holding the permissions.
-   * @throws {UnauthorizedException} When the permissions are not sufficient for making the request.
-   */
-  private async validatePermissions(client: IAuthenticatedClient) {
-    if (!(await client.hasPermissions(this._requiredPermissions))) {
-      throw new UnauthorizedException("Invalid permissions");
-    }
   }
 
   /**

@@ -5,18 +5,13 @@
 import { NextFunction, Request, Response } from "express";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import DB from "../util/DB";
-import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 
 export class ListCategories extends HTTPGetRequest {
   public validRequestQueryParameters: string[] = [];
 
   constructor(req: Request, res: Response, next: NextFunction) {
-    super(req, res, next, {
-      authenticated: {
-        permissions: [MemberPermission.VIEW_COMPS],
-      },
-    });
+    super(req, res, next, { authenticated: true });
   }
 
   /**
@@ -37,11 +32,7 @@ export class GetCategory extends HTTPGetRequest {
   public validRequestQueryParameters: string[] = [];
 
   constructor(req: Request, res: Response, next: NextFunction) {
-    super(req, res, next, {
-      authenticated: {
-        permissions: [MemberPermission.VIEW_COMPS],
-      },
-    });
+    super(req, res, next, { authenticated: true });
   }
 
   /**

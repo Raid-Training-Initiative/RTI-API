@@ -2,7 +2,6 @@
  * File for classes that handle requests for raids.
  */
 
-import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import { NextFunction, Request, Response } from "express";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
@@ -31,11 +30,9 @@ export class ListRaids extends HTTPGetRequest {
 
   constructor(req: Request, res: Response, next: NextFunction) {
     super(req, res, next, {
-      authenticated: {
-        permissions: [MemberPermission.VIEW_RAIDS],
-      },
       paginated: true,
       multiFormat: true,
+      authenticated: true,
     });
   }
 
@@ -278,11 +275,7 @@ export class GetRaid extends HTTPGetRequest {
   public validRequestQueryParameters: string[] = ["names"];
 
   constructor(req: Request, res: Response, next: NextFunction) {
-    super(req, res, next, {
-      authenticated: {
-        permissions: [MemberPermission.VIEW_RAIDS],
-      },
-    });
+    super(req, res, next, { authenticated: true });
   }
 
   /**
@@ -370,11 +363,7 @@ export class GetRaidLog extends HTTPGetRequest {
   public validRequestQueryParameters: string[] = ["names"];
 
   constructor(req: Request, res: Response, next: NextFunction) {
-    super(req, res, next, {
-      authenticated: {
-        permissions: [MemberPermission.VIEW_RAIDS],
-      },
-    });
+    super(req, res, next);
   }
 
   /**

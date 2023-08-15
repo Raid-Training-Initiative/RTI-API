@@ -1254,7 +1254,7 @@
 									"    \"type\": \"array\",",
 									"    \"items\": {",
 									"        \"type\": \"object\",",
-									"        \"required\": [\"gw2Name\", \"approver\", \"userId\", \"banned\"],",
+									"        \"required\": [\"gw2Name\", \"userId\", \"banned\"],",
 									"        \"properties\": {",
 									"            \"gw2Name\": { \"type\": \"string\" },",
 									"            \"discordName\": { \"type\": \"string\" },",
@@ -1322,7 +1322,7 @@
 								"exec": [
 									"const schema = {",
 									"    \"type\": \"object\",",
-									"    \"required\": [\"gw2Name\", \"discordName\", \"discordTag\", \"approver\", \"userId\", \"banned\"],",
+									"    \"required\": [\"gw2Name\", \"discordName\", \"discordTag\", \"userId\", \"banned\"],",
 									"    \"properties\": {",
 									"        \"gw2Name\": { \"type\": \"string\" },",
 									"        \"discordName\": { \"type\": \"string\" },",
@@ -1880,7 +1880,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"CompTest\",\r\n    \"roles\": [\r\n        {\r\n            \"name\": \"Test\",\r\n            \"requiredParticipants\": 5\r\n        },\r\n        {\r\n            \"name\": \"Test2\",\r\n            \"requiredParticipants\": 3\r\n        }\r\n    ],\r\n    \"categories\": [\r\n        \"Niche\",\r\n        \"Generic\"\r\n    ]\r\n}",
+									"raw": "{\r\n    \"name\": \"CompTest\",\r\n    \"roles\": [\r\n        {\r\n            \"name\": \"Test\",\r\n            \"requiredParticipants\": 5\r\n        },\r\n        {\r\n            \"name\": \"Test2\",\r\n            \"requiredParticipants\": 3\r\n        }\r\n    ],\r\n    \"categories\": [\r\n        \"Generic\"\r\n    ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -3409,19 +3409,20 @@
 								"exec": [
 									"const schema = {",
 									"    \"type\": \"object\",",
-									"    \"required\": [\"raidUnregisterNotificationTime\", \"raidReminderNotificationTime\", \"trainingRequestAutoSyncInterval\", \"trainingRequestInactiveDaysBeforeDisable\", \"raidAutoBroadcastTime\", \"commanderRoles\", \"officerRoles\"],",
+									"    \"required\": [\"raidUnregisterNotificationTime\", \"raidReminderNotificationTime\", \"autoUnpublishTime\", \"trainingRequestAutoSyncInterval\", \"trainingRequestInactiveDaysBeforeDisable\", \"raidAutoBroadcastTime\", \"feedbackBroadcastTime\"],",
 									"    \"properties\": {",
 									"        \"raidUnregisterNotificationTime\": { \"type\": \"number\" },",
 									"        \"raidReminderNotificationTime\": { \"type\": \"number\" },",
+									"        \"autoUnpublishTime\": { \"type\": \"number\" },",
 									"        \"trainingRequestAutoSyncInterval\": {  \"type\": \"number\" },",
 									"        \"trainingRequestInactiveDaysBeforeDisable\": { \"type\": \"number\" },",
 									"        \"raidAutoBroadcastTime\": { \"type\": \"number\" },",
-									"        \"commanderRoles\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }},",
-									"        \"officerRoles\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }},",
 									"        \"memberRoleId\": { \"type\": \"string\" },",
 									"        \"guildApplicationsChannelId\": { \"type\": \"string\" },",
 									"        \"raidCategoryId\": { \"type\": \"string\" },",
-									"        \"raidDraftCategoryId\": { \"type\": \"string\" }",
+									"        \"raidDraftCategoryId\": { \"type\": \"string\" },",
+									"        \"feedbackBroadcastTime\": { \"type\": \"number\" },",
+									"        \"feedbackMessage\": {\"type\": \"string\"}",
 									"    },",
 									"    \"additionalProperties\": false",
 									"}",

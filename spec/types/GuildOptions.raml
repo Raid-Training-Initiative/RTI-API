@@ -10,6 +10,10 @@ properties:
     type: number
     description: The number of minutes before a raid for participants to be sent reminders.
     example: 60
+  autoUnpublishTime:
+    type: number
+    description: The number of minutes after a raid that it gets unpublished.
+    example: 60
   trainingRequestAutoSyncInterval:
     type: number
     description: The number of minutes between training requests getting synced.
@@ -22,16 +26,6 @@ properties:
     type: number
     description: The number of minutes during which an open spot in a role can't be broadcast more than once.
     example: 10
-  commanderRoles:
-    type: array
-    description: The list of role IDs of roles that allow invoking of commander commands.
-    items: string
-    example: ["400792057414811659", "747573522024628366"]
-  officerRoles:
-    type: array
-    description: The list of role IDs of roles that allow invoking of officer commands.
-    items: string
-    example: ["365835222765273091", "156176400619929600"]
   memberRoleId:
     type: string
     description: The ID of the member role.
@@ -48,3 +42,11 @@ properties:
     type: string
     description: The ID of the raid drafts channel category.
     example: "680874903259316421"
+  feedbackBroadcastTime:
+    type: number
+    description: The number of minutes after a raid that participants get automatically DM'd with the feedback message.
+    example: 15
+  feedbackMessage:
+    type: string
+    description: The feedback message that is sent via DM or pings.
+    example: "Thank you for joining! Feel free to leave feedback."

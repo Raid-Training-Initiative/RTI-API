@@ -1,8 +1,5 @@
 import { IGuildOptionsData } from "@RTIBot-DB/documents/IGuildOptionsDocument";
-import {
-  IMemberDocument,
-  IMemberPopulatedDocument,
-} from "@RTIBot-DB/documents/IMemberDocument";
+import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
 import {
   IRaidCompositionDocument,
@@ -288,11 +285,11 @@ export default class DB {
    */
   public static async queryMemberPopulatedById(
     discordId?: string
-  ): Promise<IMemberPopulatedDocument> {
+  ): Promise<IMemberDocument> {
     return (await this._instance._db.memberModel
       .findOne({ userId: discordId })
       .populate("roles")
-      .exec()) as IMemberPopulatedDocument;
+      .exec()) as IMemberDocument;
   }
 
   /**

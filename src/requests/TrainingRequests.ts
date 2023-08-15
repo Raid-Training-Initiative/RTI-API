@@ -8,7 +8,6 @@ import BadSyntaxException from "../exceptions/BadSyntaxException";
 import Utils from "../util/Utils";
 import { TrainingRequestDisabledReason } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
-import { MemberPermission } from "@RTIBot-DB/documents/IMemberRoleDocument";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 
 export class ListTrainingRequests extends HTTPGetRequest {
@@ -25,11 +24,9 @@ export class ListTrainingRequests extends HTTPGetRequest {
 
   constructor(req: Request, res: Response, next: NextFunction) {
     super(req, res, next, {
-      authenticated: {
-        permissions: [MemberPermission.VIEW_TR],
-      },
       paginated: true,
       multiFormat: true,
+      authenticated: true,
     });
   }
 
@@ -219,11 +216,7 @@ export class GetTrainingRequest extends HTTPGetRequest {
   public validRequestQueryParameters: string[] = [];
 
   constructor(req: Request, res: Response, next: NextFunction) {
-    super(req, res, next, {
-      authenticated: {
-        permissions: [MemberPermission.VIEW_TR],
-      },
-    });
+    super(req, res, next, { authenticated: true });
   }
 
   /**
