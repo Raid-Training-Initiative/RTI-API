@@ -10,10 +10,18 @@
     "moduleResolution": "node",
     "typeRoots": ["node_modules/"],
     "paths": {
-      "@RTIBot-DB/*": ["RTIBot-DB/*"]
+      "@RTIBot-DB/*": ["./RTIBot-DB/*"]
     },
     "types": ["discord.js/typings"]
   },
+  "tsc-alias": {
+    "verbose": true,
+    "resolveFullPaths": true
+  },
   "include": ["./src/"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
+  "ts-node": {
+    // https://typestrong.org/ts-node/docs/paths/
+    "require": ["tsconfig-paths/register"]
+  }
 }

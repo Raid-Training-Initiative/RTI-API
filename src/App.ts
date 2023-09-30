@@ -1,4 +1,3 @@
-import "module-alias/register";
 import { IConfig } from "./util/Config";
 import express = require("express");
 import DB from "./util/DB";
@@ -100,12 +99,12 @@ export class App {
     );
 
     server.get(
-      "/members/:discordid",
+      "/members/:member",
       async (req: Request, res: Response, next: NextFunction) => {
-        Logger.log(Severity.Info, `GET /members/:discordid request initiated`);
+        Logger.log(Severity.Info, `GET /members/:member request initiated`);
         const getMember = new GetMember(req, res, next);
         await getMember.run();
-        Logger.log(Severity.Info, `GET /members/:discordid request completed`);
+        Logger.log(Severity.Info, `GET /members/:member request completed`);
       }
     );
 
@@ -279,10 +278,10 @@ function loadConfiguration(): IConfig | null {
   let confFile: string;
   switch (config) {
     case "Release":
-      confFile = "../../Config.json";
+      confFile = "../Config.json";
       break;
     case "Debug":
-      confFile = "../../ConfigDebug.json";
+      confFile = "../ConfigDebug.json";
       break;
     default:
       Logger.log(Severity.Error, "Invalid configuration name");

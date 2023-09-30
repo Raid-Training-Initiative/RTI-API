@@ -140,14 +140,14 @@ export class GetMember extends HTTPGetRequest {
   }
 
   /**
-   * Returns the JSON string payload of a comp after making a GET /comps/:comp request.
+   * Returns the JSON string payload of a comp after making a GET /members/:member request.
    * @throws {ResourceNotFoundException} When the comp cannot be found.
    * @returns An object representing a member.
    */
   public async prepareResponse(): Promise<Object> {
-    const document = await DB.queryMemberById(this._req.params["discordid"]);
+    const document = await DB.queryMemberByName(this._req.params["member"]);
     if (document == undefined) {
-      throw new ResourceNotFoundException(this._req.params["discordid"]);
+      throw new ResourceNotFoundException(this._req.params["member"]);
     }
     const approverDiscordName = (
       await Utils.idsToMap([document.approverId])

@@ -274,7 +274,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/raids?leader=step%230",
+									"raw": "{{baseUrl}}/raids?leader=step",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -284,7 +284,7 @@
 									"query": [
 										{
 											"key": "leader",
-											"value": "step%230"
+											"value": "step"
 										}
 									]
 								}
@@ -1292,13 +1292,13 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/members/82136625345200128",
+									"raw": "{{baseUrl}}/members/step",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"members",
-										"82136625345200128"
+										"step"
 									]
 								}
 							},

@@ -188,9 +188,9 @@ traits:
           application/json:
             description: Error response when the approver in the query parameter does not exist.
             example: !include examples/errors/resource-not-found.json
-  /{discordid}:
+  /{member}:
     get:
-      description: Gets a single member by their userId.
+      description: Gets a single member by their Discord username.
       is: ["requiresAuthentication"]
       responses:
         200:

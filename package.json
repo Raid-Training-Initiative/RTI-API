@@ -11,7 +11,6 @@
         "escape-string-regexp": "^4.0.0",
         "express": "^4.17.17",
         "jsonschema": "^1.4.0",
-        "module-alias": "^2.2.2",
         "moment-duration-format": "^2.3.2",
         "moment-timezone": "^0.5.31",
         "mongoose": "^5.11.14",
@@ -26,14 +25,15 @@
         "@typescript-eslint/parser": "^4.14.1",
         "eslint": "^6.8.0",
         "eslint-config-google": "^0.14.0",
-        "typescript": "4.7.2"
+        "typescript": "4.7.2",
+        "ts-node": "^10.9.1",
+        "tsc-alias": "^1.8.7",
+        "tsconfig-paths": "^4.2.0"
     },
     "scripts": {
-        "tsc": "tsc",
+        "tsc": "tsc && tsc-alias",
+        "ts-node": "ts-node src/App.ts",
         "dev": "nodemon --inspect=0.0.0.0:9229 src/App.ts"
-    },
-    "_moduleAliases": {
-        "@RTIBot-DB": "dist/RTIBot-DB"
     },
     "author": "Stephan Wells",
     "license": "ISC"
