@@ -278,10 +278,10 @@ function loadConfiguration(): IConfig | null {
   let confFile: string;
   switch (config) {
     case "Release":
-      confFile = "../Config.json";
+      confFile = "../../Config.json";
       break;
     case "Debug":
-      confFile = "../ConfigDebug.json";
+      confFile = "../../ConfigDebug.json";
       break;
     default:
       Logger.log(Severity.Error, "Invalid configuration name");
