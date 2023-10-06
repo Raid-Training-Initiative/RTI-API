@@ -30,7 +30,7 @@ npm install
 
 ```json
 {
-  "db": "mongodb://localhost:27017/",
+  "db": "mongodb://0.0.0.0:27017/",
   "guildId": "paste the guild ID here",
   "clientsFile": "./clients.json"
 }
@@ -157,33 +157,6 @@ Note that this will only work off the bat if you have an existing dump of RTI te
       }
     }
   ]
-}
-```
-
-- For realtime IDE linting, you can also install [ES Lint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) for VS Code and place the following `eslintrc.json` file into the root directory:
-
-```json
-{
-  "env": {
-    "browser": true,
-    "es6": true
-  },
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended"
-  ],
-  "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
-  },
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": 2018
-  },
-  "plugins": ["@typescript-eslint"],
-  "rules": {
-    "no-unused-vars": "off"
-  }
 }
 ```
 

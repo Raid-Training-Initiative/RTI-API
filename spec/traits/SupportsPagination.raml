@@ -3,9 +3,23 @@
 queryParameters:
   page:
     type: number
-    description: A number greater than 0 indicating what page of results to return.
-    example: 4
+    description: The page to return. If specified, the page size query parameter should also be specified.
+    default: 1
+    minimum: 0
+    example: 1
   pageSize:
     type: number
-    description: A number greater than 0 indicating how many results to return per page.
+    description: The number of elements in each page in the response. If specified, the page query parameter should also be specified.
+    default: 100
+    maximum: 1000
+    minimum: 0
     example: 20
+responses:
+  200:
+    headers:
+      X-Total-Elements:
+        type: number
+        maximum: 1000
+        minimum: 0
+        required: true
+        example: 100

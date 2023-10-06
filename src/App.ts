@@ -99,12 +99,12 @@ export class App {
     );
 
     server.get(
-      "/members/:member",
+      "/members/:userid",
       async (req: Request, res: Response, next: NextFunction) => {
-        Logger.log(Severity.Info, `GET /members/:member request initiated`);
+        Logger.log(Severity.Info, `GET /members/:userid request initiated`);
         const getMember = new GetMember(req, res, next);
         await getMember.run();
-        Logger.log(Severity.Info, `GET /members/:member request completed`);
+        Logger.log(Severity.Info, `GET /members/:userid request completed`);
       }
     );
 

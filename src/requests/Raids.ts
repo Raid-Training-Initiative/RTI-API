@@ -9,7 +9,6 @@ import DB from "../util/DB";
 import Utils from "../util/Utils";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 import escapeStringRegexp = require("escape-string-regexp");
-import { Mongoose } from "mongoose";
 
 export class ListRaids extends HTTPGetRequest {
   public validRequestQueryParameters: string[] = [
@@ -116,10 +115,12 @@ export class ListRaids extends HTTPGetRequest {
    * Returns a list of raids after making a GET /raids request.
    * @returns A list of objects representing raids.
    */
-  public async prepareResponse(paginated?: {
-    page: number;
-    pageSize: number;
-  }): Promise<Object[]> {
+  public async prepareResponse(
+    paginated: {
+      page: number;
+      pageSize: number;
+    } = { page: 1, pageSize: 100 }
+  ): Promise<Object> {
     const documents = await DB.queryRaids(await this.dbFilter(), paginated);
 
     const idArray = new Array<string>();
@@ -140,7 +141,7 @@ export class ListRaids extends HTTPGetRequest {
       idArray
     );
 
-    let formattedDocuments: Object[];
+    let formattedDocuments: Object;
     if (
       this._req.query["format"] &&
       this._req.query["format"].toString().toLowerCase() == "csv"
@@ -156,25 +157,28 @@ export class ListRaids extends HTTPGetRequest {
         }"`;
       });
     } else {
-      formattedDocuments = documents.map((document) => {
-        return {
-          name: document.name,
-          status: document.status,
-          startTime: Utils.formatDatetimeString(document.startTime),
-          endTime: Utils.formatDatetimeString(document.endTime),
-          leader: idMap.get(document.leaderId),
-          comp: document.compositionName,
-          publishedDate: Utils.formatDatetimeString(document.publishedDate),
-          ...(this._req.query["showParticipants"] &&
-            this._req.query["showParticipants"].toString().toLowerCase() ===
-              "true" && {
-              participants: document.roles.flatMap((role) =>
-                role.participants.map((participant) => idMap.get(participant))
-              ),
-            }),
-          id: document._id.toHexString(),
-        };
-      });
+      formattedDocuments = {
+        raids: documents.map((document) => {
+          return {
+            name: document.name,
+            status: document.status,
+            startTime: Utils.formatDatetimeString(document.startTime),
+            endTime: Utils.formatDatetimeString(document.endTime),
+            leader: idMap.get(document.leaderId),
+            comp: document.compositionName,
+            publishedDate: Utils.formatDatetimeString(document.publishedDate),
+            ...(this._req.query["showParticipants"] &&
+              this._req.query["showParticipants"].toString().toLowerCase() ===
+                "true" && {
+                participants: document.roles.flatMap((role) =>
+                  role.participants.map((participant) => idMap.get(participant))
+                ),
+              }),
+            id: document._id.toHexString(),
+          };
+        }),
+        totalElements: await DB.queryRaidsCount(await this.dbFilter()),
+      };
     }
 
     return formattedDocuments;
@@ -202,7 +206,7 @@ export class ListRaids extends HTTPGetRequest {
       const escapedName: string = escapeStringRegexp(strippedName);
 
       filters.push({
-        $where: `this.name.replace(/${regex.source}/gi, '').toLowerCase().includes('${escapedName}')`,
+        name: { $regex: escapedName },
       });
     }
     if (this._req.query["comps"]) {

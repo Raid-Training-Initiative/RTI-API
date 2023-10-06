@@ -83,6 +83,10 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
             throw new BadSyntaxException(
               "Query parameters page and pageSize must be greater than 0"
             );
+          } else if (pageSizeNum > 1000) {
+            throw new BadSyntaxException(
+              "Query parameter pageSize must be less than or equal to 1000"
+            );
           } else {
             this.pagination = { page: pageNum, pageSize: pageSizeNum };
           }
@@ -102,9 +106,9 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
         `Request: ${this._req.method} ${this._req.url}`
       );
       await this.validateRequest();
-      const documents: Object[] | Object = this.pagination
-        ? await this.prepareResponse(this.pagination)
-        : await this.prepareResponse();
+      const documents: Object[] | Object = await this.prepareResponse(
+        this.pagination
+      );
       this.sendResponse(documents);
     } catch (exception) {
       if (exception instanceof HTTPException) {

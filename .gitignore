@@ -90,9 +90,6 @@ typings/
 # Optional eslint cache
 .eslintcache
 
-# eslint configuration
-.eslintrc.json
-
 # Optional stylelint cache
 .stylelintcache
 

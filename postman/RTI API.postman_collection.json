@@ -49,7 +49,7 @@
 										"exec": [
 											"pm.test(\"Number of raids test\", function () {\r",
 											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson.length).to.eql(20);\r",
+											"    pm.expect(responseJson[\"raids\"].length).to.eql(20);\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -88,10 +88,10 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"const jsonData = pm.response.json()\r",
+											"const jsonData = pm.response.json();\r",
 											"\r",
 											"pm.test(\"All raid names contain the specified string\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
+											"    _.each(jsonData[\"raids\"], (item) => {\r",
 											"        pm.expect(item.name.toLowerCase()).to.contain(pm.request.url.getQueryString().split(\"=\")[1]);\r",
 											"    })\r",
 											"})"
@@ -127,7 +127,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/raids?participants=step%230,akronox%230",
+									"raw": "{{baseUrl}}/raids?participants=step,akronox",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -137,7 +137,7 @@
 									"query": [
 										{
 											"key": "participants",
-											"value": "step%230,akronox%230"
+											"value": "step,akronox"
 										}
 									]
 								}
@@ -150,7 +150,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/raids?reserves=step%230",
+									"raw": "{{baseUrl}}/raids?reserves=step",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -160,7 +160,7 @@
 									"query": [
 										{
 											"key": "reserves",
-											"value": "step%230"
+											"value": "step"
 										}
 									]
 								}
@@ -177,7 +177,7 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All raids are either draft or published\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
+											"    _.each(jsonData[\"raids\"], (item) => {\r",
 											"        pm.expect(item.status.toLowerCase()).to.be.oneOf(pm.request.url.getQueryString().toLowerCase().split(\"=\")[1].split(\",\"));\r",
 											"    })\r",
 											"})"
@@ -216,9 +216,9 @@
 										"exec": [
 											"const jsonData = pm.response.json()\r",
 											"\r",
-											"pm.test(\"All raids have the specified leader\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.expect(item.status.toLowerCase()).to.be.oneOf(pm.request.url.getQueryString().split(\"&\")[0].split(\"=\")[1].split(\",\"));\r",
+											"pm.test(\"All comps are one of the specified comps\", () => {\r",
+											"    _.each(jsonData[\"raids\"], (item) => {\r",
+											"        pm.expect(item.comp.toLowerCase()).to.be.oneOf(pm.request.url.query.get(\"comps\").split(\",\").map(comp => comp.toLowerCase()));\r",
 											"    })\r",
 											"})"
 										],
@@ -261,8 +261,8 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All raids have the specified leader\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.expect(item.leader).to.eql(pm.request.url.getQueryString().split(\"=\")[1].replace(\"%23\", \"#\"))\r",
+											"    _.each(jsonData[\"raids\"], (item) => {\r",
+											"        pm.expect(item.leader).to.eql(pm.request.url.query.get(\"leader\"))\r",
 											"    })\r",
 											"})"
 										],
@@ -301,7 +301,7 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All raids are within the specified date range\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
+											"    _.each(jsonData[\"raids\"], (item) => {\r",
 											"        pm.expect(Date.parse(item.startTime)).to.be.above(Date.parse(pm.request.url.query.get(\"dateFrom\")));\r",
 											"        pm.expect(Date.parse(item.endTime)).to.be.below(Date.parse(pm.request.url.query.get(\"dateTo\")));\r",
 											"    })\r",
@@ -346,7 +346,7 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"Participants field is present\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
+											"    _.each(jsonData[\"raids\"], (item) => {\r",
 											"        pm.expect(Object.keys(item)).to.include(\"participants\")\r",
 											"    })\r",
 											"})"
@@ -405,23 +405,32 @@
 								"type": "text/javascript",
 								"exec": [
 									"const schema = {",
-									"    \"type\": \"array\",",
-									"    \"items\": {",
-									"        \"type\": \"object\",",
-									"        \"required\": [\"name\", \"status\", \"startTime\", \"endTime\", \"id\"],",
-									"        \"properties\": {",
-									"            \"name\": { \"type\": \"string\" },",
-									"            \"status\": { \"type\": \"string\", \"enum\": [\"Archived\", \"Draft\", \"Published\"] },",
-									"            \"startTime\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"            \"endTime\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"            \"publishedDate\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"            \"leader\": { \"type\": \"string\" },",
-									"            \"comp\": { \"type\": \"string\" },",
-									"            \"participants\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }},",
-									"            \"id\": { \"type\": \"string\" }",
+									"    \"type\": \"object\",",
+									"    \"properties\": {",
+									"        \"raids\": {",
+									"            \"type\": \"array\",",
+									"            \"items\": {",
+									"                \"type\": \"object\",",
+									"                \"required\": [\"name\", \"status\", \"startTime\", \"endTime\", \"id\"],",
+									"                \"properties\": {",
+									"                    \"name\": { \"type\": \"string\" },",
+									"                    \"status\": { \"type\": \"string\", \"enum\": [\"Archived\", \"Draft\", \"Published\"] },",
+									"                    \"startTime\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"                    \"endTime\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"                    \"publishedDate\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"                    \"leader\": { \"type\": \"string\" },",
+									"                    \"comp\": { \"type\": \"string\" },",
+									"                    \"participants\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }},",
+									"                    \"id\": { \"type\": \"string\" }",
+									"                },",
+									"                \"additionalProperties\": false",
+									"            }",
 									"        },",
-									"        \"additionalProperties\": false",
-									"    }",
+									"        \"totalElements\": {",
+									"            \"type\": \"number\",",
+									"        }",
+									"    },",
+									"    \"required\": [\"raids\", \"totalElements\"]",
 									"}",
 									"",
 									"pm.test(\"Status test\", function () {",
@@ -1042,7 +1051,7 @@
 										"exec": [
 											"pm.test(\"Number of members test\", function () {\r",
 											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson.length).to.eql(20);\r",
+											"    pm.expect(responseJson[\"members\"].length).to.eql(20);\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -1084,8 +1093,8 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All members contain the specified string\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.expect(item.gw2Name.toLowerCase()).to.contain(pm.request.url.getQueryString().split(\"=\")[1].toLowerCase());\r",
+											"    _.each(jsonData[\"members\"], (item) => {\r",
+											"        pm.expect(item.gw2Name.toLowerCase()).to.contain(pm.request.url.query.get(\"gw2Name\").toLowerCase());\r",
 											"    })\r",
 											"})"
 										],
@@ -1124,8 +1133,8 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All members contain the specified string\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.expect(item.discordTag.toLowerCase()).to.contain(pm.request.url.getQueryString().split(\"=\")[1].toLowerCase());\r",
+											"    _.each(jsonData[\"members\"], (item) => {\r",
+											"        pm.expect(item.discordTag.toLowerCase()).to.contain(pm.request.url.query.get(\"discordTag\").toLowerCase());\r",
 											"    })\r",
 											"})"
 										],
@@ -1164,8 +1173,8 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All members have the specified approver\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.expect(item.approver).to.eql(pm.request.url.getQueryString().split(\"=\")[1].replace(\"%23\", \"#\"))\r",
+											"    _.each(jsonData[\"members\"], (item) => {\r",
+											"        pm.expect(item.approver).to.eql(pm.request.url.query.get(\"approver\"))\r",
 											"    })\r",
 											"})"
 										],
@@ -1177,7 +1186,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/members?approver=step%230",
+									"raw": "{{baseUrl}}/members?approver=step",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1187,7 +1196,7 @@
 									"query": [
 										{
 											"key": "approver",
-											"value": "step%230"
+											"value": "step"
 										}
 									]
 								}
@@ -1204,8 +1213,8 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All members are unbanned\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.expect(item.banned).to.eql(pm.request.url.getQueryString().split(\"=\")[1] == \"true\")\r",
+											"    _.each(jsonData[\"members\"], (item) => {\r",
+											"        pm.expect(item.banned).to.eql(pm.request.url.query.get(\"banned\").toLowerCase() == \"true\")\r",
 											"    })\r",
 											"})"
 										],
@@ -1251,20 +1260,28 @@
 								"type": "text/javascript",
 								"exec": [
 									"const schema = {",
-									"    \"type\": \"array\",",
-									"    \"items\": {",
-									"        \"type\": \"object\",",
-									"        \"required\": [\"gw2Name\", \"userId\", \"banned\"],",
-									"        \"properties\": {",
-									"            \"gw2Name\": { \"type\": \"string\" },",
-									"            \"discordName\": { \"type\": \"string\" },",
-									"            \"discordTag\": { \"type\": \"string\" },",
-									"            \"approver\": { \"type\": \"string\" },",
-									"            \"userId\": { \"type\": \"string\" },",
-									"            \"banned\": { \"type\": \"boolean\" }",
+									"    \"type\": \"object\",",
+									"    \"properties\": {",
+									"        \"members\": {",
+									"            \"type\": \"array\",",
+									"            \"items\": {",
+									"                \"required\": [\"gw2Name\", \"userId\", \"banned\"],",
+									"                \"properties\": {",
+									"                    \"gw2Name\": { \"type\": \"string\" },",
+									"                    \"discordName\": { \"type\": \"string\" },",
+									"                    \"discordTag\": { \"type\": \"string\" },",
+									"                    \"approver\": { \"type\": \"string\" },",
+									"                    \"userId\": { \"type\": \"string\" },",
+									"                    \"banned\": { \"type\": \"boolean\" }",
+									"                },",
+									"                \"additionalProperties\": false",
+									"            }",
 									"        },",
-									"        \"additionalProperties\": false",
-									"    }",
+									"        \"totalElements\": {",
+									"            \"type\": \"number\",",
+									"        }",
+									"    },",
+									"    \"required\": [\"members\", \"totalElements\"]",
 									"}",
 									"",
 									"pm.test(\"Status test\", function () {",
@@ -1292,13 +1309,13 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/members/step",
+									"raw": "{{baseUrl}}/members/82136625345200128",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"members",
-										"step"
+										"82136625345200128"
 									]
 								}
 							},
@@ -1705,7 +1722,7 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All comps have one of the specified categories\", () => {\r",
-											"    const queryCategoriesList = pm.request.url.getQueryString().split(\"=\")[1].replace(\"%20\", \" \").toLowerCase().split(\",\");\r",
+											"    const queryCategoriesList = pm.request.url.query.get(\"categories\").replace(\"%20\", \" \").toLowerCase().split(\",\");\r",
 											"    _.each(jsonData, (item) => {\r",
 											"        const itemCategoriesList = item.categories.map(category => category.toLowerCase());\r",
 											"        const filteredList = queryCategoriesList.filter(category => itemCategoriesList.includes(category));\r",
@@ -2625,7 +2642,7 @@
 										"exec": [
 											"pm.test(\"Number of training requests test\", function () {\r",
 											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson.length).to.eql(20);\r",
+											"    pm.expect(responseJson[\"trainingRequests\"].length).to.eql(20);\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -2667,8 +2684,8 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All training request comments contain all of the specified strings\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.request.url.getQueryString().toLowerCase().split(\"=\")[1].split(\",\").forEach(keyword => pm.expect(item.comment.toLowerCase()).to.contain(keyword))\r",
+											"    _.each(jsonData[\"trainingRequests\"], (item) => {\r",
+											"        pm.request.url.query.get(\"keywords\").split(\",\").forEach(keyword => pm.expect(item.comment.toLowerCase()).to.contain(keyword))\r",
 											"    })\r",
 											"})"
 										],
@@ -2707,8 +2724,8 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All training requests are active\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.expect(item.active).to.eql(pm.request.url.getQueryString().split(\"=\")[1] == \"true\")\r",
+											"    _.each(jsonData[\"trainingRequests\"], (item) => {\r",
+											"        pm.expect(item.active).to.eql(pm.request.url.query.get(\"active\").toLowerCase() == \"true\")\r",
 											"    })\r",
 											"})"
 										],
@@ -2781,8 +2798,8 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All training requests have one of the specified wings\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        const queryWings = pm.request.url.getQueryString().split(\"=\")[1].split(\",\").map(wing => Number.parseInt(wing));\r",
+											"    _.each(jsonData[\"trainingRequests\"], (item) => {\r",
+											"        const queryWings = pm.request.url.query.get(\"wings\").split(\",\").map(wing => Number.parseInt(wing));\r",
 											"        const requestedWings = item.requestedWings;\r",
 											"        const commonElements = queryWings.filter(wing => requestedWings.indexOf(wing) > -1);\r",
 											"\r",
@@ -2825,8 +2842,8 @@
 											"const jsonData = pm.response.json()\r",
 											"\r",
 											"pm.test(\"All training request disabled reasons are one of the specified strings\", () => {\r",
-											"    _.each(jsonData, (item) => {\r",
-											"        pm.expect(item.disabledReason.toLowerCase()).to.be.oneOf(pm.request.url.getQueryString().toLowerCase().split(\"=\")[1].split(\",\"));\r",
+											"    _.each(jsonData[\"trainingRequests\"], (item) => {\r",
+											"        pm.expect(item.disabledReason.toLowerCase()).to.be.oneOf(pm.request.url.query.get(\"disabledReasons\").split(\",\").map(reason => reason.toLowerCase()));\r",
 											"    })\r",
 											"})"
 										],
@@ -2872,34 +2889,43 @@
 								"type": "text/javascript",
 								"exec": [
 									"const schema = {",
-									"    \"type\": \"array\",",
-									"    \"items\": {",
-									"        \"type\": \"object\",",
-									"        \"required\": [\"active\", \"requestedWings\", \"comment\", \"created\", \"edited\", \"disabledReason\", \"userId\"],",
-									"        \"properties\": {",
-									"            \"discordTag\": { \"type\": \"string\" },",
-									"            \"active\": { \"type\": \"boolean\" },",
-									"            \"requestedWings\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }},",
-									"            \"comment\": { \"type\": \"string\" },",
-									"            \"created\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"            \"edited\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
-									"            \"disabledReason\": {",
-									"                \"type\": \"string\",",
-									"                \"enum\": [",
-									"                    \"None\",",
-									"                    \"Manually by User\",",
-									"                    \"Manually by Officer\",",
-									"                    \"Fulfilled\",",
-									"                    \"API Key Removed\",",
-									"                    \"Invalid API Key\",",
-									"                    \"No Longer Member\",",
-									"                    \"Expired\"",
-									"                ]",
-									"            },",
-									"            \"userId\": { \"type\": \"string\" }",
+									"    \"type\": \"object\",",
+									"    \"properties\": {",
+									"        \"trainingRequests\": {",
+									"            \"type\": \"array\",",
+									"            \"items\": {",
+									"                \"type\": \"object\",",
+									"                \"required\": [\"active\", \"requestedWings\", \"comment\", \"created\", \"edited\", \"disabledReason\", \"userId\"],",
+									"                \"properties\": {",
+									"                    \"discordTag\": { \"type\": \"string\" },",
+									"                    \"active\": { \"type\": \"boolean\" },",
+									"                    \"requestedWings\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }},",
+									"                    \"comment\": { \"type\": \"string\" },",
+									"                    \"created\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"                    \"edited\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+									"                    \"disabledReason\": {",
+									"                        \"type\": \"string\",",
+									"                        \"enum\": [",
+									"                            \"None\",",
+									"                            \"Manually by User\",",
+									"                            \"Manually by Officer\",",
+									"                            \"Fulfilled\",",
+									"                            \"API Key Removed\",",
+									"                            \"Invalid API Key\",",
+									"                            \"No Longer Member\",",
+									"                            \"Expired\"",
+									"                        ]",
+									"                    },",
+									"                    \"userId\": { \"type\": \"string\" }",
+									"                },",
+									"                \"additionalProperties\": false",
+									"            }",
 									"        },",
-									"        \"additionalProperties\": false",
-									"    }",
+									"        \"totalElements\": {",
+									"            \"type\": \"number\",",
+									"        }",
+									"    },",
+									"    \"required\": [\"trainingRequests\", \"totalElements\"]",
 									"}",
 									"",
 									"pm.test(\"Status test\", function () {",

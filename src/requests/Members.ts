@@ -51,10 +51,12 @@ export class ListMembers extends HTTPGetRequest {
    * Returns a list of members after making a GET /members request.
    * @returns A list of objects representing members.
    */
-  public async prepareResponse(pagination?: {
-    page: number;
-    pageSize: number;
-  }): Promise<Object[]> {
+  public async prepareResponse(
+    pagination: {
+      page: number;
+      pageSize: number;
+    } = { page: 1, pageSize: 100 }
+  ): Promise<Object> {
     const documents = await DB.queryMembers(await this.dbFilter(), pagination);
 
     // Resolve the IDs to names.
@@ -64,7 +66,7 @@ export class ListMembers extends HTTPGetRequest {
       idArray
     );
 
-    let formattedDocuments: Object[];
+    let formattedDocuments: Object;
     if (
       this._req.query["format"] &&
       this._req.query["format"].toString().toLowerCase() == "csv"
@@ -75,16 +77,19 @@ export class ListMembers extends HTTPGetRequest {
         }","${document._id}"`;
       });
     } else {
-      formattedDocuments = documents.map((document) => {
-        return {
-          gw2Name: document.gw2Name,
-          discordName: document.discordName,
-          discordTag: document.discordTag,
-          approver: idMap.get(document.approverId),
-          userId: document.userId,
-          banned: document.banned,
-        };
-      });
+      formattedDocuments = {
+        members: documents.map((document) => {
+          return {
+            gw2Name: document.gw2Name,
+            discordName: document.discordName,
+            discordTag: document.discordTag,
+            approver: idMap.get(document.approverId),
+            userId: document.userId,
+            banned: document.banned,
+          };
+        }),
+        totalElements: await DB.queryMembersCount(await this.dbFilter()),
+      };
     }
 
     return formattedDocuments;
@@ -145,15 +150,15 @@ export class GetMember extends HTTPGetRequest {
    * @returns An object representing a member.
    */
   public async prepareResponse(): Promise<Object> {
-    const document = await DB.queryMemberByName(this._req.params["member"]);
+    const document = await DB.queryMemberById(this._req.params["userid"]);
     if (document == undefined) {
-      throw new ResourceNotFoundException(this._req.params["member"]);
+      throw new ResourceNotFoundException(this._req.params["userid"]);
     }
     const approverDiscordName = (
       await Utils.idsToMap([document.approverId])
     ).get(document.approverId);
 
-    const formattedDocument = {
+    return {
       gw2Name: document.gw2Name,
       discordName: document.discordName,
       discordTag: document.discordTag,
@@ -161,7 +166,5 @@ export class GetMember extends HTTPGetRequest {
       userId: document.userId,
       banned: document.banned,
     };
-
-    return formattedDocument;
   }
 }

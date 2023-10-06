@@ -89,7 +89,7 @@ export default class DB {
    */
   public static async queryCompsCount(filter?: Object): Promise<number> {
     return (await this._instance._db.raidCompositionModel
-      .count(filter ? filter : {})
+      .countDocuments(filter ? filter : {})
       .exec()) as number;
   }
 
@@ -236,7 +236,7 @@ export default class DB {
    */
   public static async queryRaidsCount(filter?: Object): Promise<number> {
     return (await this._instance._db.raidEventModel
-      .count(filter ? filter : {})
+      .countDocuments(filter ? filter : {})
       .exec()) as number;
   }
 
@@ -320,7 +320,7 @@ export default class DB {
    */
   public static async queryMembersCount(filter?: Object): Promise<number> {
     return (await this._instance._db.memberModel
-      .count(filter ? filter : {})
+      .countDocuments(filter ? filter : {})
       .exec()) as number;
   }
 
@@ -370,7 +370,7 @@ export default class DB {
     filter?: Object
   ): Promise<number> {
     return (await this._instance._db.trainingRequestModel
-      .count(filter ? filter : {})
+      .countDocuments(filter ? filter : {})
       .exec()) as number;
   }
 

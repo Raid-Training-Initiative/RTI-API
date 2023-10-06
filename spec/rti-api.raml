@@ -54,14 +54,6 @@ traits:
         type: string
         description: A case-insensitive string specifying what format to return.
         enum: ["json", "csv"]
-      page:
-        type: number
-        description: The page to return. If this query parameter is specified, then pageSize must also be specified.
-        example: 1
-      pageSize:
-        type: number
-        description: The number of elements in each page in the response. If this query parameter is specified, then page must also be specified.
-        example: 20
       dateFrom:
         type: string
         description: The timestamp to filter for raids scheduled after this date and time. In the format yyyy-MM-ddTHH:mm:ss. dateFrom must be before dateTo.

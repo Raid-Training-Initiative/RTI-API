@@ -87,10 +87,12 @@ export class ListTrainingRequests extends HTTPGetRequest {
    * Returns a list of training requests after making a GET /trainingrequests request.
    * @returns A list of objects representing training requests.
    */
-  public async prepareResponse(paginated?: {
-    page: number;
-    pageSize: number;
-  }): Promise<Object[]> {
+  public async prepareResponse(
+    paginated: {
+      page: number;
+      pageSize: number;
+    } = { page: 1, pageSize: 100 }
+  ): Promise<Object> {
     const documents = await DB.queryTrainingRequests(
       await this.dbFilter(),
       paginated
@@ -103,7 +105,7 @@ export class ListTrainingRequests extends HTTPGetRequest {
       idArray
     );
 
-    let formattedDocuments: Object[];
+    let formattedDocuments: Object;
     if (
       this._req.query["format"] &&
       this._req.query["format"].toString().toLowerCase() == "csv"
@@ -149,18 +151,23 @@ export class ListTrainingRequests extends HTTPGetRequest {
           }","${wingsData.join('","')}","${document._id}"`;
         });
     } else {
-      formattedDocuments = documents.map((document) => {
-        return {
-          discordTag: idMap.get(document.userId),
-          active: document.active,
-          requestedWings: document.requestedWings,
-          comment: document.comment,
-          created: Utils.formatDatetimeString(document.creationDate),
-          edited: Utils.formatDatetimeString(document.lastEditedTimestamp),
-          disabledReason: document.disabledReason,
-          userId: document.userId,
-        };
-      });
+      formattedDocuments = {
+        trainingRequests: documents.map((document) => {
+          return {
+            discordTag: idMap.get(document.userId),
+            active: document.active,
+            requestedWings: document.requestedWings,
+            comment: document.comment,
+            created: Utils.formatDatetimeString(document.creationDate),
+            edited: Utils.formatDatetimeString(document.lastEditedTimestamp),
+            disabledReason: document.disabledReason,
+            userId: document.userId,
+          };
+        }),
+        totalElements: await DB.queryTrainingRequestsCount(
+          await this.dbFilter()
+        ),
+      };
     }
 
     return formattedDocuments;
