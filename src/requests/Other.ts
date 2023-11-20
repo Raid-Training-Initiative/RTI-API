@@ -12,6 +12,7 @@ import moment = require("moment-timezone");
 import momentDurationFormatSetup = require("moment-duration-format");
 import HTTPGetRequest from "./base/HTTPGetRequest";
 import { existsSync } from "fs";
+import { join } from "path";
 momentDurationFormatSetup(moment);
 
 export class GetStatus extends HTTPGetRequest {
@@ -38,7 +39,7 @@ export class GetStatus extends HTTPGetRequest {
 
     try {
       let prefix: string = "../../../";
-      if (!existsSync(`${prefix}package.json`)) {
+      if (!existsSync(join(__dirname, prefix, "package.json"))) {
         prefix = "../../";
       }
       packageJson = require(`${prefix}package.json`);
