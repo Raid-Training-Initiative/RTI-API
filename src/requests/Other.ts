@@ -11,6 +11,7 @@ import DB from "../util/DB";
 import moment = require("moment-timezone");
 import momentDurationFormatSetup = require("moment-duration-format");
 import HTTPGetRequest from "./base/HTTPGetRequest";
+import { existsSync } from "fs";
 momentDurationFormatSetup(moment);
 
 export class GetStatus extends HTTPGetRequest {
@@ -33,9 +34,14 @@ export class GetStatus extends HTTPGetRequest {
    * @returns An object representing information about the API.
    */
   public async prepareResponse(): Promise<Object> {
-    let packageJson: any;
+    let packageJson: any | undefined = undefined;
+
     try {
-      packageJson = require("../../../package.json");
+      let prefix: string = "../../../";
+      if (!existsSync(`${prefix}package.json`)) {
+        prefix = "../../";
+      }
+      packageJson = require(`${prefix}package.json`);
     } catch (Exception) {
       throw new ServerErrorException("Error loading package.json");
     }
