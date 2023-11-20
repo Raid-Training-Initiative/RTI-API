@@ -78,6 +78,7 @@ export class ListMembers extends HTTPGetRequest {
       });
     } else {
       formattedDocuments = {
+        totalElements: await DB.queryMembersCount(await this.dbFilter()),
         members: documents.map((document) => {
           return {
             gw2Name: document.gw2Name,
@@ -88,7 +89,6 @@ export class ListMembers extends HTTPGetRequest {
             banned: document.banned,
           };
         }),
-        totalElements: await DB.queryMembersCount(await this.dbFilter()),
       };
     }
 

@@ -152,6 +152,7 @@ export class ListTrainingRequests extends HTTPGetRequest {
         });
     } else {
       formattedDocuments = {
+        totalElements: await DB.queryRaidsCount(await this.dbFilter()),
         trainingRequests: documents.map((document) => {
           return {
             discordTag: idMap.get(document.userId),
@@ -164,9 +165,6 @@ export class ListTrainingRequests extends HTTPGetRequest {
             userId: document.userId,
           };
         }),
-        totalElements: await DB.queryTrainingRequestsCount(
-          await this.dbFilter()
-        ),
       };
     }
 

@@ -158,6 +158,7 @@ export class ListRaids extends HTTPGetRequest {
       });
     } else {
       formattedDocuments = {
+        totalElements: await DB.queryRaidsCount(await this.dbFilter()),
         raids: documents.map((document) => {
           return {
             name: document.name,
@@ -177,7 +178,6 @@ export class ListRaids extends HTTPGetRequest {
             id: document._id.toHexString(),
           };
         }),
-        totalElements: await DB.queryRaidsCount(await this.dbFilter()),
       };
     }
 
@@ -206,7 +206,7 @@ export class ListRaids extends HTTPGetRequest {
       const escapedName: string = escapeStringRegexp(strippedName);
 
       filters.push({
-        name: { $regex: escapedName },
+        name: { $regex: new RegExp(escapedName, "gi") },
       });
     }
     if (this._req.query["comps"]) {

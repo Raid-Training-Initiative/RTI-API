@@ -132,11 +132,18 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
       this.validRequestQueryParameters,
       this._req
     );
+    const nestedArray = !Array.isArray(documents)
+      ? Object.values(documents).find((value) => Array.isArray(value))
+      : [];
     Logger.logRequest(
       Severity.Debug,
       this._timestamp,
       `Sending ${
-        Array.isArray(documents) ? documents.length : 1
+        Array.isArray(documents)
+          ? documents.length
+          : documents["totalElements"] && nestedArray
+          ? nestedArray.length
+          : 1
       } items in payload with ${
         filterString.length > 0 ? "filter - " + filterString : "no filter"
       }`
