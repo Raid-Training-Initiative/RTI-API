@@ -192,13 +192,15 @@ export class ListRaids extends HTTPGetRequest {
    */
   private async dbFilter(): Promise<Object> {
     const filters: Object[] = [];
+    const stripRegex: RegExp = /[-!$%^&*()_+|~=`{}[\]:";'<>?,./\s]+/gi;
     const getSearchTerms = (queryString: string) =>
       queryString
         .toString()
         .split(",")
         .map((query) => {
-          const regex: RegExp = /[-!$%^&*()_+|~=`{}[\]:";'<>?,./\s]+/gi;
-          const strippedName: string = query.replace(regex, "").toLowerCase();
+          const strippedName: string = query
+            .replace(stripRegex, "")
+            .toLowerCase();
           return escapeStringRegexp(strippedName);
         });
     if (this._req.query["status"]) {
@@ -208,24 +210,24 @@ export class ListRaids extends HTTPGetRequest {
       filters.push({ status: { $in: filterStatus } });
     }
     if (this._req.query["nameInclude"]) {
-      const nameQueries: string[] = getSearchTerms(
+      const includeQueries: string[] = getSearchTerms(
         this._req.query["nameInclude"].toString()
       );
-
-      filters.push({
-        name: { $in: nameQueries.map((query) => new RegExp(query, "gi")) },
-      });
+      const regexFilters = includeQueries.map((query) => ({
+        name: { $regex: new RegExp(query.replace(stripRegex, ""), "gi") },
+      }));
+      filters.push(...regexFilters);
     }
     if (this._req.query["nameExclude"]) {
       const excludeQueries: string[] = getSearchTerms(
         this._req.query["nameExclude"].toString()
       );
-
-      filters.push({
+      const regexFilters = excludeQueries.map((query) => ({
         name: {
-          $not: { $in: excludeQueries.map((query) => new RegExp(query, "gi")) },
+          $not: { $regex: new RegExp(query.replace(stripRegex, ""), "gi") },
         },
-      });
+      }));
+      filters.push(...regexFilters);
     }
     if (this._req.query["comps"]) {
       const filterComps: RegExp[] = Utils.getRegexListFromQueryString(
