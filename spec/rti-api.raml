@@ -26,10 +26,14 @@ traits:
         type: string
         description: A comma-separated, case-insensitive string to filter the raids by status.
         example: "draft,published,archived"
-      name:
+      nameInclude:
         type: string
-        description: A case-insensitive string to filter the raids by name. Returns raids whose name contains the filter query string as a substring.
-        example: "continuation"
+        description: A comma-separated, case-insensitive string to filter the raids by name. Returns raids whose name contains at least one of the specified search terms.
+        example: "continuation,cont"
+      nameExclude:
+        type: string
+        description: A comma-separated, case-insensitive string to filter the raids by name. Returns raids whose name does not contain any of the specified search terms.
+        example: "w7, wing%207"
       comps:
         type: string
         description: A comma-separated, case-insensitive string to filter the raids by comp names.

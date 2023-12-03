@@ -13,7 +13,8 @@ import escapeStringRegexp = require("escape-string-regexp");
 export class ListRaids extends HTTPGetRequest {
   public validRequestQueryParameters: string[] = [
     "status",
-    "name",
+    "nameInclude",
+    "nameExclude",
     "comps",
     "leader",
     "published",
@@ -191,22 +192,39 @@ export class ListRaids extends HTTPGetRequest {
    */
   private async dbFilter(): Promise<Object> {
     const filters: Object[] = [];
+    const getSearchTerms = (queryString: string) =>
+      queryString
+        .toString()
+        .split(",")
+        .map((query) => {
+          const regex: RegExp = /[-!$%^&*()_+|~=`{}[\]:";'<>?,./\s]+/gi;
+          const strippedName: string = query.replace(regex, "").toLowerCase();
+          return escapeStringRegexp(strippedName);
+        });
     if (this._req.query["status"]) {
       const filterStatus: RegExp[] = Utils.getRegexListFromQueryString(
         this._req.query["status"].toString()
       );
       filters.push({ status: { $in: filterStatus } });
     }
-    if (this._req.query["name"]) {
-      const regex: RegExp = /[-!$%^&*()_+|~=`{}[\]:";'<>?,./\s]+/gi;
-      const strippedName: string = this._req.query["name"]
-        .toString()
-        .replace(regex, "")
-        .toLowerCase();
-      const escapedName: string = escapeStringRegexp(strippedName);
+    if (this._req.query["nameInclude"]) {
+      const nameQueries: string[] = getSearchTerms(
+        this._req.query["nameInclude"].toString()
+      );
 
       filters.push({
-        name: { $regex: new RegExp(escapedName, "gi") },
+        name: { $in: nameQueries.map((query) => new RegExp(query, "gi")) },
+      });
+    }
+    if (this._req.query["nameExclude"]) {
+      const excludeQueries: string[] = getSearchTerms(
+        this._req.query["nameExclude"].toString()
+      );
+
+      filters.push({
+        name: {
+          $not: { $in: excludeQueries.map((query) => new RegExp(query, "gi")) },
+        },
       });
     }
     if (this._req.query["comps"]) {
