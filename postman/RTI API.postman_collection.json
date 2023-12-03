@@ -90,9 +90,31 @@
 										"exec": [
 											"const jsonData = pm.response.json();\r",
 											"\r",
-											"pm.test(\"All raid names contain the specified string\", () => {\r",
+											"pm.test(\"All raid names contain at least one of the nameInclude terms\", () => {\r",
+											"    const nameInclude = pm.request.url.query.get(\"nameInclude\").split(\",\");\r",
 											"    _.each(jsonData[\"raids\"], (item) => {\r",
-											"        pm.expect(item.name.toLowerCase()).to.contain(pm.request.url.getQueryString().split(\"=\")[1]);\r",
+											"        let include = false;\r",
+											"        for (const includeTerm of nameInclude) {\r",
+											"            if (item.name.toLowerCase().includes(includeTerm)) {\r",
+											"                include = true;\r",
+											"                break;\r",
+											"            }\r",
+											"        }\r",
+											"        pm.expect(include).to.be.true;\r",
+											"    })\r",
+											"})\r",
+											"\r",
+											"pm.test(\"All raid names do not contain any of the nameExclude terms\", () => {\r",
+											"    const nameExclude = pm.request.url.query.get(\"nameExclude\").split(\",\");\r",
+											"    _.each(jsonData[\"raids\"], (item) => {\r",
+											"        let exclude = true;\r",
+											"        for (const excludeTerm of nameExclude) {\r",
+											"            if (item.name.toLowerCase().includes(excludeTerm)) {\r",
+											"                exclude = false;\r",
+											"                break;\r",
+											"            }\r",
+											"        }\r",
+											"        pm.expect(exclude).to.be.true;\r",
 											"    })\r",
 											"})"
 										],
@@ -104,7 +126,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/raids?name=continuation",
+									"raw": "{{baseUrl}}/raids?nameInclude=continuation,cont&nameExclude=w7,wing 7",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -113,8 +135,12 @@
 									],
 									"query": [
 										{
-											"key": "name",
-											"value": "continuation"
+											"key": "nameInclude",
+											"value": "continuation,cont"
+										},
+										{
+											"key": "nameExclude",
+											"value": "w7,wing 7"
 										}
 									]
 								}
