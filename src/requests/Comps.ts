@@ -12,6 +12,7 @@ import { ObjectId } from "mongoose";
 import HTTPPostRequest from "./base/HTTPPostRequest";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 import HTTPDeleteRequest from "./base/HTTPDeleteRequest";
+import { RoleType } from "../../RTIBot-DB/documents/IRaidCompositionDocument";
 
 export class ListComps extends HTTPGetRequest {
   public validRequestQueryParameters: string[] = ["categories"];
@@ -36,6 +37,8 @@ export class ListComps extends HTTPGetRequest {
           return {
             name: role.name,
             requiredParticipants: role.requiredParticipants,
+            type: role.type ?? RoleType.Basic,
+            listIndex: role.listIndex,
           };
         }),
       };
@@ -98,6 +101,8 @@ export class GetComp extends HTTPGetRequest {
         return {
           name: role.name,
           requiredParticipants: role.requiredParticipants,
+          type: role.type ?? RoleType.Basic,
+          listIndex: role.listIndex,
         };
       }),
     };

@@ -95,13 +95,13 @@ The API won't do much without data to expose. If there is a database already cre
 - Step 3: Navigate to the directory containing your MongoDB dump folder in a terminal and run `mongorestore`:
 
 ```bash
-mongorestore
+mongorestore --gzip --archive=your_archive.archive
 ```
 
-- Note that if your dump folder is an archive, you should run:
+- Or, to restore database (guild) X into database Y, use:
 
 ```bash
-mongorestore --gzip --archive=<your_dump_archive>
+mongorestore --gzip --archive=your_archive.archive --nsFrom "X.*" --nsTo "Y.*"
 ```
 
 ## Enabling Discord Authentication (optional)
