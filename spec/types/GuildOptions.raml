@@ -1,5 +1,5 @@
 #%RAML 1.0 DataType
-description: Data type for a  event log.
+description: Data type for a guild options object.
 
 properties:
   raidUnregisterNotificationTime:
@@ -42,6 +42,39 @@ properties:
     type: string
     description: The ID of the raid drafts channel category.
     example: "680874903259316421"
+  dynamicCompOptions:
+    type: object
+    description: The names of dynamic comp roles.
+    properties:
+      genericAlacrity:
+        type: string
+        description: The name of the generic alacrity dynamic role.
+        example: "Alacrity"
+      healAlacrity:
+        type: string
+        description: The name of the heal alacrity dynamic role.
+        example: "Heal Alacrity"
+      dpsAlacrity:
+        type: string
+        description: The name of the DPS alacrity dynamic role.
+        example: "DPS Alacrity"
+      genericQuickness:
+        type: string
+        description: The name of the generic quickness dynamic role.
+        example: "Quickness"
+      healQuickness:
+        type: string
+        description: The name of the heal quickness dynamic role.
+        example: "Heal Quickness"
+      dpsQuickness:
+        type: string
+        description: The name of the DPS quickness dynamic role.
+        example: "DPS Quickness"
+      dps:
+        type: string
+        description: The name of the DPS dynamic role.
+        example: "DPS"
+    example: !include ../examples/snippets/dynamiccompoptions-object.json
   feedbackBroadcastTime:
     type: number
     description: The number of minutes after a raid that participants get automatically DM'd with the feedback message.
