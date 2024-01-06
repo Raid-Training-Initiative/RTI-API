@@ -260,7 +260,9 @@ export class ListRaids extends HTTPGetRequest {
         filterParticipants
       );
       filters.push({
-        "roles.participants": { $all: Array.from(memberMap.values()) },
+        "roles.participants": {
+          $all: [...new Set(Array.from(memberMap.values()))],
+        },
       });
     }
     if (this._req.query["reserves"]) {
