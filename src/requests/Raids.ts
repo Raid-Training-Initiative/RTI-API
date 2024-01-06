@@ -172,9 +172,15 @@ export class ListRaids extends HTTPGetRequest {
             ...(this._req.query["showParticipants"] &&
               this._req.query["showParticipants"].toString().toLowerCase() ===
                 "true" && {
-                participants: document.roles.flatMap((role) =>
-                  role.participants.map((participant) => idMap.get(participant))
-                ),
+                participants: [
+                  ...new Set(
+                    document.roles.flatMap((role) =>
+                      role.participants.map((participant) =>
+                        idMap.get(participant)
+                      )
+                    )
+                  ),
+                ],
               }),
             id: document._id.toHexString(),
           };
@@ -273,7 +279,9 @@ export class ListRaids extends HTTPGetRequest {
         filterParticipants
       );
       filters.push({
-        "roles.reserves": { $all: Array.from(memberMap.values()) },
+        "roles.reserves": {
+          $all: [...new Set(Array.from(memberMap.values()))],
+        },
       });
     }
     if (this._req.query["dateFrom"]) {
