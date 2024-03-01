@@ -1,0 +1,14 @@
+# Ignore the DB project
+RTIBot-DB
+
+# Ignore markdown files
+*.md
+
+.github/
+
+dist/
+proddata/
+proddata_db/
+
+package.json
+package-lock.json

@@ -9,6 +9,44 @@
     "guildApplicationsChannelId": "733078503595180103",
     "raidCategoryId": "717131712014057483",
     "raidDraftCategoryId": "680874903259316421",
+    "dbVersion": 5,
+    "additionalRoleIds": [
+        "725275333141463120",
+        "1070279418544656495"
+    ],
+    "serverRegion": "Europe",
     "feedbackBroadcastTime": 15,
-    "feedbackMessage": "Thank you for joining! Feel free to leave feedback."
+    "feedbackMessage": "Thank you for joining! Feel free to leave feedback.",
+    "removeRaidReminderHoursBefore": 36,
+    "roleRequests": [
+        {
+            "wing": 1,
+            "request": "Tank"
+        },
+        {
+            "wing": 5,
+            "request": "Kiter"
+        }
+    ],
+    "roleRequestsLimit": 3,
+    "wingRoles": [
+        {
+            "wing": 1,
+            "roleId": "820042514614059010"
+        },
+        {
+            "wing": 2,
+            "roleId": "1181703997963374764"
+        }
+    ],
+    "arcDpsChannelId": "1196392589805498458",
+    "dynamicCompOptions": {
+        "genericAlacrity": "Alacrity",
+        "healAlacrity": "Heal Alacrity",
+        "dpsAlacrity": "DPS Alacrity",
+        "genericQuickness": "Quickness",
+        "healQuickness": "Heal Quickness",
+        "dpsQuickness": "DPS Quickness",
+        "dps": "DPS"
+    }
 }

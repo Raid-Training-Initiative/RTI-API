@@ -5,27 +5,33 @@
         "roles": [
             {
                 "name": "🔴 DPS",
-                "requiredParticipants": 5
+                "requiredParticipants": 5,
+                "type": "Basic"
             },
             {
                 "name": "🟡 BS",
-                "requiredParticipants": 1
+                "requiredParticipants": 1,
+                "type": "Basic"
             },
             {
                 "name": "🟢 Druid",
-                "requiredParticipants": 1
+                "requiredParticipants": 1,
+                "type": "Basic"
             },
             {
                 "name": "💚 Off-Heal",
-                "requiredParticipants": 1
+                "requiredParticipants": 1,
+                "type": "Basic"
             },
             {
                 "name": "🟪 Chrono (Tank)",
-                "requiredParticipants": 1
+                "requiredParticipants": 1,
+                "type": "Basic"
             },
             {
                 "name": "🟣 Chrono",
-                "requiredParticipants": 1
+                "requiredParticipants": 1,
+                "type": "Basic"
             }
         ]
     },
@@ -35,7 +41,8 @@
         "roles": [
             {
                 "name": "🔹 Blue Class",
-                "requiredParticipants": 10
+                "requiredParticipants": 10,
+                "type": "Basic"
             }
         ]
     }

@@ -17,6 +17,21 @@ properties:
       type: number
     description: A list of wings that the user requested.
     example: [ 2, 4, 5 ]
+  requestedRoles:
+    type: array
+    items:
+      type: object
+      properties:
+        wing:
+          type: number
+          description: The wing of the role request.
+          example: 2
+        request:
+          type: string
+          description: The name of the role request.
+          example: "Tank"
+    description: A list of special roles that the user requested.
+    example: !include ../examples/snippets/rolerequests-list.json
   comment:
     type: string
     description: The comment that the member included with their training request.
@@ -29,6 +44,10 @@ properties:
     type: datetime-only
     description: The last time that this training request had an update.
     example: "2020-12-27T16:34:35"
+  wingOverrides:
+    type: number[]
+    description: The list of wings that will remain active in the training request due to manual officer tampering.
+    example: [ 1, 3, 5 ]
   disabledReason:
     type: string
     description: The reason for the training request becoming inactive.

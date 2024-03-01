@@ -3,6 +3,17 @@
         "discordTag": "TheOni#4209",
         "active": true,
         "requestedWings": [4],
+        "requestedRoles": [
+            {
+                "wing": 1,
+                "request": "Tank"
+            },
+            {
+                "wing": 6,
+                "request": "Lamp"
+            }
+        ],
+        "wingOverrides": [],
         "comment": "Power BS",
         "created": "2020-11-22T18:56:15",
         "edited": "2020-11-22T18:56:15",
@@ -12,6 +23,17 @@
     {
         "active": false,
         "requestedWings": [5, 7],
+        "requestedRoles": [
+            {
+                "wing": 1,
+                "request": "Tank"
+            },
+            {
+                "wing": 4,
+                "request": "Handkiter"
+            }
+        ],
+        "wingOverrides": [3],
         "comment": "Absolutely new to raids",
         "created": "2020-11-22T20:07:01",
         "edited": "2020-11-22T20:07:01",

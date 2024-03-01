@@ -2,6 +2,17 @@
     "discordTag": "TheOni#4209",
     "active": true,
     "requestedWings": [4],
+    "requestedRoles": [
+        {
+            "wing": 1,
+            "request": "Tank"
+        },
+        {
+            "wing": 6,
+            "request": "Lamp"
+        }
+    ],
+    "wingOverrides": [],
     "comment": "Power BS",
     "created": "2021-01-15T20:05:51",
     "edited": "2021-01-15T20:05:51",
@@ -29,6 +40,12 @@
         "7": {
             "requested": "2021-01-15T20:05:51",
             "cleared": "2021-01-30T19:37:09"
+        }
+    },
+    "rolesHistory": {
+        "3:Tank": {
+            "requested": "2021-01-15T20:05:51",
+            "cleared": "2021-01-29T13:50:12"
         }
     }
 }

@@ -9,9 +9,7 @@ properties:
   categories:
     type: string[]
     description: The name of the comp's category.
-    example: [
-      "Generic"
-    ]
+    example: [ "Generic" ]
   roles:
     type: array
     description: A list of roles that this comp is comprised of.
@@ -25,3 +23,12 @@ properties:
           type: number
           description: The max number of participants that can sign up to that role.
           example: 2
+        type:
+          type: string
+          description: The type of the role. "Basic" for static roles.
+          example: "DPS"
+        listIndex:
+          type: number
+          description: Used to define mutual exclusivity between special roles. Same list index = mutually exclusive.
+          example: 0
+          required: false

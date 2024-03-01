@@ -42,6 +42,57 @@ properties:
     type: string
     description: The ID of the raid drafts channel category.
     example: "680874903259316421"
+  dbVersion:
+    type: number
+    description: The version of the database.
+    example: 5
+  additionalRoleIds:
+    type: string[]
+    description: Additional roles to be given to a user after they get approved.
+    example: [ "725275333141463120" ]
+  serverRegion:
+    type: string
+    description: What GW2 server the guild is in.
+    enum: [ "Europe", "North America", "Any" ]
+    example: "Europe"
+  removeRaidReminderHoursBefore:
+    type: number
+    description: How many hours after a raid is over does the daily raid removal reminder start being sent.
+    example: 36
+  roleRequests:
+    type: array
+    description: Special role requests for each wing.
+    items:
+      properties:
+        wing:
+          type: number
+          description: The wing that the role request is for.
+          example: 2
+        request:
+          type: string
+          description: The name of the special role request
+          example: "Tank"
+  roleRequestsLimit:
+    type: number
+    description: The maximum number of role requests a user can have active at any one time.
+    example: 3
+  wingRoles:
+    type: array
+    description: What training request role to give to each wing.
+    items:
+      properties:
+        wing:
+          type: number
+          description: The wing that the role request is for.
+          example: 2
+        roleId:
+          type: string
+          description: The Discord ID for the role.
+          example: "1181703997963374764"
+  arcDpsChannelId:
+    type: string
+    description: The channel to post ArcDPS updates to.
+    example: "1196392589805498458"
   dynamicCompOptions:
     type: object
     description: The names of dynamic comp roles.
