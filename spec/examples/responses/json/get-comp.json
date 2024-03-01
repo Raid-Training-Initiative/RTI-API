@@ -1,8 +1,6 @@
 {
     "name": "DoubleChrono",
-    "categories": [
-        "Generic"
-    ],
+    "categories": ["Generic"],
     "roles": [
         {
             "name": "🔴 DPS",

@@ -1,27 +1,27 @@
 {
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "outDir": "dist",
-    "sourceMap": true,
-    "strictNullChecks": true,
-    "noUnusedLocals": false,
-    "baseUrl": ".",
-    "moduleResolution": "node",
-    "typeRoots": ["node_modules/"],
-    "paths": {
-      "@RTIBot-DB/*": ["./RTIBot-DB/*"]
+    "compilerOptions": {
+        "target": "es2020",
+        "module": "commonjs",
+        "outDir": "dist",
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "noUnusedLocals": false,
+        "baseUrl": ".",
+        "moduleResolution": "node",
+        "typeRoots": ["node_modules/"],
+        "paths": {
+            "@RTIBot-DB/*": ["./RTIBot-DB/*"]
+        },
+        "types": ["discord.js/typings"]
     },
-    "types": ["discord.js/typings"]
-  },
-  "tsc-alias": {
-    "verbose": true,
-    "resolveFullPaths": true
-  },
-  "include": ["./src/"],
-  "exclude": ["node_modules", "dist"],
-  "ts-node": {
-    // https://typestrong.org/ts-node/docs/paths/
-    "require": ["tsconfig-paths/register"]
-  }
+    "tsc-alias": {
+        "verbose": true,
+        "resolveFullPaths": true
+    },
+    "include": ["./src/"],
+    "exclude": ["node_modules", "dist"],
+    "ts-node": {
+        // https://typestrong.org/ts-node/docs/paths/
+        "require": ["tsconfig-paths/register"]
+    }
 }

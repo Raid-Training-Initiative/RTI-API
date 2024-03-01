@@ -16,9 +16,6 @@
     {
         "role": "🟪 Chrono (Tank)",
         "requiredParticipants": 2,
-        "members": [
-            "Erlich#8476",
-            "Richard#0062"
-        ]
+        "members": ["Erlich#8476", "Richard#0062"]
     }
 ]

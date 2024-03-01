@@ -26,23 +26,17 @@
         {
             "role": "🟪 Chrono (Tank)",
             "requiredParticipants": 2,
-            "members": [
-                "Erlich#8476",
-                "Richard#0062"
-            ]
+            "members": ["Erlich#8476", "Richard#0062"]
         }
     ],
     "reserves": [
         {
             "role": "🔴 DPS",
-            "members": [
-                "Timmy#5520"
-            ]
+            "members": ["Timmy#5520"]
         },
         {
             "role": "🟪 Chrono (Tank)",
-            "members": [
-            ]
+            "members": []
         }
     ],
     "id": "6013693f614b415d9c3c7dfa"

@@ -1,10 +1,8 @@
 [
-	{
+    {
         "discordTag": "TheOni#4209",
         "active": true,
-        "requestedWings": [
-            4
-        ],
+        "requestedWings": [4],
         "comment": "Power BS",
         "created": "2020-11-22T18:56:15",
         "edited": "2020-11-22T18:56:15",
@@ -13,10 +11,7 @@
     },
     {
         "active": false,
-        "requestedWings": [
-            5,
-            7
-        ],
+        "requestedWings": [5, 7],
         "comment": "Absolutely new to raids",
         "created": "2020-11-22T20:07:01",
         "edited": "2020-11-22T20:07:01",

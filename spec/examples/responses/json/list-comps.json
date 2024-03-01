@@ -1,9 +1,7 @@
 [
     {
         "name": "DoubleChrono",
-        "categories": [
-            "Generic"
-        ],
+        "categories": ["Generic"],
         "roles": [
             {
                 "name": "🔴 DPS",
@@ -33,9 +31,7 @@
     },
     {
         "name": "Workshop",
-        "categories": [
-            "Other"
-        ],
+        "categories": ["Other"],
         "roles": [
             {
                 "name": "🔹 Blue Class",

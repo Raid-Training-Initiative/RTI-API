@@ -8,47 +8,51 @@ import ServerErrorException from "../exceptions/ServerErrorException";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 
 export class GetGuildOptions extends HTTPGetRequest {
-  public validRequestQueryParameters: string[] = [];
+    public validRequestQueryParameters: string[] = [];
 
-  constructor(req: Request, res: Response, next: NextFunction) {
-    super(req, res, next, { authenticated: true });
-  }
-
-  /**
-   * Returns the JSON string payload of a discord server's options after making a GET /guildoptions request.
-   * @returns An object representing a member.
-   */
-  public async prepareResponse(): Promise<Object> {
-    const document = await DB.queryGuildOptions();
-    if (document == undefined) {
-      throw new ServerErrorException("Guild options not found in database");
+    constructor(req: Request, res: Response, next: NextFunction) {
+        super(req, res, next, { authenticated: true });
     }
 
-    const formattedDocument = {
-      raidUnregisterNotificationTime: document.raidUnregisterNotificationTime,
-      raidReminderNotificationTime: document.raidReminderNotificationTime,
-      autoUnpublishTime: document.autoUnpublishTime,
-      trainingRequestAutoSyncInterval: document.trainingRequestAutoSyncInterval,
-      trainingRequestInactiveDaysBeforeDisable:
-        document.trainingRequestInactiveDaysBeforeDisable,
-      raidAutoBroadcastTime: document.raidAutoBroadcastTime,
-      memberRoleId: document.memberRoleId,
-      guildApplicationsChannelId: document.guildApplicationsChannelId,
-      raidCategoryId: document.raidCategoryId,
-      raidDraftCategoryId: document.raidDraftCategoryId,
-      dynamicCompOptions: {
-        genericAlacrity: document.dynamicCompOptions.genericAlacrity,
-        healAlacrity: document.dynamicCompOptions.healAlacrity,
-        dpsAlacrity: document.dynamicCompOptions.dpsAlacrity,
-        genericQuickness: document.dynamicCompOptions.genericQuickness,
-        healQuickness: document.dynamicCompOptions.healQuickness,
-        dpsQuickness: document.dynamicCompOptions.dpsQuickness,
-        dps: document.dynamicCompOptions.dps,
-      },
-      feedbackBroadcastTime: document.feedbackBroadcastTime,
-      feedbackMessage: document.feedbackMessage,
-    };
+    /**
+     * Returns the JSON string payload of a discord server's options after making a GET /guildoptions request.
+     * @returns An object representing a member.
+     */
+    public async prepareResponse(): Promise<Object> {
+        const document = await DB.queryGuildOptions();
+        if (document == undefined) {
+            throw new ServerErrorException(
+                "Guild options not found in database",
+            );
+        }
 
-    return formattedDocument;
-  }
+        const formattedDocument = {
+            raidUnregisterNotificationTime:
+                document.raidUnregisterNotificationTime,
+            raidReminderNotificationTime: document.raidReminderNotificationTime,
+            autoUnpublishTime: document.autoUnpublishTime,
+            trainingRequestAutoSyncInterval:
+                document.trainingRequestAutoSyncInterval,
+            trainingRequestInactiveDaysBeforeDisable:
+                document.trainingRequestInactiveDaysBeforeDisable,
+            raidAutoBroadcastTime: document.raidAutoBroadcastTime,
+            memberRoleId: document.memberRoleId,
+            guildApplicationsChannelId: document.guildApplicationsChannelId,
+            raidCategoryId: document.raidCategoryId,
+            raidDraftCategoryId: document.raidDraftCategoryId,
+            dynamicCompOptions: {
+                genericAlacrity: document.dynamicCompOptions.genericAlacrity,
+                healAlacrity: document.dynamicCompOptions.healAlacrity,
+                dpsAlacrity: document.dynamicCompOptions.dpsAlacrity,
+                genericQuickness: document.dynamicCompOptions.genericQuickness,
+                healQuickness: document.dynamicCompOptions.healQuickness,
+                dpsQuickness: document.dynamicCompOptions.dpsQuickness,
+                dps: document.dynamicCompOptions.dps,
+            },
+            feedbackBroadcastTime: document.feedbackBroadcastTime,
+            feedbackMessage: document.feedbackMessage,
+        };
+
+        return formattedDocument;
+    }
 }

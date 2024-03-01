@@ -1,13 +1,10 @@
 [
     {
         "role": "🔴 DPS",
-        "members": [
-            "Timmy#5520"
-        ]
+        "members": ["Timmy#5520"]
     },
     {
         "role": "🟪 Chrono (Tank)",
-        "members": [
-        ]
+        "members": []
     }
 ]
