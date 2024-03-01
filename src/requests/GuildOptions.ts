@@ -40,6 +40,9 @@ export class GetGuildOptions extends HTTPGetRequest {
             guildApplicationsChannelId: document.guildApplicationsChannelId,
             raidCategoryId: document.raidCategoryId,
             raidDraftCategoryId: document.raidDraftCategoryId,
+            dbVersion: document.dbVersion,
+            additionalRoleIds: document.additionalRoleIds,
+            serverRegion: document.serverRegion,
             dynamicCompOptions: {
                 genericAlacrity: document.dynamicCompOptions.genericAlacrity,
                 healAlacrity: document.dynamicCompOptions.healAlacrity,
@@ -49,6 +52,9 @@ export class GetGuildOptions extends HTTPGetRequest {
                 dpsQuickness: document.dynamicCompOptions.dpsQuickness,
                 dps: document.dynamicCompOptions.dps,
             },
+            roleRequests: document.roleRequests,
+            roleRequestsLimit: document.roleRequestsLimit,
+            wingRoles: document.wingRoles,
             feedbackBroadcastTime: document.feedbackBroadcastTime,
             feedbackMessage: document.feedbackMessage,
         };

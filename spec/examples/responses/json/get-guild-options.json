@@ -10,10 +10,7 @@
     "raidCategoryId": "717131712014057483",
     "raidDraftCategoryId": "680874903259316421",
     "dbVersion": 5,
-    "additionalRoleIds": [
-        "725275333141463120",
-        "1070279418544656495"
-    ],
+    "additionalRoleIds": ["725275333141463120", "1070279418544656495"],
     "serverRegion": "Europe",
     "feedbackBroadcastTime": 15,
     "feedbackMessage": "Thank you for joining! Feel free to leave feedback.",

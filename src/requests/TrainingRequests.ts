@@ -17,6 +17,7 @@ export class ListTrainingRequests extends HTTPGetRequest {
         "active",
         "wings",
         "disabledReasons",
+        "roles",
         "format",
         "page",
         "pageSize",
@@ -82,6 +83,16 @@ export class ListTrainingRequests extends HTTPGetRequest {
                     );
                 }
             });
+        }
+        if (this._req.query["roles"]) {
+            const rolesString: string = this._req.query["roles"]
+                .toString()
+                .toLowerCase();
+            if (rolesString != "true" && rolesString != "false") {
+                throw new BadSyntaxException(
+                    "Query parameter roles must be either true or false.",
+                );
+            }
         }
     }
 
@@ -153,18 +164,24 @@ export class ListTrainingRequests extends HTTPGetRequest {
                             wingsData.push(`Not requested`);
                         }
                     }
-                    return `"${idMap.get(document.userId)}","${document.userId}","${
-                        document.active
-                    }","${wingsData.join('","')}","${document._id}"`;
+                    return `"${idMap.get(document.userId)}","${
+                        document.userId
+                    }","${document.active}","${wingsData.join('","')}","${
+                        document._id
+                    }"`;
                 });
         } else {
             formattedDocuments = {
-                totalElements: await DB.queryRaidsCount(await this.dbFilter()),
+                totalElements: await DB.queryTrainingRequestsCount(
+                    await this.dbFilter(),
+                ),
                 trainingRequests: documents.map((document) => {
                     return {
                         discordTag: idMap.get(document.userId),
                         active: document.active,
                         requestedWings: document.requestedWings,
+                        requestedRoles: document.requestedRoles,
+                        wingOverrides: document.wingOverrides,
                         comment: document.comment,
                         created: Utils.formatDatetimeString(
                             document.creationDate,
@@ -218,6 +235,23 @@ export class ListTrainingRequests extends HTTPGetRequest {
                 .map((wing) => Number.parseInt(wing));
             filters.push({ requestedWings: { $in: filterWings } });
         }
+        if (this._req.query["roles"]) {
+            const filterRoles: boolean =
+                this._req.query["roles"].toString().toLowerCase() === "true";
+            if (filterRoles) {
+                filters.push({
+                    requestedRoles: { $exists: true },
+                    $expr: { $gt: [{ $size: "$requestedRoles" }, 0] },
+                });
+            } else {
+                filters.push({
+                    $or: [
+                        { requestedRoles: { $exists: false } },
+                        { $expr: { $eq: [{ $size: "$requestedRoles" }, 0] } },
+                    ],
+                });
+            }
+        }
         if (this._req.query["disabledReasons"]) {
             const filterDisabledReasons: RegExp[] =
                 Utils.getRegexListFromQueryString(
@@ -260,17 +294,28 @@ export class GetTrainingRequest extends HTTPGetRequest {
                     cleared: Utils.formatDatetimeString(value.clearedDate),
                 }),
         );
+        const rolesHistoryMap: Object = {};
+        document.rolesHistory.forEach(
+            (value, key) =>
+                (historyMap[key] = {
+                    requested: Utils.formatDatetimeString(value.requestedDate),
+                    cleared: Utils.formatDatetimeString(value.clearedDate),
+                }),
+        );
 
         const formattedDocument = {
             discordTag: discordTag,
             active: document.active,
             requestedWings: document.requestedWings,
+            requestedRoles: document.requestedRoles,
+            wingOverrides: document.wingOverrides,
             comment: document.comment,
             created: Utils.formatDatetimeString(document.creationDate),
             edited: Utils.formatDatetimeString(document.lastEditedTimestamp),
             disabledReason: document.disabledReason,
             userId: document.userId,
             history: historyMap,
+            rolesHistory: rolesHistoryMap,
         };
 
         return formattedDocument;

@@ -1684,9 +1684,9 @@
                                 "method": "GET",
                                 "header": [],
                                 "url": {
-                                    "raw": "{{baseUrl}}/comps/DoubleChrono",
+                                    "raw": "{{baseUrl}}/comps/Standard-Dyn",
                                     "host": ["{{baseUrl}}"],
-                                    "path": ["comps", "DoubleChrono"]
+                                    "path": ["comps", "Standard-Dyn"]
                                 }
                             },
                             "response": []
@@ -1718,7 +1718,9 @@
                                     "                \"required\": [\"name\", \"requiredParticipants\"],",
                                     "                \"properties\": {",
                                     "                    \"name\": { \"type\": \"string\" },",
-                                    "                    \"requiredParticipants\": { \"type\": \"number\" }",
+                                    "                    \"requiredParticipants\": { \"type\": \"number\" },",
+                                    "                    \"type\": { \"type\": \"string\" },",
+                                    "                    \"listIndex\": { \"type\": \"number\" }",
                                     "                },",
                                     "                \"additionalProperties\": false",
                                     "            }",
@@ -2408,6 +2410,34 @@
                             "response": []
                         },
                         {
+                            "name": "Only With Role Requests",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [""],
+                                        "type": "text/javascript"
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/trainingrequests?roles=true",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["trainingrequests"],
+                                    "query": [
+                                        {
+                                            "key": "roles",
+                                            "value": "true"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
                             "name": "Training Requests Page 1",
                             "event": [
                                 {
@@ -2646,6 +2676,19 @@
                                     "                    \"discordTag\": { \"type\": \"string\" },",
                                     "                    \"active\": { \"type\": \"boolean\" },",
                                     "                    \"requestedWings\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }},",
+                                    "                    \"requestedRoles\": {",
+                                    "                        \"type\": \"array\",",
+                                    "                        \"items\": {",
+                                    "                            \"type\": \"object\",",
+                                    "                            \"required\": [ \"wing\", \"request\" ],",
+                                    "                            \"properties\": {",
+                                    "                                \"wing\": { \"type\": \"number\" },",
+                                    "                                \"request\": { \"type\": \"string\" }",
+                                    "                            },",
+                                    "                            \"additionalProperties\": false",
+                                    "                        }",
+                                    "                    },",
+                                    "                    \"wingOverrides\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }},",
                                     "                    \"comment\": { \"type\": \"string\" },",
                                     "                    \"created\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
                                     "                    \"edited\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
@@ -2708,11 +2751,11 @@
                                 "method": "GET",
                                 "header": [],
                                 "url": {
-                                    "raw": "{{baseUrl}}/trainingrequests/218456492339101697",
+                                    "raw": "{{baseUrl}}/trainingrequests/213275387600437248",
                                     "host": ["{{baseUrl}}"],
                                     "path": [
                                         "trainingrequests",
-                                        "218456492339101697"
+                                        "213275387600437248"
                                     ]
                                 }
                             },
@@ -2739,6 +2782,19 @@
                                     "        \"discordTag\": { \"type\": \"string\" },",
                                     "        \"active\": { \"type\": \"boolean\" },",
                                     "        \"requestedWings\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }},",
+                                    "        \"requestedRoles\": {",
+                                    "            \"type\": \"array\",",
+                                    "            \"items\": {",
+                                    "                \"type\": \"object\",",
+                                    "                \"required\": [ \"wing\", \"request\" ],",
+                                    "                \"properties\": {",
+                                    "                    \"wing\": { \"type\": \"number\" },",
+                                    "                    \"request\": { \"type\": \"string\" }",
+                                    "                },",
+                                    "                \"additionalProperties\": false",
+                                    "            }",
+                                    "        },",
+                                    "        \"wingOverrides\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }},",
                                     "        \"comment\": { \"type\": \"string\" },",
                                     "        \"created\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
                                     "        \"edited\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
@@ -2757,6 +2813,17 @@
                                     "        },",
                                     "        \"userId\": { \"type\": \"string\" },",
                                     "        \"history\": {",
+                                    "            \"type\": \"object\",",
+                                    "            \"additionalProperties\": {",
+                                    "                \"type\": \"object\",",
+                                    "                \"properties\": {",
+                                    "                    \"requested\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+                                    "                    \"cleared\": { \"type\": \"string\", \"pattern\": \"^(19|20)\\\\d\\\\d-(0[1-9]|1[012])-([012]\\\\d|3[01])T([01]\\\\d|2[0-3]):([0-5]\\\\d):([0-5]\\\\d)$\" },",
+                                    "                },",
+                                    "                \"additionalProperties\": false",
+                                    "            }",
+                                    "        },",
+                                    "        \"rolesHistory\": {",
                                     "            \"type\": \"object\",",
                                     "            \"additionalProperties\": {",
                                     "                \"type\": \"object\",",
@@ -3145,6 +3212,17 @@
                                     "        \"guildApplicationsChannelId\": { \"type\": \"string\" },",
                                     "        \"raidCategoryId\": { \"type\": \"string\" },",
                                     "        \"raidDraftCategoryId\": { \"type\": \"string\" },",
+                                    "        \"dbVersion\": { \"type\": \"number\" },",
+                                    "        \"additionalRoleIds\": {",
+                                    "            \"type\": \"array\",",
+                                    "            \"items\": {",
+                                    "                \"type\": \"string\"",
+                                    "            }",
+                                    "        },",
+                                    "        \"serverRegion\": {",
+                                    "            \"type\": \"string\",",
+                                    "            \"enum\": [ \"Europe\", \"North America\", \"Any\" ]",
+                                    "        },",
                                     "        \"dynamicCompOptions\": {",
                                     "            \"type\": \"object\",",
                                     "            \"required\": [],",
@@ -3158,6 +3236,29 @@
                                     "                \"dps\": { \"type\": \"string\" },",
                                     "            },",
                                     "            \"additionalProperties\": false",
+                                    "        },",
+                                    "        \"roleRequests\": {",
+                                    "            \"type\": \"array\",",
+                                    "            \"required\": [ \"wing\", \"request\" ],",
+                                    "            \"items\": {",
+                                    "                \"type\": \"object\",",
+                                    "                \"properties\": {",
+                                    "                    \"wing\": { \"type\": \"number\" },",
+                                    "                    \"request\": { \"type\": \"string\" }",
+                                    "                }",
+                                    "            }",
+                                    "        },",
+                                    "        \"roleRequestsLimit\": { \"type\": \"number\" },",
+                                    "        \"wingRoles\": {",
+                                    "            \"type\": \"array\",",
+                                    "            \"required\": [ \"wing\", \"roleId\" ],",
+                                    "            \"items\": {",
+                                    "                \"type\": \"object\",",
+                                    "                \"properties\": {",
+                                    "                    \"wing\": { \"type\": \"number\" },",
+                                    "                    \"roleId\": { \"type\": \"string\" }",
+                                    "                }",
+                                    "            }",
                                     "        },",
                                     "        \"feedbackBroadcastTime\": { \"type\": \"number\" },",
                                     "        \"feedbackMessage\": {\"type\": \"string\"}",
