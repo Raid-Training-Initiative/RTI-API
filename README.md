@@ -175,10 +175,12 @@ Note that this will only work off the bat if you have an existing dump of RTI te
 Other files:
 
 -   `Dockerfile`, `.dockerignore`, & `dockercompose.yml` are files used to spin up a Docker container.
--   `package.json` & `package-lock.json` are files used by Node to install dependencies.
+-   `package.json` & `package-lock.json` are files used by NPM to install dependencies.
 -   `start.sh` & `stop.sh` are files used by the GitHub action to deploy the API.
 -   `tsconfig.json` is a config file used to transpile TypeScript files into JavaScript.
 -   `Config.json` and `ConfigDebug.json` are files loaded when the app starts to determine what the database path, `clients.json` path, and guild ID are.
+-   `.eslintrc.json` and `.prettierrc` are files for the linter and formatter configuration.
+-   `keygen.sh` is a script you can run to generate auth tokens for basic authentication with clients. You can dump these into `clients.json`.
 
 ## Contact
 
