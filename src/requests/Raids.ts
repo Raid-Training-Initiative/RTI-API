@@ -55,7 +55,7 @@ export class ListRaids extends HTTPGetRequest {
                     statusString != "archived"
                 ) {
                     throw new BadSyntaxException(
-                        "Query parameter status must be either draft, published, or archived.",
+                        "Query parameter status must be either draft, published, or archived."
                     );
                 }
             });
@@ -66,7 +66,7 @@ export class ListRaids extends HTTPGetRequest {
                 .toLowerCase();
             if (publishedString != "true" && publishedString != "false") {
                 throw new BadSyntaxException(
-                    "Query parameter published must be either true or false.",
+                    "Query parameter published must be either true or false."
                 );
             }
         }
@@ -79,12 +79,12 @@ export class ListRaids extends HTTPGetRequest {
                 /^(19|20)\d\d-(0[1-9]|1[012])-([012]\d|3[01])T([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/i;
             if (timestampFrom && !regex.test(timestampFrom)) {
                 throw new BadSyntaxException(
-                    "Query parameter dateFrom must be in the format yyyy-MM-ddTHH:mm:ss",
+                    "Query parameter dateFrom must be in the format yyyy-MM-ddTHH:mm:ss"
                 );
             }
             if (timestampTo && !regex.test(timestampTo)) {
                 throw new BadSyntaxException(
-                    "Query parameter dateTo must be in the format yyyy-MM-ddTHH:mm:ss",
+                    "Query parameter dateTo must be in the format yyyy-MM-ddTHH:mm:ss"
                 );
             }
             if (
@@ -93,7 +93,7 @@ export class ListRaids extends HTTPGetRequest {
                 Date.parse(timestampFrom) > Date.parse(timestampTo)
             ) {
                 throw new BadSyntaxException(
-                    "Query parameter dateFrom must be set to a date before query parameter dateTo",
+                    "Query parameter dateFrom must be set to a date before query parameter dateTo"
                 );
             }
         }
@@ -108,7 +108,7 @@ export class ListRaids extends HTTPGetRequest {
                 showParticipantsString != "false"
             ) {
                 throw new BadSyntaxException(
-                    "Query parameter showParticipants must be either true or false.",
+                    "Query parameter showParticipants must be either true or false."
                 );
             }
         }
@@ -122,7 +122,7 @@ export class ListRaids extends HTTPGetRequest {
         paginated: {
             page: number;
             pageSize: number;
-        } = { page: 1, pageSize: 100 },
+        } = { page: 1, pageSize: 100 }
     ): Promise<Object> {
         const documents = await DB.queryRaids(await this.dbFilter(), paginated);
 
@@ -135,16 +135,17 @@ export class ListRaids extends HTTPGetRequest {
             documents.forEach((document) =>
                 document.roles.forEach((role) => {
                     role.participants.forEach((participant) =>
-                        idArray.push(participant),
+                        idArray.push(participant)
                     );
-                }),
+                })
             );
         }
         documents.forEach((document) => idArray.push(document.leaderId));
 
         // Resolve the IDs to names.
-        const idMap: Map<string, string | undefined> =
-            await Utils.idsToMap(idArray);
+        const idMap: Map<string, string | undefined> = await Utils.idsToMap(
+            idArray
+        );
 
         let formattedDocuments: Object;
         if (
@@ -169,13 +170,13 @@ export class ListRaids extends HTTPGetRequest {
                         name: document.name,
                         status: document.status,
                         startTime: Utils.formatDatetimeString(
-                            document.startTime,
+                            document.startTime
                         ),
                         endTime: Utils.formatDatetimeString(document.endTime),
                         leader: idMap.get(document.leaderId),
                         comp: document.compositionName,
                         publishedDate: Utils.formatDatetimeString(
-                            document.publishedDate,
+                            document.publishedDate
                         ),
                         ...(this._req.query["showParticipants"] &&
                             this._req.query["showParticipants"]
@@ -186,9 +187,9 @@ export class ListRaids extends HTTPGetRequest {
                                         document.roles.flatMap((role) =>
                                             role.participants.map(
                                                 (participant) =>
-                                                    idMap.get(participant),
-                                            ),
-                                        ),
+                                                    idMap.get(participant)
+                                            )
+                                        )
                                     ),
                                 ],
                             }),
@@ -221,13 +222,13 @@ export class ListRaids extends HTTPGetRequest {
                 });
         if (this._req.query["status"]) {
             const filterStatus: RegExp[] = Utils.getRegexListFromQueryString(
-                this._req.query["status"].toString(),
+                this._req.query["status"].toString()
             );
             filters.push({ status: { $in: filterStatus } });
         }
         if (this._req.query["nameInclude"]) {
             const includeQueries: string[] = getSearchTerms(
-                this._req.query["nameInclude"].toString(),
+                this._req.query["nameInclude"].toString()
             );
             const regexFilters = includeQueries.map((query) => ({
                 name: {
@@ -238,7 +239,7 @@ export class ListRaids extends HTTPGetRequest {
         }
         if (this._req.query["nameExclude"]) {
             const excludeQueries: string[] = getSearchTerms(
-                this._req.query["nameExclude"].toString(),
+                this._req.query["nameExclude"].toString()
             );
             const regexFilters = excludeQueries.map((query) => ({
                 name: {
@@ -251,17 +252,17 @@ export class ListRaids extends HTTPGetRequest {
         }
         if (this._req.query["comps"]) {
             const filterComps: RegExp[] = Utils.getRegexListFromQueryString(
-                this._req.query["comps"].toString(),
+                this._req.query["comps"].toString()
             );
             filters.push({ compositionName: { $in: filterComps } });
         }
         if (this._req.query["leader"]) {
             const document = await DB.queryMemberByName(
-                this._req.query["leader"].toString(),
+                this._req.query["leader"].toString()
             );
             if (document == undefined) {
                 throw new ResourceNotFoundException(
-                    this._req.query["leader"].toString(),
+                    this._req.query["leader"].toString()
                 );
             }
             filters.push({ leaderId: document.userId });
@@ -339,7 +340,7 @@ export class GetRaid extends HTTPGetRequest {
                 .toLowerCase();
             if (nameString != "discord" && nameString != "gw2") {
                 throw new BadSyntaxException(
-                    "Query parameter names must be either discord or gw2.",
+                    "Query parameter names must be either discord or gw2."
                 );
             }
         }
@@ -360,7 +361,7 @@ export class GetRaid extends HTTPGetRequest {
         const idArray: string[] = [];
         document.roles.forEach((role) => {
             role.participants.forEach((participant) =>
-                idArray.push(participant),
+                idArray.push(participant)
             );
             role.reserves.forEach((reserve) => idArray.push(reserve));
         });
@@ -387,12 +388,13 @@ export class GetRaid extends HTTPGetRequest {
             comp: document.compositionName,
             publishedDate: Utils.formatDatetimeString(document.publishedDate),
             channelId: document.channelId,
+            options: document.options,
             participants: document.roles.map((role) => {
                 return {
                     role: role.name,
                     requiredParticipants: role.requiredParticipants,
                     members: role.participants.map((participant) =>
-                        idMap.get(participant),
+                        idMap.get(participant)
                     ),
                 };
             }),
@@ -429,7 +431,7 @@ export class GetRaidLog extends HTTPGetRequest {
                 .toLowerCase();
             if (nameString != "discord" && nameString != "gw2") {
                 throw new BadSyntaxException(
-                    "Query parameter names must be either discord or gw2.",
+                    "Query parameter names must be either discord or gw2."
                 );
             }
         }

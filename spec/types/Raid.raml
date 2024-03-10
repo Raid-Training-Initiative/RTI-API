@@ -42,6 +42,30 @@ properties:
     type: string
     description: The Discord channel ID of the raid.
     example: "803230670868578354"
+  options:
+    type: object
+    description: The options set for this raid.
+    properties:
+      allowFlex:
+        type: boolean
+        description: Whether to allow flex signup.
+        example: true
+      allowGuests:
+        type: boolean
+        description: Whether to allow non-members to sign up.
+        example: false
+      healAlacDpsQuick:
+        type: number
+        description: The number of subgroups to lock in as Heal Alacrity / DPS Quickness.
+        example: 0
+      healQuickDpsAlac:
+        type: number
+        description: The number of subgroups to lock in as Heal Quickness / DPS Alacrity.
+        example: 0
+      minForceRole:
+        type: number
+        description: The minimum number of special roles to pick from to force the user to pick at least one (0 to disable).
+        example: 0
   participants:
     type: array
     items: !include ParticipantsRole.raml
