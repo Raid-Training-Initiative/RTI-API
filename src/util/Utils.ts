@@ -161,29 +161,16 @@ export default class Utils {
      * Return the commit info (short hash + branch name) of the repository that is currently active.
      * @returns An object containing branch and commitId as strings with git info.
      */
-    public static getCommitInfo(): Object | undefined {
+    public static getCommitInfo(): { branch: string; commitId: string } {
         if (process.env.COMMIT_ID && process.env.BRANCH) {
             // If the environment variables were set (running on Docker).
             return {
                 branch: process.env.BRANCH.trim(),
                 commitId: process.env.COMMIT_ID.trim(),
             };
-        } else {
-            // Probably running on Node.
-            const branchNameCommand = "git rev-parse --abbrev-ref HEAD";
-            const commitHashCommand = "git rev-parse --short HEAD";
-            let commitInfo: Object | undefined;
-            try {
-                commitInfo = {
-                    branch: execSync(branchNameCommand).toString().trim(),
-                    commitId: execSync(commitHashCommand).toString().trim(),
-                };
-            } catch (exception) {
-                Logger.logError(Severity.Error, exception.message);
-            }
-
-            return commitInfo;
         }
+
+        return { branch: "", commitId: "" };
     }
 }
 
