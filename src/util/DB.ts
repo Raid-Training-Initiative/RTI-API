@@ -16,6 +16,10 @@ import {
 import { FilterQuery, ObjectId } from "mongoose";
 import ServerErrorException from "../exceptions/ServerErrorException";
 import { IConfig } from "./Config";
+import { IRaidCompositionModel } from "@RTIBot-DB/schemas/RaidCompositionSchema";
+import { IMemberModel } from "@RTIBot-DB/schemas/MemberSchema";
+import { IRaidEventModel } from "@RTIBot-DB/schemas/RaidEventSchema";
+import { IRaidCompositionCategoryModel } from "@RTIBot-DB/schemas/RaidCompositionCategorySchema";
 
 export default class DB {
     private static _instance: DB;
@@ -65,7 +69,7 @@ export default class DB {
      * @returns A list of comps.
      */
     public static async queryComps(
-        filter?: Object,
+        filter?: FilterQuery<IRaidCompositionModel>,
     ): Promise<IRaidCompositionPopulatedDocument[]> {
         return (await this._instance._db.raidCompositionModel
             .find(filter ? filter : {})
@@ -92,7 +96,9 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns The count of comps.
      */
-    public static async queryCompsCount(filter?: Object): Promise<number> {
+    public static async queryCompsCount(
+        filter?: FilterQuery<IRaidCompositionModel>,
+    ): Promise<number> {
         return (await this._instance._db.raidCompositionModel
             .countDocuments(filter ? filter : {})
             .exec()) as number;
@@ -152,7 +158,7 @@ export default class DB {
      * @returns A list of categories.
      */
     public static async queryCategories(
-        filter?: Object,
+        filter?: FilterQuery<IRaidCompositionCategoryModel>,
     ): Promise<IRaidCompositionCategoryDocument[]> {
         return (await this._instance._db.raidCompositionCategoryModel
             .find(filter ? filter : {})
@@ -177,7 +183,9 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns The count of categories.
      */
-    public static async queryCategoriesCount(filter?: Object): Promise<number> {
+    public static async queryCategoriesCount(
+        filter?: FilterQuery<IRaidCompositionCategoryModel>,
+    ): Promise<number> {
         return (await this._instance._db.raidCompositionCategoryModel
             .count(filter ? filter : {})
             .exec()) as number;
@@ -203,7 +211,7 @@ export default class DB {
      * @returns A list of raids.
      */
     public static async queryRaids(
-        filter?: Object,
+        filter?: FilterQuery<IRaidEventModel>,
         pagination?: { page: number; pageSize: number },
     ): Promise<IRaidEventDocument[]> {
         if (pagination) {
@@ -237,7 +245,9 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns The count of raids.
      */
-    public static async queryRaidsCount(filter?: Object): Promise<number> {
+    public static async queryRaidsCount(
+        filter?: FilterQuery<IRaidEventModel>,
+    ): Promise<number> {
         return (await this._instance._db.raidEventModel
             .countDocuments(filter ? filter : {})
             .exec()) as number;
@@ -250,7 +260,7 @@ export default class DB {
      * @returns A list of members.
      */
     public static async queryMembers(
-        filter?: Object,
+        filter?: FilterQuery<IMemberModel>,
         pagination?: { page: number; pageSize: number },
     ): Promise<IMemberDocument[]> {
         if (pagination) {
@@ -321,7 +331,9 @@ export default class DB {
      * @param filter An object to pass into the database query that filters the results.
      * @returns The count of members.
      */
-    public static async queryMembersCount(filter?: Object): Promise<number> {
+    public static async queryMembersCount(
+        filter?: FilterQuery<IMemberModel>,
+    ): Promise<number> {
         return (await this._instance._db.memberModel
             .countDocuments(filter ? filter : {})
             .exec()) as number;
@@ -333,7 +345,7 @@ export default class DB {
      * @returns A list of training requests.
      */
     public static async queryTrainingRequests(
-        filter?: Object,
+        filter?: FilterQuery<ITrainingRequestModel>,
         pagination?: { page: number; pageSize: number },
     ): Promise<ITrainingRequestDocument[]> {
         if (pagination) {

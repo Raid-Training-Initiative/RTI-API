@@ -8,11 +8,12 @@ import DB from "../util/DB";
 import Utils from "../util/Utils";
 import * as fs from "fs";
 import ResourceAlreadyExistsException from "../exceptions/ResourceAlreadyExistsException";
-import { ObjectId } from "mongoose";
+import { FilterQuery, ObjectId } from "mongoose";
 import HTTPPostRequest from "./base/HTTPPostRequest";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 import HTTPDeleteRequest from "./base/HTTPDeleteRequest";
 import { CompositionDto } from "src/requests/dto/comp.dt";
+import { IRaidCompositionModel } from "@RTIBot-DB/schemas/RaidCompositionSchema";
 
 export class ListComps extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = ["categories"];
@@ -37,7 +38,7 @@ export class ListComps extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When a category is not found in the database.
      * @returns A filter to pass into the database query.
      */
-    private async dbFilter(): Promise<Record<string, unknown>> {
+    private async dbFilter(): Promise<FilterQuery<IRaidCompositionModel>> {
         const filters: Record<string, unknown>[] = [];
 
         if (this._req.query["categories"]) {

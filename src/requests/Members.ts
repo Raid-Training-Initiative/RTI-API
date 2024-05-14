@@ -9,6 +9,8 @@ import Utils, { PaginatedResponse } from "../util/Utils";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 import { MemberDto } from "src/requests/dto/member.dto";
+import { FilterQuery } from "mongoose";
+import { IMemberModel } from "@RTIBot-DB/schemas/MemberSchema";
 
 export class ListMembers extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
@@ -93,7 +95,7 @@ export class ListMembers extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When the approver is not found
      * @returns A filter to pass into the database query.
      */
-    private async dbFilter(): Promise<Record<string, unknown>> {
+    private async dbFilter(): Promise<FilterQuery<IMemberModel>> {
         const filters: Record<string, unknown>[] = [];
         if (this._req.query["gw2Name"]) {
             const idMap = await Utils.matchesNameIdMap(

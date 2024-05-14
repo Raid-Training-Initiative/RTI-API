@@ -10,6 +10,8 @@ import Utils, { PaginatedResponse } from "../util/Utils";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 import escapeStringRegexp = require("escape-string-regexp");
 import { RaidSummaryDto, RaidDto, RaidLogDto } from "./dto/raid.dto";
+import { FilterQuery } from "mongoose";
+import { IRaidEventModel } from "@RTIBot-DB/schemas/RaidEventSchema";
 
 export class ListRaids extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
@@ -182,7 +184,7 @@ export class ListRaids extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When the Discord name of the specified leader cannot be found in the database.
      * @returns A filter to pass into the database query.
      */
-    private async dbFilter(): Promise<Record<string, unknown>> {
+    private async dbFilter(): Promise<FilterQuery<IRaidEventModel>> {
         const filters: Record<string, unknown>[] = [];
         const stripRegex: RegExp = /[-!$%^&*()_+|~=`{}[\]:";'<>?,./\s]+/gi;
         const getSearchTerms = (queryString: string) =>

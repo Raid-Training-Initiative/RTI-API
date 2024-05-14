@@ -1,11 +1,9 @@
 import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
-import { execSync } from "child_process";
 import escapeStringRegexp = require("escape-string-regexp");
 import { Request } from "express";
 import { ObjectId } from "mongoose";
 import DB from "./DB";
-import { Logger, Severity } from "./Logger";
 
 export default class Utils {
     /**
