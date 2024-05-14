@@ -12,7 +12,7 @@ import { FilterQuery, ObjectId } from "mongoose";
 import HTTPPostRequest from "./base/HTTPPostRequest";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 import HTTPDeleteRequest from "./base/HTTPDeleteRequest";
-import { CompositionDto } from "src/requests/dto/comp.dt";
+import { CompositionDto } from "src/requests/dto/comp.dto";
 import { IRaidCompositionModel } from "@RTIBot-DB/schemas/RaidCompositionSchema";
 
 export class ListComps extends HTTPGetRequest {
