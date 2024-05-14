@@ -14,10 +14,7 @@
             "name": "Launch Program",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "outputCapture": "std",
-            "args": ["src/App.ts", "Debug"],
-            "env": {
-                "PINO_PRETTY": "true"
-            }
+            "args": ["src/App.ts", "Debug"]
         }
     ]
 }

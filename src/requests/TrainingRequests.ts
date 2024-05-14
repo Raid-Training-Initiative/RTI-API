@@ -99,7 +99,7 @@ export class ListTrainingRequests extends HTTPGetRequest {
                 .toLowerCase()
                 .split(",");
             wingStrings.forEach((wingString) => {
-                let wingNum = Number.parseInt(wingString);
+                const wingNum = Number.parseInt(wingString);
                 if (!wingNum) {
                     // todo: this should never fire unless wingNum equals 0 as parseInt raises an error with non-numerics
                     throw new BadSyntaxException(
