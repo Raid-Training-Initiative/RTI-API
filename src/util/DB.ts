@@ -9,8 +9,11 @@ import {
 import { IRaidEventDocument } from "@RTIBot-DB/documents/IRaidEventDocument";
 import { ITrainingRequestDocument } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
-import { TrainingRequestSchema } from "@RTIBot-DB/schemas/TrainingRequestSchema";
-import { ObjectId } from "mongoose";
+import {
+    ITrainingRequestModel,
+    TrainingRequestSchema,
+} from "@RTIBot-DB/schemas/TrainingRequestSchema";
+import { FilterQuery, ObjectId } from "mongoose";
 import ServerErrorException from "../exceptions/ServerErrorException";
 import { IConfig } from "./Config";
 
@@ -105,7 +108,7 @@ export default class DB {
     public static async createComp(
         name: string,
         roles: IRaidCompositionRole[],
-        categories: ObjectId[]
+        categories: ObjectId[],
     ): Promise<IRaidCompositionDocument> {
         return await this._instance._db.raidCompositionModel.create({
             name: name,
@@ -367,7 +370,7 @@ export default class DB {
      * @returns The count of training requests.
      */
     public static async queryTrainingRequestsCount(
-        filter?: Object,
+        filter?: FilterQuery<ITrainingRequestModel>,
     ): Promise<number> {
         return (await this._instance._db.trainingRequestModel
             .countDocuments(filter ? filter : {})

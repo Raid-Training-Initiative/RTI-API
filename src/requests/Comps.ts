@@ -12,7 +12,7 @@ import { ObjectId } from "mongoose";
 import HTTPPostRequest from "./base/HTTPPostRequest";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 import HTTPDeleteRequest from "./base/HTTPDeleteRequest";
-import { RoleType } from "../../RTIBot-DB/documents/IRaidCompositionDocument";
+import { CompositionDto } from "src/requests/dto/comp.dt";
 
 export class ListComps extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = ["categories"];
@@ -25,26 +25,11 @@ export class ListComps extends HTTPGetRequest {
      * Returns the list of comps after making a GET /comps request.
      * @returns A list of objects representing comps.
      */
-    public async prepareResponse(): Promise<Object[]> {
+    public async prepareResponse(): Promise<CompositionDto[]> {
         const documents = await DB.queryComps(await this.dbFilter());
-        const formattedDocuments = documents.map((document) => {
-            return {
-                name: document.name,
-                categories: document.categories.map((category) => {
-                    return category.name;
-                }),
-                roles: document.roles.map((role) => {
-                    return {
-                        name: role.name,
-                        requiredParticipants: role.requiredParticipants,
-                        type: role.type ?? RoleType.Basic,
-                        listIndex: role.listIndex,
-                    };
-                }),
-            };
-        });
-
-        return formattedDocuments;
+        return documents.map((document) =>
+            CompositionDto.fromDocument(document),
+        );
     }
 
     /**
@@ -52,8 +37,9 @@ export class ListComps extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When a category is not found in the database.
      * @returns A filter to pass into the database query.
      */
-    private async dbFilter(): Promise<Object> {
-        const filters: Object[] = [];
+    private async dbFilter(): Promise<Record<string, unknown>> {
+        const filters: Record<string, unknown>[] = [];
+
         if (this._req.query["categories"]) {
             const filterCategories: string[] = this._req.query["categories"]
                 ?.toString()
@@ -88,28 +74,13 @@ export class GetComp extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When the comp cannot be found.
      * @returns An object representing a comp.
      */
-    public async prepareResponse(): Promise<Object> {
+    public async prepareResponse(): Promise<CompositionDto> {
         const document = await DB.queryComp(this._req.params["comp"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this._req.params["comp"]);
         }
 
-        const formattedDocument = {
-            name: document.name,
-            categories: document.categories.map((category) => {
-                return category.name;
-            }),
-            roles: document.roles.map((role) => {
-                return {
-                    name: role.name,
-                    requiredParticipants: role.requiredParticipants,
-                    type: role.type ?? RoleType.Basic,
-                    listIndex: role.listIndex,
-                };
-            }),
-        };
-
-        return formattedDocument;
+        return CompositionDto.fromDocument(document);
     }
 }
 
@@ -129,7 +100,7 @@ export class CreateComp extends HTTPPostRequest {
      * @throws {ResourceNotFoundException} When one of the specified categories cannot be found in the database.
      * @returns An object representing a comp.
      */
-    public async prepareResponse(): Promise<Object> {
+    public async prepareResponse(): Promise<CompositionDto> {
         const compJson = this._req.body;
         if ((await DB.queryComp(compJson.name)) != undefined) {
             throw new ResourceAlreadyExistsException(compJson.name);
@@ -145,7 +116,13 @@ export class CreateComp extends HTTPPostRequest {
         });
 
         const categoryIds: ObjectId[] = Array.from(categoryDocuments.values());
-        return await DB.createComp(compJson.name, compJson.roles, categoryIds);
+        const document = await DB.createComp(
+            compJson.name,
+            compJson.roles,
+            categoryIds,
+        );
+
+        return CompositionDto.fromDocument(document);
     }
 }
 

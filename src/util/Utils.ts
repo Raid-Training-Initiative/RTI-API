@@ -120,9 +120,11 @@ export default class Utils {
      * @param date The date and time to format.
      * @returns The formatted datetime as a string.
      */
-    public static formatDatetimeString(
-        date: Date | undefined,
-    ): string | undefined {
+    public static formatDatetimeString(date: Date): string;
+    public static formatDatetimeString(date: undefined): undefined;
+    // please don't ask, this is required: https://stackoverflow.com/a/75891651
+    public static formatDatetimeString(date?: Date): string | undefined;
+    public static formatDatetimeString(date?: Date): string | undefined {
         return date?.toISOString().replace(/\.\d+Z/, "");
     }
 
@@ -184,3 +186,7 @@ export default class Utils {
         }
     }
 }
+
+export type PaginatedResponse<T, PropertyName extends string> = {
+    totalElements: number;
+} & { [P in PropertyName]: T[] };

@@ -6,6 +6,7 @@ import { NextFunction, Request, Response } from "express";
 import DB from "../util/DB";
 import ServerErrorException from "../exceptions/ServerErrorException";
 import HTTPGetRequest from "./base/HTTPGetRequest";
+import { GuildOptionsDto } from "src/requests/dto/guildOptions.dto";
 
 export class GetGuildOptions extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
@@ -18,7 +19,7 @@ export class GetGuildOptions extends HTTPGetRequest {
      * Returns the JSON string payload of a discord server's options after making a GET /guildoptions request.
      * @returns An object representing a member.
      */
-    public async prepareResponse(): Promise<Object> {
+    public async prepareResponse(): Promise<GuildOptionsDto> {
         const document = await DB.queryGuildOptions();
         if (document == undefined) {
             throw new ServerErrorException(
@@ -26,39 +27,6 @@ export class GetGuildOptions extends HTTPGetRequest {
             );
         }
 
-        const formattedDocument = {
-            raidUnregisterNotificationTime:
-                document.raidUnregisterNotificationTime,
-            raidReminderNotificationTime: document.raidReminderNotificationTime,
-            autoUnpublishTime: document.autoUnpublishTime,
-            trainingRequestAutoSyncInterval:
-                document.trainingRequestAutoSyncInterval,
-            trainingRequestInactiveDaysBeforeDisable:
-                document.trainingRequestInactiveDaysBeforeDisable,
-            raidAutoBroadcastTime: document.raidAutoBroadcastTime,
-            memberRoleId: document.memberRoleId,
-            guildApplicationsChannelId: document.guildApplicationsChannelId,
-            raidCategoryId: document.raidCategoryId,
-            raidDraftCategoryId: document.raidDraftCategoryId,
-            dbVersion: document.dbVersion,
-            additionalRoleIds: document.additionalRoleIds,
-            serverRegion: document.serverRegion,
-            dynamicCompOptions: {
-                genericAlacrity: document.dynamicCompOptions.genericAlacrity,
-                healAlacrity: document.dynamicCompOptions.healAlacrity,
-                dpsAlacrity: document.dynamicCompOptions.dpsAlacrity,
-                genericQuickness: document.dynamicCompOptions.genericQuickness,
-                healQuickness: document.dynamicCompOptions.healQuickness,
-                dpsQuickness: document.dynamicCompOptions.dpsQuickness,
-                dps: document.dynamicCompOptions.dps,
-            },
-            roleRequests: document.roleRequests,
-            roleRequestsLimit: document.roleRequestsLimit,
-            wingRoles: document.wingRoles,
-            feedbackBroadcastTime: document.feedbackBroadcastTime,
-            feedbackMessage: document.feedbackMessage,
-        };
-
-        return formattedDocument;
+        return GuildOptionsDto.fromDocument(document);
     }
 }

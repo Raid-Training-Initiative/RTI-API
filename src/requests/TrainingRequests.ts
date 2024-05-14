@@ -5,10 +5,16 @@
 import { NextFunction, Request, Response } from "express";
 import DB from "../util/DB";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
-import Utils from "../util/Utils";
+import Utils, { PaginatedResponse } from "../util/Utils";
 import { TrainingRequestDisabledReason } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import HTTPGetRequest from "./base/HTTPGetRequest";
+import {
+    TrainingRequestDto,
+    TrainingRequestSummaryDto,
+} from "./dto/trainingRequest.dto";
+import { ITrainingRequestModel } from "@RTIBot-DB/schemas/TrainingRequestSchema";
+import { FilterQuery } from "mongoose";
 
 export class ListTrainingRequests extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
@@ -105,7 +111,10 @@ export class ListTrainingRequests extends HTTPGetRequest {
             page: number;
             pageSize: number;
         } = { page: 1, pageSize: 100 },
-    ): Promise<Object> {
+    ): Promise<
+        | PaginatedResponse<TrainingRequestSummaryDto, "trainingRequests">
+        | string[]
+    > {
         const documents = await DB.queryTrainingRequests(
             await this.dbFilter(),
             paginated,
@@ -117,12 +126,11 @@ export class ListTrainingRequests extends HTTPGetRequest {
         const idMap: Map<string, string | undefined> =
             await Utils.idsToMap(idArray);
 
-        let formattedDocuments: Object;
         if (
             this._req.query["format"] &&
             this._req.query["format"].toString().toLowerCase() == "csv"
         ) {
-            formattedDocuments = documents
+            return documents
                 .filter((document) => idMap.get(document.userId)) // Filtering out the users that aren't on the Discord anymore.
                 .map((document) => {
                     const wingsData: string[] = [];
@@ -170,41 +178,24 @@ export class ListTrainingRequests extends HTTPGetRequest {
                         document._id
                     }"`;
                 });
-        } else {
-            formattedDocuments = {
-                totalElements: await DB.queryTrainingRequestsCount(
-                    await this.dbFilter(),
-                ),
-                trainingRequests: documents.map((document) => {
-                    return {
-                        discordTag: idMap.get(document.userId),
-                        active: document.active,
-                        requestedWings: document.requestedWings,
-                        requestedRoles: document.requestedRoles,
-                        wingOverrides: document.wingOverrides,
-                        comment: document.comment,
-                        created: Utils.formatDatetimeString(
-                            document.creationDate,
-                        ),
-                        edited: Utils.formatDatetimeString(
-                            document.lastEditedTimestamp,
-                        ),
-                        disabledReason: document.disabledReason,
-                        userId: document.userId,
-                    };
-                }),
-            };
         }
 
-        return formattedDocuments;
+        return {
+            totalElements: await DB.queryTrainingRequestsCount(
+                await this.dbFilter(),
+            ),
+            trainingRequests: documents.map((document) =>
+                TrainingRequestSummaryDto.fromDocument(document, idMap),
+            ),
+        };
     }
 
     /**
      * Filters the documents according to the filters specified in the query parameters.
      * @returns A filter to pass into the database query.
      */
-    private async dbFilter(): Promise<Object> {
-        const filters: Object[] = [];
+    private async dbFilter(): Promise<FilterQuery<ITrainingRequestModel>> {
+        const filters: FilterQuery<ITrainingRequestModel>[] = [];
 
         if (this._req.query["users"]) {
             const filterUsers: string[] = this._req.query["users"]
@@ -276,48 +267,17 @@ export class GetTrainingRequest extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When the raid cannot be found.
      * @returns An object representing a raid.
      */
-    public async prepareResponse(): Promise<Object> {
+    public async prepareResponse(): Promise<TrainingRequestDto> {
         const document = await DB.queryTrainingRequest(
             this._req.params["userid"],
         );
         if (document == undefined) {
             throw new ResourceNotFoundException(this._req.params["userid"]);
         }
-        const discordTag = (await Utils.idsToMap([document.userId])).get(
-            document.userId,
-        );
-        const historyMap: Object = {};
-        document.history.forEach(
-            (value, key) =>
-                (historyMap[key] = {
-                    requested: Utils.formatDatetimeString(value.requestedDate),
-                    cleared: Utils.formatDatetimeString(value.clearedDate),
-                }),
-        );
-        const rolesHistoryMap: Object = {};
-        document.rolesHistory.forEach(
-            (value, key) =>
-                (historyMap[key] = {
-                    requested: Utils.formatDatetimeString(value.requestedDate),
-                    cleared: Utils.formatDatetimeString(value.clearedDate),
-                }),
-        );
 
-        const formattedDocument = {
-            discordTag: discordTag,
-            active: document.active,
-            requestedWings: document.requestedWings,
-            requestedRoles: document.requestedRoles,
-            wingOverrides: document.wingOverrides,
-            comment: document.comment,
-            created: Utils.formatDatetimeString(document.creationDate),
-            edited: Utils.formatDatetimeString(document.lastEditedTimestamp),
-            disabledReason: document.disabledReason,
-            userId: document.userId,
-            history: historyMap,
-            rolesHistory: rolesHistoryMap,
-        };
-
-        return formattedDocument;
+        return TrainingRequestDto.fromDocument(
+            document,
+            await Utils.idsToMap([document.userId]),
+        );
     }
 }

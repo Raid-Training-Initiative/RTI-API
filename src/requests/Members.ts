@@ -5,9 +5,10 @@
 import { NextFunction, Request, Response } from "express";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import DB from "../util/DB";
-import Utils from "../util/Utils";
+import Utils, { PaginatedResponse } from "../util/Utils";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
 import HTTPGetRequest from "./base/HTTPGetRequest";
+import { MemberDto } from "src/requests/dto/member.dto";
 
 export class ListMembers extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
@@ -56,7 +57,7 @@ export class ListMembers extends HTTPGetRequest {
             page: number;
             pageSize: number;
         } = { page: 1, pageSize: 100 },
-    ): Promise<Object> {
+    ): Promise<PaginatedResponse<MemberDto, "members"> | string[]> {
         const documents = await DB.queryMembers(
             await this.dbFilter(),
             pagination,
@@ -68,35 +69,23 @@ export class ListMembers extends HTTPGetRequest {
         const idMap: Map<string, string | undefined> =
             await Utils.idsToMap(idArray);
 
-        let formattedDocuments: Object;
         if (
             this._req.query["format"] &&
             this._req.query["format"].toString().toLowerCase() == "csv"
         ) {
-            formattedDocuments = documents.map((document) => {
+            return documents.map((document) => {
                 return `"${idMap.get(document.approverId)}","${document.gw2Name}","${
                     document.discordTag
                 }","${document._id}"`;
             });
-        } else {
-            formattedDocuments = {
-                totalElements: await DB.queryMembersCount(
-                    await this.dbFilter(),
-                ),
-                members: documents.map((document) => {
-                    return {
-                        gw2Name: document.gw2Name,
-                        discordName: document.discordName,
-                        discordTag: document.discordTag,
-                        approver: idMap.get(document.approverId),
-                        userId: document.userId,
-                        banned: document.banned,
-                    };
-                }),
-            };
         }
 
-        return formattedDocuments;
+        return {
+            totalElements: await DB.queryMembersCount(await this.dbFilter()),
+            members: documents.map((document) => {
+                return MemberDto.fromDocument(document, idMap);
+            }),
+        };
     }
 
     /**
@@ -104,8 +93,8 @@ export class ListMembers extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When the approver is not found
      * @returns A filter to pass into the database query.
      */
-    private async dbFilter(): Promise<Object> {
-        const filters: Object[] = [];
+    private async dbFilter(): Promise<Record<string, unknown>> {
+        const filters: Record<string, unknown>[] = [];
         if (this._req.query["gw2Name"]) {
             const idMap = await Utils.matchesNameIdMap(
                 this._req.query["gw2Name"].toString(),
@@ -153,22 +142,13 @@ export class GetMember extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When the comp cannot be found.
      * @returns An object representing a member.
      */
-    public async prepareResponse(): Promise<Object> {
+    public async prepareResponse(): Promise<MemberDto> {
         const document = await DB.queryMemberById(this._req.params["userid"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this._req.params["userid"]);
         }
-        const approverDiscordName = (
-            await Utils.idsToMap([document.approverId])
-        ).get(document.approverId);
 
-        return {
-            gw2Name: document.gw2Name,
-            discordName: document.discordName,
-            discordTag: document.discordTag,
-            approver: approverDiscordName,
-            userId: document.userId,
-            banned: document.banned,
-        };
+        const approverDiscordName = await Utils.idsToMap([document.approverId]);
+        return MemberDto.fromDocument(document, approverDiscordName);
     }
 }
