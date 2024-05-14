@@ -31,6 +31,14 @@ export class ListRaids extends HTTPGetRequest {
         "showParticipants",
     ];
 
+    private showParticipants = false;
+    private filterQuery: {
+        status?: ("draft" | "published" | "archived")[];
+        published?: boolean;
+        timestampFrom?: string;
+        timestampTo?: string;
+    };
+
     constructor(req: Request, res: Response, next: NextFunction) {
         super(req, res, next, {
             paginated: true,
@@ -62,7 +70,15 @@ export class ListRaids extends HTTPGetRequest {
                     );
                 }
             });
+
+            // todo: introduce type guard or just migrate to NextJS tbh
+            this.filterQuery.status = statusStrings as (
+                | "draft"
+                | "published"
+                | "archived"
+            )[];
         }
+
         if (this._req.query["published"]) {
             const publishedString: string = this._req.query["published"]
                 .toString()
@@ -72,6 +88,8 @@ export class ListRaids extends HTTPGetRequest {
                     "Query parameter published must be either true or false.",
                 );
             }
+
+            this.filterQuery.published = publishedString == "true";
         }
         if (this._req.query["dateFrom"] || this._req.query["dateTo"]) {
             const timestampFrom: string | undefined =
@@ -99,6 +117,9 @@ export class ListRaids extends HTTPGetRequest {
                     "Query parameter dateFrom must be set to a date before query parameter dateTo",
                 );
             }
+
+            this.filterQuery.timestampFrom = timestampFrom;
+            this.filterQuery.timestampTo = timestampTo;
         }
         if (this._req.query["showParticipants"]) {
             const showParticipantsString: string = this._req.query[
@@ -114,6 +135,8 @@ export class ListRaids extends HTTPGetRequest {
                     "Query parameter showParticipants must be either true or false.",
                 );
             }
+
+            this.showParticipants = showParticipantsString == "true";
         }
     }
 
@@ -130,11 +153,7 @@ export class ListRaids extends HTTPGetRequest {
         const documents = await DB.queryRaids(await this.dbFilter(), paginated);
 
         const idArray = new Array<string>();
-        if (
-            this._req.query["showParticipants"] &&
-            this._req.query["showParticipants"].toString().toLowerCase() ==
-                "true"
-        ) {
+        if (this.showParticipants) {
             documents.forEach((document) =>
                 document.roles.forEach((role) => {
                     role.participants.forEach((participant) =>
@@ -162,16 +181,14 @@ export class ListRaids extends HTTPGetRequest {
             });
         }
 
-        // todo: replace with stuff set in validateRequest, everywhere
-        const showParticipants =
-            this._req.query["showParticipants"] !== undefined &&
-            this._req.query["showParticipants"].toString().toLowerCase() ===
-                "true";
-
         return {
             totalElements: await DB.queryRaidsCount(await this.dbFilter()),
             raids: documents.map((document) =>
-                RaidSummaryDto.fromDocument(document, idMap, showParticipants),
+                RaidSummaryDto.fromDocument(
+                    document,
+                    idMap,
+                    this.showParticipants,
+                ),
             ),
         };
     }
@@ -194,9 +211,9 @@ export class ListRaids extends HTTPGetRequest {
                         .toLowerCase();
                     return escapeStringRegexp(strippedName);
                 });
-        if (this._req.query["status"]) {
-            const filterStatus: RegExp[] = Utils.getRegexListFromQueryString(
-                this._req.query["status"].toString(),
+        if (this.filterQuery.status !== undefined) {
+            const filterStatus: RegExp[] = Utils.getReqexListFromStringList(
+                this.filterQuery.status,
             );
             filters.push({ status: { $in: filterStatus } });
         }
@@ -241,12 +258,9 @@ export class ListRaids extends HTTPGetRequest {
             }
             filters.push({ leaderId: document.userId });
         }
-        if (this._req.query["published"]) {
-            const publishedString = this._req.query["published"]
-                .toString()
-                .toLowerCase();
+        if (this.filterQuery.published !== undefined) {
             filters.push({
-                publishedDate: { $exists: publishedString == "true" },
+                publishedDate: { $exists: this.filterQuery.published },
             });
         }
         if (this._req.query["participants"]) {
@@ -273,19 +287,17 @@ export class ListRaids extends HTTPGetRequest {
                 },
             });
         }
-        if (this._req.query["dateFrom"]) {
-            const fromDate: string = this._req.query["dateFrom"].toString();
+        if (this.filterQuery.timestampFrom) {
             filters.push({
                 startTime: {
-                    $gte: fromDate,
+                    $gte: this.filterQuery.timestampFrom,
                 },
             });
         }
-        if (this._req.query["dateTo"]) {
-            const toDate: string = this._req.query["dateTo"].toString();
+        if (this.filterQuery.timestampTo) {
             filters.push({
                 startTime: {
-                    $lte: toDate,
+                    $lte: this.filterQuery.timestampTo,
                 },
             });
         }

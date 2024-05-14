@@ -23,6 +23,8 @@ export class ListMembers extends HTTPGetRequest {
         "pageSize",
     ];
 
+    private filterBanned?: boolean;
+
     constructor(req: Request, res: Response, next: NextFunction) {
         super(req, res, next, {
             paginated: true,
@@ -47,6 +49,8 @@ export class ListMembers extends HTTPGetRequest {
                     "Query parameter banned must be either true or false.",
                 );
             }
+
+            this.filterBanned = publishedString == "true";
         }
     }
 
@@ -119,10 +123,8 @@ export class ListMembers extends HTTPGetRequest {
             }
             filters.push({ approverId: document.userId });
         }
-        if (this._req.query["banned"]) {
-            const booleanBanned: boolean =
-                this._req.query["banned"].toString().toLowerCase() == "true";
-            filters.push({ banned: booleanBanned });
+        if (this.filterBanned !== undefined) {
+            filters.push({ banned: this.filterBanned });
         }
 
         return filters.length > 0 ? { $or: filters } : {};

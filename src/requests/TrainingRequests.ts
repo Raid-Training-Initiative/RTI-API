@@ -29,12 +29,21 @@ export class ListTrainingRequests extends HTTPGetRequest {
         "pageSize",
     ];
 
+    private filterQuery: {
+        active?: boolean;
+        disabledReasons: string[];
+        wings: number[];
+        roles?: boolean;
+    };
+
     constructor(req: Request, res: Response, next: NextFunction) {
         super(req, res, next, {
             paginated: true,
             multiFormat: true,
             authenticated: true,
         });
+
+        this.filterQuery = { disabledReasons: [], wings: [] };
     }
 
     /**
@@ -53,7 +62,10 @@ export class ListTrainingRequests extends HTTPGetRequest {
                     "Query parameter active must be either true or false.",
                 );
             }
+
+            this.filterQuery.active = activeString == "true";
         }
+
         if (this._req.query["disabledReasons"]) {
             const disabledReasonStrings: string[] = this._req.query[
                 "disabledReasons"
@@ -61,6 +73,7 @@ export class ListTrainingRequests extends HTTPGetRequest {
                 .toString()
                 .toLowerCase()
                 .split(",");
+
             disabledReasonStrings.forEach((disabledReasonString) => {
                 const supportedValues: string[] = Object.values(
                     TrainingRequestDisabledReason,
@@ -75,21 +88,28 @@ export class ListTrainingRequests extends HTTPGetRequest {
                         )}`,
                     );
                 }
+
+                this.filterQuery.disabledReasons.push(disabledReasonString);
             });
         }
+
         if (this._req.query["wings"]) {
             const wingStrings: string[] = this._req.query["wings"]
                 .toString()
                 .toLowerCase()
                 .split(",");
             wingStrings.forEach((wingString) => {
-                if (!Number.parseInt(wingString)) {
+                let wingNum = Number.parseInt(wingString);
+                if (!wingNum) {
+                    // todo: this should never fire unless wingNum equals 0 as parseInt raises an error with non-numerics
                     throw new BadSyntaxException(
                         "Query parameter wings must include only numbers.",
                     );
                 }
+                this.filterQuery.wings.push(wingNum);
             });
         }
+
         if (this._req.query["roles"]) {
             const rolesString: string = this._req.query["roles"]
                 .toString()
@@ -99,6 +119,8 @@ export class ListTrainingRequests extends HTTPGetRequest {
                     "Query parameter roles must be either true or false.",
                 );
             }
+
+            this.filterQuery.roles = rolesString == "true";
         }
     }
 
@@ -209,24 +231,14 @@ export class ListTrainingRequests extends HTTPGetRequest {
             const keywordQuery: string = `"${filterKeywords.join('","')}"`;
             filters.push({ $text: { $search: keywordQuery } });
         }
-        if (this._req.query["active"]) {
-            filters.push({
-                active:
-                    this._req.query["active"].toString().toLowerCase() ==
-                    "true",
-            });
+        if (this.filterQuery.active !== undefined) {
+            filters.push({ active: this.filterQuery.active });
         }
-        if (this._req.query["wings"]) {
-            const filterWings: number[] = this._req.query["wings"]
-                .toString()
-                .split(",")
-                .map((wing) => Number.parseInt(wing));
-            filters.push({ requestedWings: { $in: filterWings } });
+        if (this.filterQuery.wings.length > 0) {
+            filters.push({ requestedWings: { $in: this.filterQuery.wings } });
         }
-        if (this._req.query["roles"]) {
-            const filterRoles: boolean =
-                this._req.query["roles"].toString().toLowerCase() === "true";
-            if (filterRoles) {
+        if (this.filterQuery.roles !== undefined) {
+            if (this.filterQuery.roles) {
                 filters.push({
                     requestedRoles: { $exists: true },
                     $expr: { $gt: [{ $size: "$requestedRoles" }, 0] },
@@ -240,10 +252,10 @@ export class ListTrainingRequests extends HTTPGetRequest {
                 });
             }
         }
-        if (this._req.query["disabledReasons"]) {
+        if (this.filterQuery.disabledReasons.length > 0) {
             const filterDisabledReasons: RegExp[] =
-                Utils.getRegexListFromQueryString(
-                    this._req.query["disabledReasons"].toString(),
+                Utils.getReqexListFromStringList(
+                    this.filterQuery.disabledReasons,
                 );
             filters.push({ disabledReason: { $in: filterDisabledReasons } });
         }

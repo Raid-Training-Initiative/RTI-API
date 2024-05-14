@@ -108,9 +108,18 @@ export default class Utils {
      * @returns A list of regex expressions. For example: [/^chrono$/gi, /^druid$/gi, /^warrior$/gi].
      */
     public static getRegexListFromQueryString(queryString: string): RegExp[] {
-        return queryString
-            .split(",")
-            .map((query) => new RegExp(`^${escapeStringRegexp(query)}$`, "gi"));
+        return Utils.getReqexListFromStringList(queryString.split(","));
+    }
+
+    /**
+     * Returns a list of regex expressions for each query in string.
+     * @param elements A list of string elements. For example ['chrono', 'druid', 'warrior'].
+     * @returns A list of regex expressions. For example: [/^chrono$/gi, /^druid$/gi, /^warrior$/gi].
+     */
+    public static getReqexListFromStringList(elements: string[]): RegExp[] {
+        return elements.map(
+            (query) => new RegExp(`^${escapeStringRegexp(query)}$`, "gi"),
+        );
     }
 
     /**

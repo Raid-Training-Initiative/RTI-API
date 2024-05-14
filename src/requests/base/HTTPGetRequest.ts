@@ -75,6 +75,7 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
     private validatePagination() {
         const page = this._req.query["page"]?.toString();
         const pageSize = this._req.query["pageSize"]?.toString();
+
         if (!(page == undefined && pageSize == undefined)) {
             if (page == undefined || pageSize == undefined) {
                 throw new BadSyntaxException(
