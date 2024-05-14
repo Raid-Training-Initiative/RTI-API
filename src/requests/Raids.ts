@@ -389,7 +389,7 @@ export class GetRaidLog extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When the raid cannot be found.
      * @returns An object representing a raid log.
      */
-    public async prepareResponse(): Promise<Object> {
+    public async prepareResponse(): Promise<RaidLogDto[]> {
         const document = await DB.queryRaid(this._req.params["id"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this._req.params["id"]);

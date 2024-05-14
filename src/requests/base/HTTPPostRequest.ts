@@ -80,7 +80,7 @@ export default abstract class HTTPPostRequest extends HTTPRequest {
         }
     }
 
-    protected sendResponse(document: Object) {
+    protected sendResponse(document: NonNullable<unknown>) {
         Logger.logRequest(
             Severity.Debug,
             this._timestamp,

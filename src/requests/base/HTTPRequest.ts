@@ -14,7 +14,9 @@ export default abstract class HTTPRequest {
         pageSize: number;
     }); // Returns a list of objects to put in the response payload.
     protected abstract run(): void;
-    protected abstract sendResponse(documents?: Object[] | Object): void;
+    protected abstract sendResponse(
+        documents?: Record<string, unknown>[] | Record<string, unknown>,
+    ): void;
 
     protected _req: Request;
     protected _res: Response;

@@ -38,7 +38,8 @@ export class GetStatus extends HTTPGetRequest {
             if (!existsSync(join(__dirname, prefix, "package.json"))) {
                 prefix = "../../";
             }
-            let packageJson: Record<string, string> = require(
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            const packageJson: Record<string, string> = require(
                 `${prefix}package.json`,
             );
             return OtherStatusDto.fromJson(packageJson, this._config.guildId);
