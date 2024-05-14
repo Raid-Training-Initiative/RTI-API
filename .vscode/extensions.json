@@ -1,0 +1,12 @@
+{
+    // See http://go.microsoft.com/fwlink/?LinkId=827846
+    // for the documentation about the extensions.json format
+    "recommendations": [
+        // Use prettier for formatting
+        "esbenp.prettier-vscode",
+        // ESLint support
+        "dbaeumer.vscode-eslint",
+        // AI-assisted code completion, quite useful for big libraries
+        "VisualStudioExptTeam.vscodeintellicode"
+    ]
+}
