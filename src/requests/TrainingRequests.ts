@@ -100,8 +100,7 @@ export class ListTrainingRequests extends HTTPGetRequest {
                 .split(",");
             wingStrings.forEach((wingString) => {
                 const wingNum = Number.parseInt(wingString);
-                if (!wingNum) {
-                    // todo: this should never fire unless wingNum equals 0 as parseInt raises an error with non-numerics
+                if (Number.isNaN(wingNum)) {
                     throw new BadSyntaxException(
                         "Query parameter wings must include only numbers.",
                     );
