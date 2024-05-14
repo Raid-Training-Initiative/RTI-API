@@ -23,7 +23,7 @@ export default class Auth {
             : undefined;
         this._tokenGenerator = new TokenGenerator();
 
-        filewatch(this._config.clientsFile, (eventType, filename) => {
+        filewatch(this._config.clientsFile, (eventType) => {
             if (eventType == "change") {
                 this.importServiceClients();
             }

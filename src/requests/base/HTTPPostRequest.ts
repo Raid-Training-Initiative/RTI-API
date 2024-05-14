@@ -29,7 +29,9 @@ export default abstract class HTTPPostRequest extends HTTPRequest {
      */
     public async validateRequest() {
         await super.validateRequest();
-        if (this.requestBodyJsonSchema) this.validateRequestBody();
+        if (this.requestBodyJsonSchema) {
+            this.validateRequestBody();
+        }
     }
 
     /**
