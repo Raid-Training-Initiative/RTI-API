@@ -71,10 +71,7 @@ export class ListMembers extends HTTPGetRequest {
         const idMap: Map<string, string | undefined> =
             await Utils.idsToMap(idArray);
 
-        if (
-            this._req.query["format"] &&
-            this._req.query["format"].toString().toLowerCase() == "csv"
-        ) {
+        if (this.responseFormat == "csv") {
             return documents.map((document) => {
                 return `"${idMap.get(document.approverId)}","${document.gw2Name}","${
                     document.discordTag

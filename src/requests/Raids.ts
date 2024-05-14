@@ -149,10 +149,7 @@ export class ListRaids extends HTTPGetRequest {
         const idMap: Map<string, string | undefined> =
             await Utils.idsToMap(idArray);
 
-        if (
-            this._req.query["format"] !== undefined &&
-            this._req.query["format"].toString().toLowerCase() == "csv"
-        ) {
+        if (this.responseFormat == "csv") {
             return documents.map((document) => {
                 return `"${idMap.get(document.leaderId)}","${document.name}","${
                     document.startTime.toISOString().split("T")[0]

@@ -13,6 +13,7 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
 
     private paginated: boolean; // Does the request support pagination?
     private multiFormat: boolean; // Does the request provide responses in multiple different formats?
+    protected responseFormat: "json" | "csv" = "json";
 
     private pagination: { page: number; pageSize: number };
 
@@ -62,6 +63,8 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
                     "Query parameter format must be either csv or json.",
                 );
             }
+
+            this.responseFormat = formatString;
         }
     }
 
