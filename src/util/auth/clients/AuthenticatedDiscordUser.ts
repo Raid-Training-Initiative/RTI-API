@@ -1,4 +1,3 @@
-import DB from "../../DB";
 import IDiscordTokenInfo from "../discord/IDiscordTokenInfo";
 import IDiscordUserInfo from "../discord/IDiscordUserInfo";
 import IAuthenticatedClient from "./IAuthenticatedClient";

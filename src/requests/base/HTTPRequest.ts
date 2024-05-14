@@ -6,7 +6,6 @@ import { Logger, Severity } from "../../util/Logger";
 import IRequestOptions from "./IRequestOptions";
 import BadSyntaxException from "../../exceptions/BadSyntaxException";
 import IAuthenticatedClient from "../../util/auth/clients/IAuthenticatedClient";
-import UnauthorizedException from "../../exceptions/UnauthorizedException";
 
 export default abstract class HTTPRequest {
     public abstract validRequestQueryParameters: string[]; // A list of query parameters that this endpoint takes.
@@ -15,7 +14,9 @@ export default abstract class HTTPRequest {
         pageSize: number;
     }); // Returns a list of objects to put in the response payload.
     protected abstract run(): void;
-    protected abstract sendResponse(documents?: Object[] | Object): void;
+    protected abstract sendResponse(
+        documents?: Record<string, unknown>[] | Record<string, unknown>,
+    ): void;
 
     protected _req: Request;
     protected _res: Response;

@@ -23,7 +23,7 @@ export default class Auth {
             : undefined;
         this._tokenGenerator = new TokenGenerator();
 
-        filewatch(this._config.clientsFile, (eventType, filename) => {
+        filewatch(this._config.clientsFile, (eventType) => {
             if (eventType == "change") {
                 this.importServiceClients();
             }
@@ -134,7 +134,9 @@ export default class Auth {
                 this._config.clientsFile,
                 "utf-8",
             );
-            const serviceClients: Object = JSON.parse(fileContent.toString());
+            const serviceClients: Record<string, string> = JSON.parse(
+                fileContent.toString(),
+            );
 
             // Wipe any existing service client.
             for (const [token, client] of this._clients) {

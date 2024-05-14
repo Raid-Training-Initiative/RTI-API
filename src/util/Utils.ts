@@ -1,11 +1,9 @@
 import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
-import { execSync } from "child_process";
 import escapeStringRegexp = require("escape-string-regexp");
 import { Request } from "express";
 import { ObjectId } from "mongoose";
 import DB from "./DB";
-import { Logger, Severity } from "./Logger";
 
 export default class Utils {
     /**
@@ -110,9 +108,18 @@ export default class Utils {
      * @returns A list of regex expressions. For example: [/^chrono$/gi, /^druid$/gi, /^warrior$/gi].
      */
     public static getRegexListFromQueryString(queryString: string): RegExp[] {
-        return queryString
-            .split(",")
-            .map((query) => new RegExp(`^${escapeStringRegexp(query)}$`, "gi"));
+        return Utils.getReqexListFromStringList(queryString.split(","));
+    }
+
+    /**
+     * Returns a list of regex expressions for each query in string.
+     * @param elements A list of string elements. For example ['chrono', 'druid', 'warrior'].
+     * @returns A list of regex expressions. For example: [/^chrono$/gi, /^druid$/gi, /^warrior$/gi].
+     */
+    public static getReqexListFromStringList(elements: string[]): RegExp[] {
+        return elements.map(
+            (query) => new RegExp(`^${escapeStringRegexp(query)}$`, "gi"),
+        );
     }
 
     /**
@@ -120,9 +127,11 @@ export default class Utils {
      * @param date The date and time to format.
      * @returns The formatted datetime as a string.
      */
-    public static formatDatetimeString(
-        date: Date | undefined,
-    ): string | undefined {
+    public static formatDatetimeString(date: Date): string;
+    public static formatDatetimeString(date: undefined): undefined;
+    // please don't ask, this is required: https://stackoverflow.com/a/75891651
+    public static formatDatetimeString(date?: Date): string | undefined;
+    public static formatDatetimeString(date?: Date): string | undefined {
         return date?.toISOString().replace(/\.\d+Z/, "");
     }
 
@@ -159,28 +168,19 @@ export default class Utils {
      * Return the commit info (short hash + branch name) of the repository that is currently active.
      * @returns An object containing branch and commitId as strings with git info.
      */
-    public static getCommitInfo(): Object | undefined {
+    public static getCommitInfo(): { branch: string; commitId: string } {
         if (process.env.COMMIT_ID && process.env.BRANCH) {
             // If the environment variables were set (running on Docker).
             return {
                 branch: process.env.BRANCH.trim(),
                 commitId: process.env.COMMIT_ID.trim(),
             };
-        } else {
-            // Probably running on Node.
-            const branchNameCommand = "git rev-parse --abbrev-ref HEAD";
-            const commitHashCommand = "git rev-parse --short HEAD";
-            let commitInfo: Object | undefined;
-            try {
-                commitInfo = {
-                    branch: execSync(branchNameCommand).toString().trim(),
-                    commitId: execSync(commitHashCommand).toString().trim(),
-                };
-            } catch (exception) {
-                Logger.logError(Severity.Error, exception.message);
-            }
-
-            return commitInfo;
         }
+
+        return { branch: "", commitId: "" };
     }
 }
+
+export type PaginatedResponse<T, PropertyName extends string> = {
+    totalElements: number;
+} & { [P in PropertyName]: T[] };

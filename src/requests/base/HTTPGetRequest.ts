@@ -13,6 +13,7 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
 
     private paginated: boolean; // Does the request support pagination?
     private multiFormat: boolean; // Does the request provide responses in multiple different formats?
+    protected responseFormat: "json" | "csv" = "json";
 
     private pagination: { page: number; pageSize: number };
 
@@ -40,8 +41,12 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
      */
     public async validateRequest() {
         await super.validateRequest();
-        if (this.paginated) this.validatePagination();
-        if (this.multiFormat) this.validateFormatParam();
+        if (this.paginated) {
+            this.validatePagination();
+        }
+        if (this.multiFormat) {
+            this.validateFormatParam();
+        }
     }
 
     /**
@@ -58,6 +63,8 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
                     "Query parameter format must be either csv or json.",
                 );
             }
+
+            this.responseFormat = formatString;
         }
     }
 
@@ -68,6 +75,7 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
     private validatePagination() {
         const page = this._req.query["page"]?.toString();
         const pageSize = this._req.query["pageSize"]?.toString();
+
         if (!(page == undefined && pageSize == undefined)) {
             if (page == undefined || pageSize == undefined) {
                 throw new BadSyntaxException(
@@ -111,9 +119,8 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
                 `Request: ${this._req.method} ${this._req.url}`,
             );
             await this.validateRequest();
-            const documents: Object[] | Object = await this.prepareResponse(
-                this.pagination,
-            );
+            const documents: NonNullable<unknown>[] | NonNullable<unknown> =
+                await this.prepareResponse(this.pagination);
             this.sendResponse(documents);
         } catch (exception) {
             if (exception instanceof HTTPException) {
@@ -132,14 +139,18 @@ export default abstract class HTTPGetRequest extends HTTPRequest {
         }
     }
 
-    protected sendResponse(documents: Object[] | Object) {
+    protected sendResponse(documents: NonNullable<unknown>) {
         const filterString: string = Utils.generateFilterString(
             this.validRequestQueryParameters,
             this._req,
         );
-        const nestedArray = !Array.isArray(documents)
-            ? Object.values(documents).find((value) => Array.isArray(value))
-            : [];
+        const nestedArray = (
+            !Array.isArray(documents)
+                ? Object.values(documents).find((value) => Array.isArray(value))
+                : []
+        ) as { length: number };
+        // todo: ^ there has to be a sane way to do that
+
         Logger.logRequest(
             Severity.Debug,
             this._timestamp,

@@ -3,17 +3,15 @@
  */
 
 import { NextFunction, Request, Response } from "express";
-import Utils from "../util/Utils";
 import { IConfig } from "../util/Config";
 import ServerErrorException from "../exceptions/ServerErrorException";
-import * as os from "os";
+
 import DB from "../util/DB";
-import moment = require("moment-timezone");
-import momentDurationFormatSetup = require("moment-duration-format");
+
 import HTTPGetRequest from "./base/HTTPGetRequest";
 import { existsSync } from "fs";
 import { join } from "path";
-momentDurationFormatSetup(moment);
+import { OtherStatsDto, OtherStatusDto } from "./dto/other.dto";
 
 export class GetStatus extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [];
@@ -34,48 +32,20 @@ export class GetStatus extends HTTPGetRequest {
      * @throws {ServerErrorException} When the package.json file could not be loaded.
      * @returns An object representing information about the API.
      */
-    public async prepareResponse(): Promise<Object> {
-        let packageJson: any | undefined = undefined;
-
+    public async prepareResponse(): Promise<OtherStatusDto> {
         try {
             let prefix: string = "../../../";
             if (!existsSync(join(__dirname, prefix, "package.json"))) {
                 prefix = "../../";
             }
-            packageJson = require(`${prefix}package.json`);
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            const packageJson: Record<string, string> = require(
+                `${prefix}package.json`,
+            );
+            return OtherStatusDto.fromJson(packageJson, this._config.guildId);
         } catch (Exception) {
             throw new ServerErrorException("Error loading package.json");
         }
-
-        const statusObject = {
-            timestamp: Date.now(),
-            processInfo: {
-                uptime: moment
-                    .duration(process.uptime(), "seconds")
-                    .format(
-                        "Y [years] M [months] D [days] h [hours] m [minutes] s [seconds]",
-                    ),
-                pid: process.pid,
-                title: process.title,
-                environment: process.argv[2],
-            },
-            apiInfo: {
-                apiName: packageJson.name,
-                apiVersion: packageJson.version,
-                guildId: this._config.guildId,
-                gitVersionInfo: Utils.getCommitInfo(),
-            },
-            systemInfo: {
-                platform: process.platform,
-                type: os.type(),
-                hostname: os.hostname(),
-                release: os.release(),
-                memory: os.totalmem(),
-                cores: os.cpus().length,
-            },
-        };
-
-        return statusObject;
     }
 }
 
@@ -90,7 +60,7 @@ export class GetStats extends HTTPGetRequest {
      * Returns statistics about the data after a get stats request.
      * @returns An object representing statistics about the data.
      */
-    public async prepareResponse(): Promise<Object> {
+    public async prepareResponse(): Promise<OtherStatsDto> {
         const statsObject = {
             comps: {
                 count: await DB.queryCompsCount(),

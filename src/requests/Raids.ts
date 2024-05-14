@@ -6,9 +6,12 @@ import { NextFunction, Request, Response } from "express";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import DB from "../util/DB";
-import Utils from "../util/Utils";
+import Utils, { PaginatedResponse } from "../util/Utils";
 import HTTPGetRequest from "./base/HTTPGetRequest";
 import escapeStringRegexp = require("escape-string-regexp");
+import { RaidSummaryDto, RaidDto, RaidLogDto } from "./dto/raid.dto";
+import { FilterQuery } from "mongoose";
+import { IRaidEventModel } from "@RTIBot-DB/schemas/RaidEventSchema";
 
 export class ListRaids extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
@@ -27,6 +30,14 @@ export class ListRaids extends HTTPGetRequest {
         "dateTo",
         "showParticipants",
     ];
+
+    private showParticipants = false;
+    private filterQuery: {
+        status?: ("draft" | "published" | "archived")[];
+        published?: boolean;
+        timestampFrom?: string;
+        timestampTo?: string;
+    };
 
     constructor(req: Request, res: Response, next: NextFunction) {
         super(req, res, next, {
@@ -55,20 +66,30 @@ export class ListRaids extends HTTPGetRequest {
                     statusString != "archived"
                 ) {
                     throw new BadSyntaxException(
-                        "Query parameter status must be either draft, published, or archived."
+                        "Query parameter status must be either draft, published, or archived.",
                     );
                 }
             });
+
+            // todo: introduce type guard or just migrate to NextJS tbh
+            this.filterQuery.status = statusStrings as (
+                | "draft"
+                | "published"
+                | "archived"
+            )[];
         }
+
         if (this._req.query["published"]) {
             const publishedString: string = this._req.query["published"]
                 .toString()
                 .toLowerCase();
             if (publishedString != "true" && publishedString != "false") {
                 throw new BadSyntaxException(
-                    "Query parameter published must be either true or false."
+                    "Query parameter published must be either true or false.",
                 );
             }
+
+            this.filterQuery.published = publishedString == "true";
         }
         if (this._req.query["dateFrom"] || this._req.query["dateTo"]) {
             const timestampFrom: string | undefined =
@@ -79,12 +100,12 @@ export class ListRaids extends HTTPGetRequest {
                 /^(19|20)\d\d-(0[1-9]|1[012])-([012]\d|3[01])T([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/i;
             if (timestampFrom && !regex.test(timestampFrom)) {
                 throw new BadSyntaxException(
-                    "Query parameter dateFrom must be in the format yyyy-MM-ddTHH:mm:ss"
+                    "Query parameter dateFrom must be in the format yyyy-MM-ddTHH:mm:ss",
                 );
             }
             if (timestampTo && !regex.test(timestampTo)) {
                 throw new BadSyntaxException(
-                    "Query parameter dateTo must be in the format yyyy-MM-ddTHH:mm:ss"
+                    "Query parameter dateTo must be in the format yyyy-MM-ddTHH:mm:ss",
                 );
             }
             if (
@@ -93,9 +114,12 @@ export class ListRaids extends HTTPGetRequest {
                 Date.parse(timestampFrom) > Date.parse(timestampTo)
             ) {
                 throw new BadSyntaxException(
-                    "Query parameter dateFrom must be set to a date before query parameter dateTo"
+                    "Query parameter dateFrom must be set to a date before query parameter dateTo",
                 );
             }
+
+            this.filterQuery.timestampFrom = timestampFrom;
+            this.filterQuery.timestampTo = timestampTo;
         }
         if (this._req.query["showParticipants"]) {
             const showParticipantsString: string = this._req.query[
@@ -108,9 +132,11 @@ export class ListRaids extends HTTPGetRequest {
                 showParticipantsString != "false"
             ) {
                 throw new BadSyntaxException(
-                    "Query parameter showParticipants must be either true or false."
+                    "Query parameter showParticipants must be either true or false.",
                 );
             }
+
+            this.showParticipants = showParticipantsString == "true";
         }
     }
 
@@ -122,37 +148,28 @@ export class ListRaids extends HTTPGetRequest {
         paginated: {
             page: number;
             pageSize: number;
-        } = { page: 1, pageSize: 100 }
-    ): Promise<Object> {
+        } = { page: 1, pageSize: 100 },
+    ): Promise<PaginatedResponse<RaidSummaryDto, "raids"> | string[]> {
         const documents = await DB.queryRaids(await this.dbFilter(), paginated);
 
         const idArray = new Array<string>();
-        if (
-            this._req.query["showParticipants"] &&
-            this._req.query["showParticipants"].toString().toLowerCase() ==
-                "true"
-        ) {
+        if (this.showParticipants) {
             documents.forEach((document) =>
                 document.roles.forEach((role) => {
                     role.participants.forEach((participant) =>
-                        idArray.push(participant)
+                        idArray.push(participant),
                     );
-                })
+                }),
             );
         }
         documents.forEach((document) => idArray.push(document.leaderId));
 
         // Resolve the IDs to names.
-        const idMap: Map<string, string | undefined> = await Utils.idsToMap(
-            idArray
-        );
+        const idMap: Map<string, string | undefined> =
+            await Utils.idsToMap(idArray);
 
-        let formattedDocuments: Object;
-        if (
-            this._req.query["format"] &&
-            this._req.query["format"].toString().toLowerCase() == "csv"
-        ) {
-            formattedDocuments = documents.map((document) => {
+        if (this.responseFormat == "csv") {
+            return documents.map((document) => {
                 return `"${idMap.get(document.leaderId)}","${document.name}","${
                     document.startTime.toISOString().split("T")[0]
                 }","${document.startTime
@@ -162,44 +179,18 @@ export class ListRaids extends HTTPGetRequest {
                     document.compositionName
                 }","${document._id}"`;
             });
-        } else {
-            formattedDocuments = {
-                totalElements: await DB.queryRaidsCount(await this.dbFilter()),
-                raids: documents.map((document) => {
-                    return {
-                        name: document.name,
-                        status: document.status,
-                        startTime: Utils.formatDatetimeString(
-                            document.startTime
-                        ),
-                        endTime: Utils.formatDatetimeString(document.endTime),
-                        leader: idMap.get(document.leaderId),
-                        comp: document.compositionName,
-                        publishedDate: Utils.formatDatetimeString(
-                            document.publishedDate
-                        ),
-                        ...(this._req.query["showParticipants"] &&
-                            this._req.query["showParticipants"]
-                                .toString()
-                                .toLowerCase() === "true" && {
-                                participants: [
-                                    ...new Set(
-                                        document.roles.flatMap((role) =>
-                                            role.participants.map(
-                                                (participant) =>
-                                                    idMap.get(participant)
-                                            )
-                                        )
-                                    ),
-                                ],
-                            }),
-                        id: document._id.toHexString(),
-                    };
-                }),
-            };
         }
 
-        return formattedDocuments;
+        return {
+            totalElements: await DB.queryRaidsCount(await this.dbFilter()),
+            raids: documents.map((document) =>
+                RaidSummaryDto.fromDocument(
+                    document,
+                    idMap,
+                    this.showParticipants,
+                ),
+            ),
+        };
     }
 
     /**
@@ -207,8 +198,8 @@ export class ListRaids extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When the Discord name of the specified leader cannot be found in the database.
      * @returns A filter to pass into the database query.
      */
-    private async dbFilter(): Promise<Object> {
-        const filters: Object[] = [];
+    private async dbFilter(): Promise<FilterQuery<IRaidEventModel>> {
+        const filters: Record<string, unknown>[] = [];
         const stripRegex: RegExp = /[-!$%^&*()_+|~=`{}[\]:";'<>?,./\s]+/gi;
         const getSearchTerms = (queryString: string) =>
             queryString
@@ -220,15 +211,15 @@ export class ListRaids extends HTTPGetRequest {
                         .toLowerCase();
                     return escapeStringRegexp(strippedName);
                 });
-        if (this._req.query["status"]) {
-            const filterStatus: RegExp[] = Utils.getRegexListFromQueryString(
-                this._req.query["status"].toString()
+        if (this.filterQuery.status !== undefined) {
+            const filterStatus: RegExp[] = Utils.getReqexListFromStringList(
+                this.filterQuery.status,
             );
             filters.push({ status: { $in: filterStatus } });
         }
         if (this._req.query["nameInclude"]) {
             const includeQueries: string[] = getSearchTerms(
-                this._req.query["nameInclude"].toString()
+                this._req.query["nameInclude"].toString(),
             );
             const regexFilters = includeQueries.map((query) => ({
                 name: {
@@ -239,7 +230,7 @@ export class ListRaids extends HTTPGetRequest {
         }
         if (this._req.query["nameExclude"]) {
             const excludeQueries: string[] = getSearchTerms(
-                this._req.query["nameExclude"].toString()
+                this._req.query["nameExclude"].toString(),
             );
             const regexFilters = excludeQueries.map((query) => ({
                 name: {
@@ -252,27 +243,24 @@ export class ListRaids extends HTTPGetRequest {
         }
         if (this._req.query["comps"]) {
             const filterComps: RegExp[] = Utils.getRegexListFromQueryString(
-                this._req.query["comps"].toString()
+                this._req.query["comps"].toString(),
             );
             filters.push({ compositionName: { $in: filterComps } });
         }
         if (this._req.query["leader"]) {
             const document = await DB.queryMemberByName(
-                this._req.query["leader"].toString()
+                this._req.query["leader"].toString(),
             );
             if (document == undefined) {
                 throw new ResourceNotFoundException(
-                    this._req.query["leader"].toString()
+                    this._req.query["leader"].toString(),
                 );
             }
             filters.push({ leaderId: document.userId });
         }
-        if (this._req.query["published"]) {
-            const publishedString = this._req.query["published"]
-                .toString()
-                .toLowerCase();
+        if (this.filterQuery.published !== undefined) {
             filters.push({
-                publishedDate: { $exists: publishedString == "true" },
+                publishedDate: { $exists: this.filterQuery.published },
             });
         }
         if (this._req.query["participants"]) {
@@ -299,19 +287,17 @@ export class ListRaids extends HTTPGetRequest {
                 },
             });
         }
-        if (this._req.query["dateFrom"]) {
-            const fromDate: string = this._req.query["dateFrom"].toString();
+        if (this.filterQuery.timestampFrom) {
             filters.push({
                 startTime: {
-                    $gte: fromDate,
+                    $gte: this.filterQuery.timestampFrom,
                 },
             });
         }
-        if (this._req.query["dateTo"]) {
-            const toDate: string = this._req.query["dateTo"].toString();
+        if (this.filterQuery.timestampTo) {
             filters.push({
                 startTime: {
-                    $lte: toDate,
+                    $lte: this.filterQuery.timestampTo,
                 },
             });
         }
@@ -340,7 +326,7 @@ export class GetRaid extends HTTPGetRequest {
                 .toLowerCase();
             if (nameString != "discord" && nameString != "gw2") {
                 throw new BadSyntaxException(
-                    "Query parameter names must be either discord or gw2."
+                    "Query parameter names must be either discord or gw2.",
                 );
             }
         }
@@ -351,7 +337,7 @@ export class GetRaid extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When the raid cannot be found.
      * @returns An object representing a raid.
      */
-    public async prepareResponse(): Promise<Object> {
+    public async prepareResponse(): Promise<RaidDto> {
         const document = await DB.queryRaid(this._req.params["id"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this._req.params["id"]);
@@ -361,10 +347,12 @@ export class GetRaid extends HTTPGetRequest {
         const idArray: string[] = [];
         document.roles.forEach((role) => {
             role.participants.forEach((participant) =>
-                idArray.push(participant)
+                idArray.push(participant),
             );
             role.reserves.forEach((reserve) => idArray.push(reserve));
         });
+        idArray.push(document.leaderId);
+
         let idMap: Map<string, string | undefined>;
         if (
             this._req.query["names"] &&
@@ -374,40 +362,8 @@ export class GetRaid extends HTTPGetRequest {
         } else {
             idMap = await Utils.idsToMap(idArray);
         }
-        const leaderDiscordName = (
-            await Utils.idsToMap([document.leaderId])
-        ).get(document.leaderId);
 
-        const formattedDocument = {
-            name: document.name,
-            description: document.description,
-            status: document.status,
-            startTime: Utils.formatDatetimeString(document.startTime),
-            endTime: Utils.formatDatetimeString(document.endTime),
-            leader: leaderDiscordName,
-            comp: document.compositionName,
-            publishedDate: Utils.formatDatetimeString(document.publishedDate),
-            channelId: document.channelId,
-            options: document.options,
-            participants: document.roles.map((role) => {
-                return {
-                    role: role.name,
-                    requiredParticipants: role.requiredParticipants,
-                    members: role.participants.map((participant) =>
-                        idMap.get(participant)
-                    ),
-                };
-            }),
-            reserves: document.roles.map((role) => {
-                return {
-                    role: role.name,
-                    members: role.reserves.map((reserve) => idMap.get(reserve)),
-                };
-            }),
-            id: document._id.toHexString(),
-        };
-
-        return formattedDocument;
+        return RaidDto.fromDocument(document, idMap);
     }
 }
 
@@ -431,7 +387,7 @@ export class GetRaidLog extends HTTPGetRequest {
                 .toLowerCase();
             if (nameString != "discord" && nameString != "gw2") {
                 throw new BadSyntaxException(
-                    "Query parameter names must be either discord or gw2."
+                    "Query parameter names must be either discord or gw2.",
                 );
             }
         }
@@ -442,7 +398,7 @@ export class GetRaidLog extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When the raid cannot be found.
      * @returns An object representing a raid log.
      */
-    public async prepareResponse(): Promise<Object> {
+    public async prepareResponse(): Promise<RaidLogDto[]> {
         const document = await DB.queryRaid(this._req.params["id"]);
         if (document == undefined) {
             throw new ResourceNotFoundException(this._req.params["id"]);
@@ -463,18 +419,6 @@ export class GetRaidLog extends HTTPGetRequest {
             idMap = await Utils.idsToMap(idArray);
         }
 
-        const formattedDocument = document.log.map((log) => {
-            return {
-                date: Utils.formatDatetimeString(log.date),
-                type: log.type,
-                data: {
-                    user: idMap.get(log.data.user ? log.data.user : log.data),
-                    roleName: log.data.roleName,
-                    isReserve: log.data.isReserve,
-                },
-            };
-        });
-
-        return formattedDocument;
+        return document.log.map((log) => RaidLogDto.fromLog(log, idMap));
     }
 }

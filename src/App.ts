@@ -17,6 +17,7 @@ import {
 import { GetStats, GetStatus } from "./requests/Other";
 import { GetGuildOptions } from "./requests/GuildOptions";
 import { PostDiscordAuth } from "./requests/DiscordAuth";
+import { cors } from "cors";
 
 export class App {
     private static _app: App | undefined;
@@ -45,7 +46,6 @@ export class App {
     public async run() {
         const server = express();
         if (this._config.cors) {
-            const cors = require("cors");
             server.use(cors());
         }
         const port = 8080;

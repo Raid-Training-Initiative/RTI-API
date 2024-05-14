@@ -12,3 +12,5 @@ proddata_db/
 
 package.json
 package-lock.json
+
+**/postman/*.json

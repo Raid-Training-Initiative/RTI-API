@@ -29,7 +29,9 @@ export default abstract class HTTPPostRequest extends HTTPRequest {
      */
     public async validateRequest() {
         await super.validateRequest();
-        if (this.requestBodyJsonSchema) this.validateRequestBody();
+        if (this.requestBodyJsonSchema) {
+            this.validateRequestBody();
+        }
     }
 
     /**
@@ -78,7 +80,7 @@ export default abstract class HTTPPostRequest extends HTTPRequest {
         }
     }
 
-    protected sendResponse(document: Object) {
+    protected sendResponse(document: NonNullable<unknown>) {
         Logger.logRequest(
             Severity.Debug,
             this._timestamp,

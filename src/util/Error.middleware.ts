@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import HTTPException from "../exceptions/base/HTTPException";
 
 /**
@@ -10,9 +10,8 @@ import HTTPException from "../exceptions/base/HTTPException";
  */
 export default function errorMiddleware(
     error: HTTPException,
-    request: Request,
+    _request: Request,
     response: Response,
-    next: NextFunction,
 ) {
     const status = error.status || 500;
     const name = error.name || "Unknown";

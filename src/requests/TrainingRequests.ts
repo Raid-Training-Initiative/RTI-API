@@ -5,10 +5,16 @@
 import { NextFunction, Request, Response } from "express";
 import DB from "../util/DB";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
-import Utils from "../util/Utils";
+import Utils, { PaginatedResponse } from "../util/Utils";
 import { TrainingRequestDisabledReason } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import HTTPGetRequest from "./base/HTTPGetRequest";
+import {
+    TrainingRequestDto,
+    TrainingRequestSummaryDto,
+} from "./dto/trainingRequest.dto";
+import { ITrainingRequestModel } from "@RTIBot-DB/schemas/TrainingRequestSchema";
+import { FilterQuery } from "mongoose";
 
 export class ListTrainingRequests extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
@@ -23,12 +29,21 @@ export class ListTrainingRequests extends HTTPGetRequest {
         "pageSize",
     ];
 
+    private filterQuery: {
+        active?: boolean;
+        disabledReasons: string[];
+        wings: number[];
+        roles?: boolean;
+    };
+
     constructor(req: Request, res: Response, next: NextFunction) {
         super(req, res, next, {
             paginated: true,
             multiFormat: true,
             authenticated: true,
         });
+
+        this.filterQuery = { disabledReasons: [], wings: [] };
     }
 
     /**
@@ -47,7 +62,10 @@ export class ListTrainingRequests extends HTTPGetRequest {
                     "Query parameter active must be either true or false.",
                 );
             }
+
+            this.filterQuery.active = activeString == "true";
         }
+
         if (this._req.query["disabledReasons"]) {
             const disabledReasonStrings: string[] = this._req.query[
                 "disabledReasons"
@@ -55,6 +73,7 @@ export class ListTrainingRequests extends HTTPGetRequest {
                 .toString()
                 .toLowerCase()
                 .split(",");
+
             disabledReasonStrings.forEach((disabledReasonString) => {
                 const supportedValues: string[] = Object.values(
                     TrainingRequestDisabledReason,
@@ -69,21 +88,27 @@ export class ListTrainingRequests extends HTTPGetRequest {
                         )}`,
                     );
                 }
+
+                this.filterQuery.disabledReasons.push(disabledReasonString);
             });
         }
+
         if (this._req.query["wings"]) {
             const wingStrings: string[] = this._req.query["wings"]
                 .toString()
                 .toLowerCase()
                 .split(",");
             wingStrings.forEach((wingString) => {
-                if (!Number.parseInt(wingString)) {
+                const wingNum = Number.parseInt(wingString);
+                if (Number.isNaN(wingNum)) {
                     throw new BadSyntaxException(
                         "Query parameter wings must include only numbers.",
                     );
                 }
+                this.filterQuery.wings.push(wingNum);
             });
         }
+
         if (this._req.query["roles"]) {
             const rolesString: string = this._req.query["roles"]
                 .toString()
@@ -93,6 +118,8 @@ export class ListTrainingRequests extends HTTPGetRequest {
                     "Query parameter roles must be either true or false.",
                 );
             }
+
+            this.filterQuery.roles = rolesString == "true";
         }
     }
 
@@ -105,7 +132,10 @@ export class ListTrainingRequests extends HTTPGetRequest {
             page: number;
             pageSize: number;
         } = { page: 1, pageSize: 100 },
-    ): Promise<Object> {
+    ): Promise<
+        | PaginatedResponse<TrainingRequestSummaryDto, "trainingRequests">
+        | string[]
+    > {
         const documents = await DB.queryTrainingRequests(
             await this.dbFilter(),
             paginated,
@@ -117,12 +147,8 @@ export class ListTrainingRequests extends HTTPGetRequest {
         const idMap: Map<string, string | undefined> =
             await Utils.idsToMap(idArray);
 
-        let formattedDocuments: Object;
-        if (
-            this._req.query["format"] &&
-            this._req.query["format"].toString().toLowerCase() == "csv"
-        ) {
-            formattedDocuments = documents
+        if (this.responseFormat == "csv") {
+            return documents
                 .filter((document) => idMap.get(document.userId)) // Filtering out the users that aren't on the Discord anymore.
                 .map((document) => {
                     const wingsData: string[] = [];
@@ -170,41 +196,24 @@ export class ListTrainingRequests extends HTTPGetRequest {
                         document._id
                     }"`;
                 });
-        } else {
-            formattedDocuments = {
-                totalElements: await DB.queryTrainingRequestsCount(
-                    await this.dbFilter(),
-                ),
-                trainingRequests: documents.map((document) => {
-                    return {
-                        discordTag: idMap.get(document.userId),
-                        active: document.active,
-                        requestedWings: document.requestedWings,
-                        requestedRoles: document.requestedRoles,
-                        wingOverrides: document.wingOverrides,
-                        comment: document.comment,
-                        created: Utils.formatDatetimeString(
-                            document.creationDate,
-                        ),
-                        edited: Utils.formatDatetimeString(
-                            document.lastEditedTimestamp,
-                        ),
-                        disabledReason: document.disabledReason,
-                        userId: document.userId,
-                    };
-                }),
-            };
         }
 
-        return formattedDocuments;
+        return {
+            totalElements: await DB.queryTrainingRequestsCount(
+                await this.dbFilter(),
+            ),
+            trainingRequests: documents.map((document) =>
+                TrainingRequestSummaryDto.fromDocument(document, idMap),
+            ),
+        };
     }
 
     /**
      * Filters the documents according to the filters specified in the query parameters.
      * @returns A filter to pass into the database query.
      */
-    private async dbFilter(): Promise<Object> {
-        const filters: Object[] = [];
+    private async dbFilter(): Promise<FilterQuery<ITrainingRequestModel>> {
+        const filters: FilterQuery<ITrainingRequestModel>[] = [];
 
         if (this._req.query["users"]) {
             const filterUsers: string[] = this._req.query["users"]
@@ -221,24 +230,14 @@ export class ListTrainingRequests extends HTTPGetRequest {
             const keywordQuery: string = `"${filterKeywords.join('","')}"`;
             filters.push({ $text: { $search: keywordQuery } });
         }
-        if (this._req.query["active"]) {
-            filters.push({
-                active:
-                    this._req.query["active"].toString().toLowerCase() ==
-                    "true",
-            });
+        if (this.filterQuery.active !== undefined) {
+            filters.push({ active: this.filterQuery.active });
         }
-        if (this._req.query["wings"]) {
-            const filterWings: number[] = this._req.query["wings"]
-                .toString()
-                .split(",")
-                .map((wing) => Number.parseInt(wing));
-            filters.push({ requestedWings: { $in: filterWings } });
+        if (this.filterQuery.wings.length > 0) {
+            filters.push({ requestedWings: { $in: this.filterQuery.wings } });
         }
-        if (this._req.query["roles"]) {
-            const filterRoles: boolean =
-                this._req.query["roles"].toString().toLowerCase() === "true";
-            if (filterRoles) {
+        if (this.filterQuery.roles !== undefined) {
+            if (this.filterQuery.roles) {
                 filters.push({
                     requestedRoles: { $exists: true },
                     $expr: { $gt: [{ $size: "$requestedRoles" }, 0] },
@@ -252,10 +251,10 @@ export class ListTrainingRequests extends HTTPGetRequest {
                 });
             }
         }
-        if (this._req.query["disabledReasons"]) {
+        if (this.filterQuery.disabledReasons.length > 0) {
             const filterDisabledReasons: RegExp[] =
-                Utils.getRegexListFromQueryString(
-                    this._req.query["disabledReasons"].toString(),
+                Utils.getReqexListFromStringList(
+                    this.filterQuery.disabledReasons,
                 );
             filters.push({ disabledReason: { $in: filterDisabledReasons } });
         }
@@ -276,48 +275,17 @@ export class GetTrainingRequest extends HTTPGetRequest {
      * @throws {ResourceNotFoundException} When the raid cannot be found.
      * @returns An object representing a raid.
      */
-    public async prepareResponse(): Promise<Object> {
+    public async prepareResponse(): Promise<TrainingRequestDto> {
         const document = await DB.queryTrainingRequest(
             this._req.params["userid"],
         );
         if (document == undefined) {
             throw new ResourceNotFoundException(this._req.params["userid"]);
         }
-        const discordTag = (await Utils.idsToMap([document.userId])).get(
-            document.userId,
-        );
-        const historyMap: Object = {};
-        document.history.forEach(
-            (value, key) =>
-                (historyMap[key] = {
-                    requested: Utils.formatDatetimeString(value.requestedDate),
-                    cleared: Utils.formatDatetimeString(value.clearedDate),
-                }),
-        );
-        const rolesHistoryMap: Object = {};
-        document.rolesHistory.forEach(
-            (value, key) =>
-                (historyMap[key] = {
-                    requested: Utils.formatDatetimeString(value.requestedDate),
-                    cleared: Utils.formatDatetimeString(value.clearedDate),
-                }),
-        );
 
-        const formattedDocument = {
-            discordTag: discordTag,
-            active: document.active,
-            requestedWings: document.requestedWings,
-            requestedRoles: document.requestedRoles,
-            wingOverrides: document.wingOverrides,
-            comment: document.comment,
-            created: Utils.formatDatetimeString(document.creationDate),
-            edited: Utils.formatDatetimeString(document.lastEditedTimestamp),
-            disabledReason: document.disabledReason,
-            userId: document.userId,
-            history: historyMap,
-            rolesHistory: rolesHistoryMap,
-        };
-
-        return formattedDocument;
+        return TrainingRequestDto.fromDocument(
+            document,
+            await Utils.idsToMap([document.userId]),
+        );
     }
 }
