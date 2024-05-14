@@ -1,5 +1,5 @@
 # to run on old raspberry pis, use arm32v6/node:lts-alpine
-FROM node:lts-bullseye AS builder
+FROM node:lts-bookworm AS builder
 WORKDIR /build
 
 COPY package*.json .

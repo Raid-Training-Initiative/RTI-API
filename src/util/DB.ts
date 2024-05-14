@@ -105,15 +105,13 @@ export default class DB {
     public static async createComp(
         name: string,
         roles: IRaidCompositionRole[],
-        categories: ObjectId[],
+        categories: ObjectId[]
     ): Promise<IRaidCompositionDocument> {
-        return (
-            await this._instance._db.raidCompositionModel.create({
-                name: name,
-                roles: roles,
-                categories: categories,
-            })
-        ).execPopulate();
+        return await this._instance._db.raidCompositionModel.create({
+            name: name,
+            roles: roles,
+            categories: categories,
+        });
     }
 
     /**
