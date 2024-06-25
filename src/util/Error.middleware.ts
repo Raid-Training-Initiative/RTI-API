@@ -12,6 +12,7 @@ export default function errorMiddleware(
     error: HTTPException,
     _request: Request,
     response: Response,
+    next: () => unknown,
 ) {
     const status = error.status || 500;
     const name = error.name || "Unknown";
@@ -21,4 +22,5 @@ export default function errorMiddleware(
         name: name,
         message,
     });
+    return next();
 }
