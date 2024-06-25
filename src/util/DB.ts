@@ -345,21 +345,31 @@ export default class DB {
         options?: { useGW2Name: boolean },
     ): Promise<IMemberPopulatedDocument> {
         if (options?.useGW2Name) {
-            return (await this._instance._db.memberModel
-                .findOne({ gw2Name: name })
-                .populate({
-                    path: "account",
-                    model: GlobalDatabase.instance.accountModel,
-                })
-                .exec()) as IMemberPopulatedDocument;
+            return (
+                await this._instance._db.memberModel
+                    .find({})
+                    .populate({
+                        path: "account",
+                        model: GlobalDatabase.instance.accountModel,
+                        match: { gw2Name: name },
+                    })
+                    .exec()
+            ).find(
+                (document) => !!document.account,
+            ) as IMemberPopulatedDocument;
         } else {
-            return (await this._instance._db.memberModel
-                .findOne({ discordTag: name })
-                .populate({
-                    path: "account",
-                    model: GlobalDatabase.instance.accountModel,
-                })
-                .exec()) as IMemberPopulatedDocument;
+            return (
+                await this._instance._db.memberModel
+                    .find({})
+                    .populate({
+                        path: "account",
+                        model: GlobalDatabase.instance.accountModel,
+                        match: { discordTag: name },
+                    })
+                    .exec()
+            ).find(
+                (document) => !!document.account,
+            ) as IMemberPopulatedDocument;
         }
     }
 

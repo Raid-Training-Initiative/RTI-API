@@ -42,16 +42,16 @@ export class ListMembers extends HTTPGetRequest {
         await super.validateRequest();
 
         if (this._req.query["banned"]) {
-            const publishedString: string = this._req.query["banned"]
+            const bannedString: string = this._req.query["banned"]
                 .toString()
                 .toLowerCase();
-            if (publishedString != "true" && publishedString != "false") {
+            if (bannedString != "true" && bannedString != "false") {
                 throw new BadSyntaxException(
                     "Query parameter banned must be either true or false.",
                 );
             }
 
-            this.filterBanned = publishedString == "true";
+            this.filterBanned = bannedString === "true";
         }
     }
 
@@ -140,9 +140,6 @@ export class ListMembers extends HTTPGetRequest {
                 { returnGW2Names: false },
             );
             filters.push({ userId: { $in: Array.from(idMap.keys()) } });
-        }
-        if (this.filterBanned !== undefined) {
-            filters.push({ banned: this.filterBanned });
         }
 
         return filters.length > 0 ? { $or: filters } : {};
