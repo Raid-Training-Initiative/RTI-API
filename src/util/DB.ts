@@ -310,30 +310,16 @@ export default class DB {
     public static async queryMemberById(
         discordId?: string,
     ): Promise<IMemberPopulatedDocument> {
-        return (await this._instance._db.memberModel
-            .findOne({ userId: discordId })
-            .populate({
-                path: "account",
-                model: GlobalDatabase.instance.accountModel,
-            })
-            .exec()) as IMemberDocument;
-    }
-
-    /**
-     * Queries the database and retrieves member by its discord ID with populated reference fields.
-     * @param discordId The discord ID of the member.
-     * @returns A single populated member.
-     */
-    public static async queryMemberPopulatedById(
-        discordId?: string,
-    ): Promise<IMemberPopulatedDocument> {
-        return (await this._instance._db.memberModel
-            .findOne({ userId: discordId })
-            .populate({
-                path: "account",
-                model: GlobalDatabase.instance.accountModel,
-            })
-            .exec()) as IMemberDocument;
+        return (
+            await this._instance._db.memberModel
+                .find({})
+                .populate({
+                    path: "account",
+                    model: GlobalDatabase.instance.accountModel,
+                    match: { userId: discordId },
+                })
+                .exec()
+        ).find((document) => !!document.account) as IMemberPopulatedDocument;
     }
 
     /**
