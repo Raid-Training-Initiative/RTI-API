@@ -17,7 +17,7 @@ export class GetGuildOptions extends HTTPGetRequest {
 
     /**
      * Returns the JSON string payload of a discord server's options after making a GET /guildoptions request.
-     * @returns An object representing a member.
+     * @returns An object representing guild options.
      */
     public async prepareResponse(): Promise<GuildOptionsDto> {
         const document = await DB.queryGuildOptions();

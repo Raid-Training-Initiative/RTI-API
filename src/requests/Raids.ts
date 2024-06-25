@@ -45,6 +45,8 @@ export class ListRaids extends HTTPGetRequest {
             multiFormat: true,
             authenticated: true,
         });
+
+        this.filterQuery = {};
     }
 
     /**
@@ -256,7 +258,7 @@ export class ListRaids extends HTTPGetRequest {
                     this._req.query["leader"].toString(),
                 );
             }
-            filters.push({ leaderId: document.userId });
+            filters.push({ leaderId: document.account.userId });
         }
         if (this.filterQuery.published !== undefined) {
             filters.push({
@@ -349,7 +351,9 @@ export class GetRaid extends HTTPGetRequest {
             role.participants.forEach((participant) =>
                 idArray.push(participant),
             );
-            role.reserves.forEach((reserve) => idArray.push(reserve));
+        });
+        document.interested.forEach((int) => {
+            idArray.push(int.userId);
         });
         idArray.push(document.leaderId);
 

@@ -11,6 +11,7 @@ import HTTPGetRequest from "./base/HTTPGetRequest";
 import { MemberDto } from "src/requests/dto/member.dto";
 import { FilterQuery } from "mongoose";
 import { IMemberModel } from "@RTIBot-DB/schemas/MemberSchema";
+import { IAccountModel } from "../../RTIBot-DB/schemas/AccountSchema";
 
 export class ListMembers extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
@@ -65,7 +66,8 @@ export class ListMembers extends HTTPGetRequest {
         } = { page: 1, pageSize: 100 },
     ): Promise<PaginatedResponse<MemberDto, "members"> | string[]> {
         const documents = await DB.queryMembers(
-            await this.dbFilter(),
+            await this.memberDbFilter(),
+            await this.accountDbFilter(),
             pagination,
         );
 
@@ -77,14 +79,17 @@ export class ListMembers extends HTTPGetRequest {
 
         if (this.responseFormat == "csv") {
             return documents.map((document) => {
-                return `"${idMap.get(document.approverId)}","${document.gw2Name}","${
-                    document.discordTag
+                return `"${idMap.get(document.approverId)}","${document.account.gw2Name}","${
+                    document.account.discordTag
                 }","${document._id}"`;
             });
         }
 
         return {
-            totalElements: await DB.queryMembersCount(await this.dbFilter()),
+            totalElements: await DB.queryMembersCount(
+                await this.memberDbFilter(),
+                await this.accountDbFilter(),
+            ),
             members: documents.map((document) => {
                 return MemberDto.fromDocument(document, idMap);
             }),
@@ -93,10 +98,34 @@ export class ListMembers extends HTTPGetRequest {
 
     /**
      * Filters the documents according to the filters specified in the query parameters.
-     * @throws {ResourceNotFoundException} When the approver is not found
-     * @returns A filter to pass into the database query.
+     * @throws {ResourceNotFoundException} When the approver is not found.
+     * @returns A member filter to pass into the database query.
      */
-    private async dbFilter(): Promise<FilterQuery<IMemberModel>> {
+    private async memberDbFilter(): Promise<FilterQuery<IMemberModel>> {
+        const filters: Record<string, unknown>[] = [];
+        if (this._req.query["approver"]) {
+            const document = await DB.queryMemberByName(
+                this._req.query["approver"].toString(),
+            );
+            if (document == undefined) {
+                throw new ResourceNotFoundException(
+                    this._req.query["approver"].toString(),
+                );
+            }
+            filters.push({ approverId: document.account.userId });
+        }
+        if (this.filterBanned !== undefined) {
+            filters.push({ banned: this.filterBanned });
+        }
+
+        return filters.length > 0 ? { $or: filters } : {};
+    }
+
+    /**
+     * Filters the documents according to the filters specified in the query parameters.
+     * @returns An account filter to pass into the database query.
+     */
+    private async accountDbFilter(): Promise<FilterQuery<IAccountModel>> {
         const filters: Record<string, unknown>[] = [];
         if (this._req.query["gw2Name"]) {
             const idMap = await Utils.matchesNameIdMap(
@@ -111,17 +140,6 @@ export class ListMembers extends HTTPGetRequest {
                 { returnGW2Names: false },
             );
             filters.push({ userId: { $in: Array.from(idMap.keys()) } });
-        }
-        if (this._req.query["approver"]) {
-            const document = await DB.queryMemberByName(
-                this._req.query["approver"].toString(),
-            );
-            if (document == undefined) {
-                throw new ResourceNotFoundException(
-                    this._req.query["approver"].toString(),
-                );
-            }
-            filters.push({ approverId: document.userId });
         }
         if (this.filterBanned !== undefined) {
             filters.push({ banned: this.filterBanned });

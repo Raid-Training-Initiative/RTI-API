@@ -1,4 +1,7 @@
-import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
+import {
+    IMemberDocument,
+    IMemberPopulatedDocument,
+} from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
 import escapeStringRegexp = require("escape-string-regexp");
 import { Request } from "express";
@@ -17,15 +20,18 @@ export default class Utils {
         options?: { returnGW2Names: boolean },
     ): Promise<Map<string, string | undefined>> {
         const idMap = new Map<string, string | undefined>();
-        const documents: IMemberDocument[] = await DB.queryMembers({
-            userId: { $in: ids },
-        });
+        const documents: IMemberPopulatedDocument[] = await DB.queryMembers(
+            undefined,
+            {
+                userId: { $in: ids },
+            },
+        );
         documents.forEach((document) =>
             idMap.set(
-                document.userId,
+                document.account.userId,
                 options?.returnGW2Names
-                    ? document.gw2Name
-                    : document.discordTag,
+                    ? document.account.gw2Name
+                    : document.account.discordTag,
             ),
         );
 
@@ -45,7 +51,7 @@ export default class Utils {
             discordTag: { $in: names },
         });
         documents.forEach((document) =>
-            idMap.set(document.discordTag, document.userId),
+            idMap.set(document.account.discordTag, document.account.userId),
         );
 
         return idMap;
@@ -64,17 +70,18 @@ export default class Utils {
         const idMap = new Map<string, string | undefined>();
         name = escapeStringRegexp(name);
         const regex: RegExp = new RegExp(name, "gi");
-        const documents: IMemberDocument[] = await DB.queryMembers(
+        const documents: IMemberPopulatedDocument[] = await DB.queryMembers(
+            undefined,
             options?.returnGW2Names
                 ? { gw2Name: regex }
                 : { discordTag: regex },
         );
         documents.forEach((document) =>
             idMap.set(
-                document.userId,
+                document.account.userId,
                 options?.returnGW2Names
-                    ? document.gw2Name
-                    : document.discordTag,
+                    ? document.account.gw2Name
+                    : document.account.discordTag,
             ),
         );
 

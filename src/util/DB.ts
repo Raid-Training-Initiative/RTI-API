@@ -1,5 +1,8 @@
 import { IGuildOptionsData } from "@RTIBot-DB/documents/IGuildOptionsDocument";
-import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
+import {
+    IMemberDocument,
+    IMemberPopulatedDocument,
+} from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
 import {
     IRaidCompositionDocument,
@@ -9,6 +12,7 @@ import {
 import { IRaidEventDocument } from "@RTIBot-DB/documents/IRaidEventDocument";
 import { ITrainingRequestDocument } from "@RTIBot-DB/documents/ITrainingRequestDocument";
 import { MongoDatabase } from "@RTIBot-DB/MongoDatabase";
+import { GlobalDatabase } from "@RTIBot-DB/GlobalDatabase";
 import {
     ITrainingRequestModel,
     TrainingRequestSchema,
@@ -20,6 +24,7 @@ import { IRaidCompositionModel } from "@RTIBot-DB/schemas/RaidCompositionSchema"
 import { IMemberModel } from "@RTIBot-DB/schemas/MemberSchema";
 import { IRaidEventModel } from "@RTIBot-DB/schemas/RaidEventSchema";
 import { IRaidCompositionCategoryModel } from "@RTIBot-DB/schemas/RaidCompositionCategorySchema";
+import { IAccountModel } from "../../RTIBot-DB/schemas/AccountSchema";
 
 export default class DB {
     private static _instance: DB;
@@ -38,6 +43,8 @@ export default class DB {
         if (!this._instance) {
             this._instance = new this(config);
             await this._instance._db.connect();
+            GlobalDatabase.init(config.db);
+            await GlobalDatabase.instance.connect();
 
             // Create the indexes required for database queries.
             TrainingRequestSchema.index({ comment: "text" });
@@ -255,26 +262,41 @@ export default class DB {
 
     /**
      * Queries the database and retrieves a list of members.
-     * @param filter An object to pass into the database query that filters the results.
+     * @param memberFilter An object to pass into the database query that filters the results.
      * @param pagination Settings for paginating the result.
      * @returns A list of members.
      */
     public static async queryMembers(
-        filter?: FilterQuery<IMemberModel>,
+        memberFilter?: FilterQuery<IMemberModel>,
+        accountFilter?: FilterQuery<IAccountModel>,
         pagination?: { page: number; pageSize: number },
     ): Promise<IMemberDocument[]> {
         if (pagination) {
-            return (await this._instance._db.memberModel
-                .find(filter ? filter : {})
-                .sort({ _id: -1 })
-                .skip(pagination.pageSize * (pagination.page - 1))
-                .limit(pagination.pageSize)
-                .exec()) as IMemberDocument[];
+            return (
+                (await this._instance._db.memberModel
+                    .find(memberFilter ? memberFilter : {})
+                    .sort({ _id: -1 })
+                    .skip(pagination.pageSize * (pagination.page - 1))
+                    .limit(pagination.pageSize)
+                    .populate({
+                        path: "account",
+                        model: GlobalDatabase.instance.accountModel,
+                        match: accountFilter ? accountFilter : {},
+                    })
+                    .exec()) as IMemberPopulatedDocument[]
+            ).filter((document) => !!document.account);
         } else {
-            return (await this._instance._db.memberModel
-                .find(filter ? filter : {})
-                .sort({ _id: -1 })
-                .exec()) as IMemberDocument[];
+            return (
+                (await this._instance._db.memberModel
+                    .find(memberFilter ? memberFilter : {})
+                    .sort({ _id: -1 })
+                    .populate({
+                        path: "account",
+                        model: GlobalDatabase.instance.accountModel,
+                        match: accountFilter ? accountFilter : {},
+                    })
+                    .exec()) as IMemberPopulatedDocument[]
+            ).filter((document) => !!document.account);
         }
     }
 
@@ -285,9 +307,13 @@ export default class DB {
      */
     public static async queryMemberById(
         discordId?: string,
-    ): Promise<IMemberDocument> {
+    ): Promise<IMemberPopulatedDocument> {
         return (await this._instance._db.memberModel
             .findOne({ userId: discordId })
+            .populate({
+                path: "account",
+                model: GlobalDatabase.instance.accountModel,
+            })
             .exec()) as IMemberDocument;
     }
 
@@ -298,10 +324,13 @@ export default class DB {
      */
     public static async queryMemberPopulatedById(
         discordId?: string,
-    ): Promise<IMemberDocument> {
+    ): Promise<IMemberPopulatedDocument> {
         return (await this._instance._db.memberModel
             .findOne({ userId: discordId })
-            .populate("roles")
+            .populate({
+                path: "account",
+                model: GlobalDatabase.instance.accountModel,
+            })
             .exec()) as IMemberDocument;
     }
 
@@ -314,29 +343,36 @@ export default class DB {
     public static async queryMemberByName(
         name?: string,
         options?: { useGW2Name: boolean },
-    ): Promise<IMemberDocument> {
+    ): Promise<IMemberPopulatedDocument> {
         if (options?.useGW2Name) {
             return (await this._instance._db.memberModel
                 .findOne({ gw2Name: name })
-                .exec()) as IMemberDocument;
+                .populate({
+                    path: "account",
+                    model: GlobalDatabase.instance.accountModel,
+                })
+                .exec()) as IMemberPopulatedDocument;
         } else {
             return (await this._instance._db.memberModel
                 .findOne({ discordTag: name })
-                .exec()) as IMemberDocument;
+                .populate({
+                    path: "account",
+                    model: GlobalDatabase.instance.accountModel,
+                })
+                .exec()) as IMemberPopulatedDocument;
         }
     }
 
     /**
      * Queries the database and retrieves the count of members.
-     * @param filter An object to pass into the database query that filters the results.
      * @returns The count of members.
      */
     public static async queryMembersCount(
-        filter?: FilterQuery<IMemberModel>,
+        memberFilter?: FilterQuery<IMemberModel>,
+        accountFilter?: FilterQuery<IAccountModel>,
     ): Promise<number> {
-        return (await this._instance._db.memberModel
-            .countDocuments(filter ? filter : {})
-            .exec()) as number;
+        const members = await this.queryMembers(memberFilter, accountFilter);
+        return members.length;
     }
 
     /**

@@ -21,7 +21,7 @@ export class PostDiscordAuth extends HTTPPostRequest {
 
     /**
      * Returns the JSON object containing user info and token after making a POST /discordauth request.
-     * @returns An object representing a member.
+     * @returns An object representing discord auth.
      */
     public async prepareResponse(): Promise<{
         token: string;

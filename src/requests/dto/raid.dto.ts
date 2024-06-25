@@ -64,9 +64,10 @@ export class RaidDto extends RaidCommonDto {
         requiredParticipants: number;
         members: string[];
     }[];
-    reserves: {
-        role: string;
-        members: string[];
+    interested: {
+        member: string;
+        roles: string[];
+        notificationType: string;
     }[];
 
     static fromDocument(
@@ -82,7 +83,7 @@ export class RaidDto extends RaidCommonDto {
             leader: idMap.get(document.leaderId) ?? document.leaderId,
             comp: document.compositionName,
             publishedDate: Utils.formatDatetimeString(document.publishedDate),
-            channelId: document.channelId,
+            channelId: document.discordMessageIds.channel,
             options: document.options,
             participants: document.roles.map((role) => {
                 return {
@@ -93,14 +94,11 @@ export class RaidDto extends RaidCommonDto {
                     ),
                 };
             }),
-            reserves: document.roles.map((role) => {
-                return {
-                    role: role.name,
-                    members: role.reserves.map(
-                        (reserve) => idMap.get(reserve) ?? reserve,
-                    ),
-                };
-            }),
+            interested: document.interested.map((int) => ({
+                member: idMap.get(int.userId) ?? int.userId,
+                roles: int.roles,
+                notificationType: int.notification,
+            })),
             id: document._id.toHexString(),
         };
     }

@@ -12,6 +12,7 @@ export class GuildOptionsDto {
     raidAutoBroadcastTime: number;
     raidUnregisterNotificationTime: number;
     raidReminderNotificationTime: number;
+    removeRaidReminderHoursBefore?: number;
 
     autoUnpublishTime: number;
 
@@ -36,11 +37,17 @@ export class GuildOptionsDto {
     feedbackMessage?: string;
     feedbackBroadcastTime: number;
 
+    arcDpsChannelId?: string;
+
+    apiKeyMandatory: boolean;
+
     static fromDocument(document: IGuildOptionsData): GuildOptionsDto {
         return {
             raidUnregisterNotificationTime:
                 document.raidUnregisterNotificationTime,
             raidReminderNotificationTime: document.raidReminderNotificationTime,
+            removeRaidReminderHoursBefore:
+                document.removeRaidReminderHoursBefore,
             autoUnpublishTime: document.autoUnpublishTime,
             trainingRequestAutoSyncInterval:
                 document.trainingRequestAutoSyncInterval,
@@ -68,6 +75,8 @@ export class GuildOptionsDto {
             wingRoles: document.wingRoles,
             feedbackBroadcastTime: document.feedbackBroadcastTime,
             feedbackMessage: document.feedbackMessage,
+            arcDpsChannelId: document.arcDpsChannelId,
+            apiKeyMandatory: document.apiKeyMandatory,
         };
     }
 }

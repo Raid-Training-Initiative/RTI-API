@@ -1,4 +1,4 @@
-import { IMemberDocument } from "@RTIBot-DB/documents/IMemberDocument";
+import { IMemberPopulatedDocument } from "@RTIBot-DB/documents/IMemberDocument";
 
 export class MemberDto {
     gw2Name: string;
@@ -11,15 +11,15 @@ export class MemberDto {
     approver?: string;
 
     static fromDocument(
-        document: IMemberDocument,
+        document: IMemberPopulatedDocument,
         idMap: Map<string, string | undefined>,
     ): MemberDto {
         return {
-            gw2Name: document.gw2Name,
+            gw2Name: document.account.gw2Name,
             discordName: document.discordName,
-            discordTag: document.discordTag,
+            discordTag: document.account.discordTag,
             approver: idMap.get(document.approverId),
-            userId: document.userId,
+            userId: document.account.userId,
             banned: document.banned,
         };
     }
