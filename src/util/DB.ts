@@ -276,12 +276,14 @@ export default class DB {
                 (await this._instance._db.memberModel
                     .find(memberFilter ? memberFilter : {})
                     .sort({ _id: -1 })
-                    .skip(pagination.pageSize * (pagination.page - 1))
-                    .limit(pagination.pageSize)
                     .populate({
                         path: "account",
                         model: GlobalDatabase.instance.accountModel,
                         match: accountFilter ? accountFilter : {},
+                        options: {
+                            skip: pagination.pageSize * (pagination.page - 1),
+                            limit: pagination.pageSize,
+                        },
                     })
                     .exec()) as IMemberPopulatedDocument[]
             ).filter((document) => !!document.account);
