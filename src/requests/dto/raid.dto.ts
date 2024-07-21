@@ -107,25 +107,28 @@ export class RaidDto extends RaidCommonDto {
 export class RaidLogDto {
     date: string;
     type: RaidLogEntryType;
-    data: {
-        user: string;
-        roleName: string;
-        isReserve: string;
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any;
 
     static fromLog(
         log: IRaidLogEntryData,
         idMap: Map<string, string | undefined>,
     ): RaidLogDto {
-        const userId = log.data.user ? log.data.user : log.data;
+        let data = {};
+        if (typeof log.data === "object") {
+            for (const key in log.data) {
+                data[key] = idMap.has(log.data[key])
+                    ? idMap.get(log.data[key])
+                    : log.data[key];
+            }
+        } else {
+            data = idMap.has(log.data) ? idMap.get(log.data) : log.data;
+        }
+
         return {
             date: Utils.formatDatetimeString(log.date),
             type: log.type,
-            data: {
-                user: idMap.get(userId) ?? userId,
-                roleName: log.data.roleName,
-                isReserve: log.data.isReserve,
-            },
+            data,
         };
     }
 }

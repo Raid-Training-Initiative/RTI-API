@@ -411,7 +411,9 @@ export class GetRaidLog extends HTTPGetRequest {
         // Resolve the IDs to names.
         const idArray: string[] = [];
         document.log.forEach((log) => {
-            idArray.push(log.data.user ? log.data.user : log.data);
+            if (log.users) {
+                idArray.push(...log.users);
+            }
         });
         let idMap: Map<string, string | undefined>;
         if (
