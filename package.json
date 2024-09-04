@@ -41,5 +41,12 @@
         "lintfix": "prettier --write --list-different . && npm run lint:js -- --fix"
     },
     "author": "Stephan Wells",
-    "license": "ISC"
+    "license": "ISC",
+    "prettier": {
+        "tabWidth": 4,
+        "useTabs": false,
+        "semi": true,
+        "singleQuote": false,
+        "endOfLine": "auto"
+    }
 }
