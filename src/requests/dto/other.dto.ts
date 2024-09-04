@@ -1,9 +1,6 @@
-import moment from "moment-timezone";
 import { type, hostname, release, totalmem, cpus } from "os";
 import Utils from "src/util/Utils";
-import momentDurationFormatSetup from "moment-duration-format";
-
-momentDurationFormatSetup(moment);
+import { formatDuration, intervalToDuration } from "date-fns";
 
 export class OtherStatusDto {
     timestamp: number;
@@ -34,11 +31,9 @@ export class OtherStatusDto {
         json: Record<string, string>,
         guildId: string,
     ): OtherStatusDto {
-        const uptime = moment
-            .duration(process.uptime(), "seconds")
-            .format(
-                "Y [years] M [months] D [days] h [hours] m [minutes] s [seconds]",
-            );
+        const uptime = formatDuration(
+            intervalToDuration({ start: 0, end: process.uptime() * 1000 }),
+        );
 
         return {
             timestamp: Date.now(),

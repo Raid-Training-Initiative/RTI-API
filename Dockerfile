@@ -14,8 +14,8 @@ RUN npm run tsc
 
 FROM builder
 
-ENV NODE_ENV production
-ENV CONFIG Release
+ENV NODE_ENV=production
+ENV CONFIG=Release
 
 
 WORKDIR /app
