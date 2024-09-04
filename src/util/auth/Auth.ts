@@ -4,24 +4,22 @@ import { IConfig } from "../Config";
 import AuthenticatedServiceClient from "./clients/AuthenticatedServiceClient";
 import IAuthenticatedClient from "./clients/IAuthenticatedClient";
 import DiscordAuthService from "./discord/DiscordAuthService";
-import { TokenGenerator } from "ts-token-generator";
 import DB from "../DB";
 import UnauthorizedException from "../../exceptions/UnauthorizedException";
 import AuthenticatedDiscordUser from "./clients/AuthenticatedDiscordUser";
 import SessionExpiredException from "../../exceptions/SessionExpiredException";
+import { randomBytes } from "crypto";
 
 export default class Auth {
     private static _instance: Auth;
     private readonly _clients: Map<string, IAuthenticatedClient>;
     private readonly _discordAuthService: DiscordAuthService | undefined;
-    private readonly _tokenGenerator: TokenGenerator;
 
     private constructor(private readonly _config: IConfig) {
         this._clients = new Map();
         this._discordAuthService = this._config.discordAuth
             ? new DiscordAuthService(this._config.discordAuth)
             : undefined;
-        this._tokenGenerator = new TokenGenerator();
 
         filewatch(this._config.clientsFile, (eventType) => {
             if (eventType == "change") {
@@ -110,7 +108,7 @@ export default class Auth {
                 }
             }
 
-            const token = this._tokenGenerator.generate();
+            const token = randomBytes(64).toString("base64url");
             const client = new AuthenticatedDiscordUser(
                 token,
                 tokenInfo,
