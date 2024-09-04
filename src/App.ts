@@ -1,7 +1,6 @@
 import { IConfig } from "./util/Config";
-import express = require("express");
+import express, { NextFunction, Request, Response } from "express";
 import DB from "./util/DB";
-import { Request, Response, NextFunction } from "express";
 import errorMiddleware from "./util/Error.middleware";
 import ResourceNotFoundException from "./exceptions/ResourceNotFoundException";
 import Auth from "./util/auth/Auth";
@@ -344,6 +343,7 @@ function loadConfiguration(): IConfig | null {
             return null;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     return require(confFile);
 }
 

@@ -6,6 +6,7 @@
         "sourceMap": true,
         "strictNullChecks": true,
         "noUnusedLocals": false,
+        "esModuleInterop": true,
         "baseUrl": ".",
         "moduleResolution": "node",
         "typeRoots": ["node_modules/"],

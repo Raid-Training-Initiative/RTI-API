@@ -5,16 +5,23 @@
             "cwd": "${workspaceFolder}",
             "type": "node",
             "request": "launch",
-            "runtimeExecutable": "node",
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register/transpile-only"
-            ],
+            "runtimeExecutable": "tsx",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
             "name": "Launch Program",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            // Files to exclude from debugger (e.g. call stack)
+            "skipFiles": [
+                // Node.js internal core modules
+                "<node_internals>/**",
+
+                // Ignore all dependencies (optional)
+                "${workspaceFolder}/node_modules/**"
+            ],
             "outputCapture": "std",
-            "args": ["src/App.ts", "Debug"]
+            "args": ["src/App.ts", "Debug"],
+            "env": {
+                // "NODE_ENV": "production"
+            }
         }
     ]
 }

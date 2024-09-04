@@ -1,7 +1,7 @@
-import moment = require("moment-timezone");
+import moment from "moment-timezone";
 import { type, hostname, release, totalmem, cpus } from "os";
 import Utils from "src/util/Utils";
-import momentDurationFormatSetup = require("moment-duration-format");
+import momentDurationFormatSetup from "moment-duration-format";
 
 momentDurationFormatSetup(moment);
 

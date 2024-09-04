@@ -3,7 +3,7 @@ import {
     IMemberPopulatedDocument,
 } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
-import escapeStringRegexp = require("escape-string-regexp");
+import escapeStringRegexp from "escape-string-regexp";
 import { Request } from "express";
 import { ObjectId } from "mongoose";
 import DB from "./DB";

@@ -154,7 +154,7 @@ export default class Auth {
                 );
                 this._clients.set(serviceClient.token, serviceClient);
             }
-        } catch (error) {
+        } catch {
             throw new ServerErrorException("Error reading client token data.");
         }
     }
