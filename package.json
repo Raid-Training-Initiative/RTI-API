@@ -7,29 +7,29 @@
         "async-lock": "^1.4.1",
         "axios": "^1.7.7",
         "cors": "^2.8.5",
-        "date-fns": "^3.6.0",
-        "discord.js": "^14.16.1",
+        "date-fns": "^4.1.0",
+        "discord.js": "^14.16.2",
         "escape-string-regexp": "^4.0.0",
-        "express": "^4.19.2",
+        "express": "^4.21.0",
         "jsonschema": "^1.4.1",
         "mongoose": "^7.8.1"
     },
     "devDependencies": {
         "@eslint/compat": "^1.1.1",
-        "@eslint/js": "^9.9.1",
+        "@eslint/js": "^9.11.1",
         "@types/async-lock": "^1.4.2",
         "@types/eslint__js": "^8.42.3",
         "@types/express": "^4.17.21",
-        "@types/node": "^20.16.4",
-        "eslint": "^9.9.1",
+        "@types/node": "^20.16.7",
+        "eslint": "^9.11.1",
         "eslint-config-prettier": "^9.1.0",
-        "nodemon": "^3.1.4",
+        "nodemon": "^3.1.7",
         "prettier": "^3.3.3",
         "tsc-alias": "^1.8.10",
         "tsconfig-paths": "^4.2.0",
-        "tsx": "^4.19.0",
-        "typescript": "^5.5.4",
-        "typescript-eslint": "^8.4.0"
+        "tsx": "^4.19.1",
+        "typescript": "^5.6.2",
+        "typescript-eslint": "^8.7.0"
     },
     "scripts": {
         "tsc": "tsc && tsc-alias",
@@ -47,6 +47,14 @@
         "useTabs": false,
         "semi": true,
         "singleQuote": false,
-        "endOfLine": "auto"
+        "endOfLine": "auto",
+        "overrides": [
+            {
+                "files": "*.yml",
+                "options": {
+                    "tabWidth": 2
+                }
+            }
+        ]
     }
 }
