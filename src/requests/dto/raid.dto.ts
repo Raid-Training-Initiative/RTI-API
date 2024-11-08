@@ -64,6 +64,11 @@ export class RaidDto extends RaidCommonDto {
         requiredParticipants: number;
         members: string[];
     }[];
+    guests: {
+        discordId: string;
+        discordName?: string;
+        gw2Name: string;
+    }[];
     interested: {
         member: string;
         roles: string[];
@@ -94,6 +99,15 @@ export class RaidDto extends RaidCommonDto {
                     ),
                 };
             }),
+            guests: Array.from(document.guestGW2Names?.entries() ?? []).map(
+                (entry) => {
+                    return {
+                        discordId: entry[0],
+                        discordName: idMap.get(entry[0]),
+                        gw2Name: entry[1],
+                    };
+                },
+            ),
             interested: document.interested.map((int) => ({
                 member: idMap.get(int.userId) ?? int.userId,
                 roles: int.roles,

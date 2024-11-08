@@ -355,7 +355,11 @@ export class GetRaid extends HTTPGetRequest {
         document.interested.forEach((int) => {
             idArray.push(int.userId);
         });
+        Array.from(document.guestGW2Names?.keys() ?? []).forEach((guest) => {
+            idArray.push(guest);
+        });
         idArray.push(document.leaderId);
+        idArray.push(...document.coLeaderIds);
 
         let idMap: Map<string, string | undefined>;
         if (
