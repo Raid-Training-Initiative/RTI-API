@@ -8,7 +8,7 @@ import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import DB from "../util/DB";
 import Utils, { PaginatedResponse } from "../util/Utils";
 import HTTPGetRequest from "./base/HTTPGetRequest";
-import escapeStringRegexp = require("escape-string-regexp");
+import escapeStringRegexp from "escape-string-regexp";
 import { RaidSummaryDto, RaidDto, RaidLogDto } from "./dto/raid.dto";
 import { FilterQuery } from "mongoose";
 import { IRaidEventModel } from "@RTIBot-DB/schemas/RaidEventSchema";
@@ -415,7 +415,9 @@ export class GetRaidLog extends HTTPGetRequest {
         // Resolve the IDs to names.
         const idArray: string[] = [];
         document.log.forEach((log) => {
-            idArray.push(log.data.user ? log.data.user : log.data);
+            if (log.users) {
+                idArray.push(...log.users);
+            }
         });
         let idMap: Map<string, string | undefined>;
         if (

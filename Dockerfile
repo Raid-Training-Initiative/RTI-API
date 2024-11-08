@@ -14,8 +14,8 @@ RUN npm run tsc
 
 FROM builder
 
-ENV NODE_ENV production
-ENV CONFIG Release
+ENV NODE_ENV=production
+ENV CONFIG=Release
 
 
 WORKDIR /app
@@ -30,5 +30,7 @@ ARG commitId
 ARG branch
 ENV COMMIT_ID=$commitId
 ENV BRANCH=$branch
+
+USER 1000:1000
 
 CMD [ "node", "dist/src/App.js" ]

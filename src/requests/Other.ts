@@ -38,12 +38,12 @@ export class GetStatus extends HTTPGetRequest {
             if (!existsSync(join(__dirname, prefix, "package.json"))) {
                 prefix = "../../";
             }
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const packageJson: Record<string, string> = require(
                 `${prefix}package.json`,
             );
             return OtherStatusDto.fromJson(packageJson, this._config.guildId);
-        } catch (Exception) {
+        } catch {
             throw new ServerErrorException("Error loading package.json");
         }
     }

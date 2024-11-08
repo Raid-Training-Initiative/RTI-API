@@ -5,41 +5,56 @@
     "main": "dist/App.js",
     "dependencies": {
         "async-lock": "^1.4.1",
-        "axios": "^1.6.8",
+        "axios": "^1.7.7",
         "cors": "^2.8.5",
-        "discord.js": "^14.12.1",
+        "date-fns": "^4.1.0",
+        "discord.js": "^14.16.3",
         "escape-string-regexp": "^4.0.0",
-        "express": "^4.19.2",
-        "jsonschema": "^1.4.0",
-        "moment-duration-format": "^2.3.2",
-        "moment-timezone": "^0.5.45",
-        "mongoose": "^7.5.0",
-        "ts-token-generator": "^1.0.4"
+        "express": "^4.21.1",
+        "jsonschema": "^1.4.1",
+        "mongoose": "^7.8.2"
     },
     "devDependencies": {
+        "@eslint/compat": "^1.2.1",
+        "@eslint/js": "^9.13.0",
         "@types/async-lock": "^1.4.2",
+        "@types/eslint__js": "^8.42.3",
         "@types/express": "^4.17.21",
-        "@types/moment-duration-format": "^2.2.6",
-        "@types/node": "^20.5.0",
-        "@typescript-eslint/eslint-plugin": "^7.7.1",
-        "@typescript-eslint/parser": "^7.7.1",
-        "eslint": "^8.57.0",
-        "eslint-config-prettier": "^8.10.0",
-        "prettier": "^3.2.5",
-        "typescript": "5.1.6",
-        "ts-node": "^10.9.2",
-        "tsc-alias": "^1.8.8",
-        "tsconfig-paths": "^4.2.0"
+        "@types/node": "^20.17.0",
+        "eslint": "^9.13.0",
+        "eslint-config-prettier": "^9.1.0",
+        "nodemon": "^3.1.7",
+        "prettier": "^3.3.3",
+        "tsc-alias": "^1.8.10",
+        "tsconfig-paths": "^4.2.0",
+        "tsx": "^4.19.1",
+        "typescript": "^5.6.3",
+        "typescript-eslint": "^8.11.0"
     },
     "scripts": {
         "tsc": "tsc && tsc-alias",
-        "ts-node": "ts-node src/App.ts",
+        "ts-node": "tsx src/App.ts",
         "dev": "nodemon --inspect=0.0.0.0:9229 src/App.ts",
-        "lint:js": "eslint --ignore-path .gitignore src/",
+        "lint:js": "eslint src/",
         "lint:prettier": "prettier --check .",
         "lint": "npm run lint:js && npm run lint:prettier",
         "lintfix": "prettier --write --list-different . && npm run lint:js -- --fix"
     },
     "author": "Stephan Wells",
-    "license": "ISC"
+    "license": "ISC",
+    "prettier": {
+        "tabWidth": 4,
+        "useTabs": false,
+        "semi": true,
+        "singleQuote": false,
+        "endOfLine": "auto",
+        "overrides": [
+            {
+                "files": "*.yml",
+                "options": {
+                    "tabWidth": 2
+                }
+            }
+        ]
+    }
 }
