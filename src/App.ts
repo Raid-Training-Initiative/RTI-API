@@ -70,7 +70,7 @@ export class App {
         );
 
         server.get(
-            "/raids/:id",
+            "/raids/{:id}",
             async (req: Request, res: Response, next: NextFunction) => {
                 Logger.log(Severity.Info, `GET /raids/:id request initiated`);
                 const getRaid = new GetRaid(req, res, next);
@@ -80,7 +80,7 @@ export class App {
         );
 
         server.get(
-            "/raids/:id/log",
+            "/raids/{:id}/log",
             async (req: Request, res: Response, next: NextFunction) => {
                 Logger.log(
                     Severity.Info,
@@ -107,7 +107,7 @@ export class App {
         );
 
         server.get(
-            "/members/:userid",
+            "/members/{:userid}",
             async (req: Request, res: Response, next: NextFunction) => {
                 Logger.log(
                     Severity.Info,
@@ -134,7 +134,7 @@ export class App {
         );
 
         server.get(
-            "/comps/:comp",
+            "/comps/{:comp}",
             async (req: Request, res: Response, next: NextFunction) => {
                 Logger.log(Severity.Info, `GET /comps/:comp request initiated`);
                 const getComp = new GetComp(req, res, next);
@@ -154,7 +154,7 @@ export class App {
         );
 
         server.delete(
-            "/comps/:comp",
+            "/comps/{:comp}",
             async (req: Request, res: Response, next: NextFunction) => {
                 Logger.log(
                     Severity.Info,
@@ -181,7 +181,7 @@ export class App {
         );
 
         server.get(
-            "/categories/:category",
+            "/categories/{:category}",
             async (req: Request, res: Response, next: NextFunction) => {
                 Logger.log(
                     Severity.Info,
@@ -218,7 +218,7 @@ export class App {
         );
 
         server.get(
-            "/trainingrequests/:userid",
+            "/trainingrequests/{:userid}",
             async (req: Request, res: Response, next: NextFunction) => {
                 Logger.log(
                     Severity.Info,
@@ -293,7 +293,7 @@ export class App {
         );
 
         server.all(
-            "*",
+            /(.*)/,
             async (req: Request, res: Response, next: NextFunction) => {
                 Logger.log(
                     Severity.Info,

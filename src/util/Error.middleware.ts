@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import HTTPException from "../exceptions/base/HTTPException";
+import type HTTPException from "../exceptions/base/HTTPException";
+import type { NextFunction, Request, Response } from "express";
 
 /**
  * Middleware function for formatting error responses from HTTP exceptions.
@@ -12,7 +12,7 @@ export default function errorMiddleware(
     error: HTTPException,
     _request: Request,
     response: Response,
-    next: () => unknown,
+    next: NextFunction,
 ) {
     const status = error.status || 500;
     const name = error.name || "Unknown";
