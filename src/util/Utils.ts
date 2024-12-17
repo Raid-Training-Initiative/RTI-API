@@ -1,7 +1,4 @@
-import {
-    IMemberDocument,
-    IMemberPopulatedDocument,
-} from "@RTIBot-DB/documents/IMemberDocument";
+import { IMemberPopulatedDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
 import escapeStringRegexp from "escape-string-regexp";
 import { Request } from "express";
@@ -20,12 +17,9 @@ export default class Utils {
         options?: { returnGW2Names: boolean },
     ): Promise<Map<string, string | undefined>> {
         const idMap = new Map<string, string | undefined>();
-        const documents: IMemberPopulatedDocument[] = await DB.queryMembers(
-            undefined,
-            {
-                userId: { $in: ids },
-            },
-        );
+        const documents = (await DB.queryMembers(undefined, {
+            userId: { $in: ids },
+        })) as IMemberPopulatedDocument[];
         documents.forEach((document) =>
             idMap.set(
                 document.account.userId,
@@ -47,9 +41,9 @@ export default class Utils {
         names: string[],
     ): Promise<Map<string | undefined, string>> {
         const idMap = new Map<string | undefined, string>();
-        const documents: IMemberDocument[] = await DB.queryMembers({
+        const documents = (await DB.queryMembers({
             discordTag: { $in: names },
-        });
+        })) as IMemberPopulatedDocument[];
         documents.forEach((document) =>
             idMap.set(document.account.discordTag, document.account.userId),
         );
@@ -70,12 +64,12 @@ export default class Utils {
         const idMap = new Map<string, string | undefined>();
         name = escapeStringRegexp(name);
         const regex: RegExp = new RegExp(name, "gi");
-        const documents: IMemberPopulatedDocument[] = await DB.queryMembers(
+        const documents = (await DB.queryMembers(
             undefined,
             options?.returnGW2Names
                 ? { gw2Name: regex }
                 : { discordTag: regex },
-        );
+        )) as IMemberPopulatedDocument[];
         documents.forEach((document) =>
             idMap.set(
                 document.account.userId,
@@ -103,7 +97,7 @@ export default class Utils {
         const documents: IRaidCompositionCategoryDocument[] =
             await DB.queryCategories({ name: { $in: categoriesRegex } });
         documents.forEach((document) =>
-            idMap.set(document.name.toLowerCase(), document._id),
+            idMap.set(document.name.toLowerCase(), document.id),
         );
 
         return idMap;

@@ -49,7 +49,7 @@ export class RaidSummaryDto extends RaidCommonDto {
                     ),
                 ],
             }),
-            id: document._id.toHexString(),
+            id: document.id,
         };
     }
 }
@@ -113,7 +113,7 @@ export class RaidDto extends RaidCommonDto {
                 roles: int.roles,
                 notificationType: int.notification,
             })),
-            id: document._id.toHexString(),
+            id: document.id,
         };
     }
 }

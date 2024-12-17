@@ -47,7 +47,14 @@ export default class DB {
             await GlobalDatabase.instance.connect();
 
             // Create the indexes required for database queries.
-            TrainingRequestSchema.index({ comment: "text" });
+            const hasFilter =
+                TrainingRequestSchema.indexes().filter(
+                    (i) => i[0].comment && i[0].comment == "text",
+                ).length > 0;
+            if (!hasFilter) {
+                TrainingRequestSchema.index({ comment: "text" });
+            }
+
             this._instance._db.trainingRequestModel.createIndexes();
         } else {
             throw new ServerErrorException(
@@ -194,7 +201,7 @@ export default class DB {
         filter?: FilterQuery<IRaidCompositionCategoryModel>,
     ): Promise<number> {
         return (await this._instance._db.raidCompositionCategoryModel
-            .count(filter ? filter : {})
+            .countDocuments(filter ? filter : {})
             .exec()) as number;
     }
 
