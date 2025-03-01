@@ -21,7 +21,7 @@ export class GuildOptionsDto {
 
     memberRoleId?: string;
     guildApplicationsChannelId?: string;
-    raidCategoryId?: string;
+    raidCategoryIds?: string[];
     raidDraftCategoryId?: string;
 
     additionalRoleIds: string[];
@@ -56,7 +56,7 @@ export class GuildOptionsDto {
             raidAutoBroadcastTime: document.raidAutoBroadcastTime,
             memberRoleId: document.memberRoleId,
             guildApplicationsChannelId: document.guildApplicationsChannelId,
-            raidCategoryId: document.raidCategoryId,
+            raidCategoryIds: document.raidCategoryIds,
             raidDraftCategoryId: document.raidDraftCategoryId,
             dbVersion: document.dbVersion,
             additionalRoleIds: document.additionalRoleIds,

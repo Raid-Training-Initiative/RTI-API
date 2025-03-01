@@ -12,6 +12,7 @@ import { MemberDto } from "src/requests/dto/member.dto";
 import { FilterQuery } from "mongoose";
 import { IMemberModel } from "@RTIBot-DB/schemas/MemberSchema";
 import { IAccountModel } from "../../RTIBot-DB/schemas/AccountSchema";
+import { IMemberPopulatedDocument } from "@RTIBot-DB/documents/IMemberDocument";
 
 export class ListMembers extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
@@ -78,7 +79,7 @@ export class ListMembers extends HTTPGetRequest {
             await Utils.idsToMap(idArray);
 
         if (this.responseFormat == "csv") {
-            return documents.map((document) => {
+            return documents.map((document: IMemberPopulatedDocument) => {
                 return `"${idMap.get(document.approverId)}","${document.account.gw2Name}","${
                     document.account.discordTag
                 }","${document._id}"`;
@@ -90,7 +91,7 @@ export class ListMembers extends HTTPGetRequest {
                 await this.memberDbFilter(),
                 await this.accountDbFilter(),
             ),
-            members: documents.map((document) => {
+            members: documents.map((document: IMemberPopulatedDocument) => {
                 return MemberDto.fromDocument(document, idMap);
             }),
         };

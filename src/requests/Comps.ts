@@ -14,6 +14,7 @@ import HTTPGetRequest from "./base/HTTPGetRequest";
 import HTTPDeleteRequest from "./base/HTTPDeleteRequest";
 import { CompositionDto } from "src/requests/dto/comp.dto";
 import { IRaidCompositionModel } from "@RTIBot-DB/schemas/RaidCompositionSchema";
+import { IRaidCompositionPopulatedDocument } from "@RTIBot-DB/documents/IRaidCompositionDocument";
 
 export class ListComps extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = ["categories"];
@@ -123,7 +124,9 @@ export class CreateComp extends HTTPPostRequest {
             categoryIds,
         );
 
-        return CompositionDto.fromDocument(document);
+        return CompositionDto.fromDocument(
+            document as IRaidCompositionPopulatedDocument,
+        );
     }
 }
 
