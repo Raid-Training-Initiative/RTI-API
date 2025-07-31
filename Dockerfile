@@ -1,5 +1,7 @@
-# to run on old raspberry pis, use arm32v6/node:lts-alpine
-FROM node:lts-bookworm AS builder
+FROM node:lts-alpine AS builder
+
+RUN apk update --no-cache
+
 WORKDIR /build
 
 COPY package*.json .
