@@ -1,6 +1,6 @@
 FROM node:lts-alpine AS builder
 
-RUN apk update --no-cache
+RUN apk upgrade --no-cache
 
 WORKDIR /build
 
