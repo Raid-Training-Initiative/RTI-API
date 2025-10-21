@@ -1,6 +1,8 @@
 import {
     IDynamicCompOptions,
+    IFeedbackConfigData,
     IGuildOptionsData,
+    IRaidCategory,
     IRoleRequest,
     IWingRole,
     ServerRegion,
@@ -18,11 +20,13 @@ export class GuildOptionsDto {
 
     trainingRequestAutoSyncInterval: number;
     trainingRequestInactiveDaysBeforeDisable: number;
-
     memberRoleId?: string;
+
     guildApplicationsChannelId?: string;
-    raidCategoryIds?: string[];
+    raidCategories?: IRaidCategory[];
     raidDraftCategoryId?: string;
+
+    feedbackConfig?: IFeedbackConfigData;
 
     additionalRoleIds: string[];
 
@@ -33,9 +37,6 @@ export class GuildOptionsDto {
     roleRequests: IRoleRequest[];
 
     wingRoles: IWingRole[];
-
-    feedbackMessage?: string;
-    feedbackBroadcastTime: number;
 
     arcDpsChannelId?: string;
 
@@ -56,8 +57,9 @@ export class GuildOptionsDto {
             raidAutoBroadcastTime: document.raidAutoBroadcastTime,
             memberRoleId: document.memberRoleId,
             guildApplicationsChannelId: document.guildApplicationsChannelId,
-            raidCategoryIds: document.raidCategoryIds,
+            raidCategories: document.raidCategories,
             raidDraftCategoryId: document.raidDraftCategoryId,
+            feedbackConfig: document.feedbackConfig,
             dbVersion: document.dbVersion,
             additionalRoleIds: document.additionalRoleIds,
             serverRegion: document.serverRegion,
@@ -73,8 +75,6 @@ export class GuildOptionsDto {
             roleRequests: document.roleRequests,
             roleRequestsLimit: document.roleRequestsLimit,
             wingRoles: document.wingRoles,
-            feedbackBroadcastTime: document.feedbackBroadcastTime,
-            feedbackMessage: document.feedbackMessage,
             arcDpsChannelId: document.arcDpsChannelId,
             apiKeyMandatory: document.apiKeyMandatory,
         };

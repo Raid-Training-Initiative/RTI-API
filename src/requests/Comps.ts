@@ -125,7 +125,7 @@ export class CreateComp extends HTTPPostRequest {
         );
 
         return CompositionDto.fromDocument(
-            document as IRaidCompositionPopulatedDocument,
+            document as unknown as IRaidCompositionPopulatedDocument,
         );
     }
 }
