@@ -128,7 +128,8 @@ export class RaidLogDto {
         log: IRaidLogEntryData,
         idMap: Map<string, string | undefined>,
     ): RaidLogDto {
-        let data = {};
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let data: any = {};
         if (typeof log.data === "object") {
             for (const key in log.data) {
                 data[key] = idMap.has(log.data[key])

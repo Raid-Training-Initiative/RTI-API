@@ -1,8 +1,5 @@
 import { IGuildOptionsData } from "@RTIBot-DB/documents/IGuildOptionsDocument";
-import {
-    IMemberDocument,
-    IMemberPopulatedDocument,
-} from "@RTIBot-DB/documents/IMemberDocument";
+import { IMemberPopulatedDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
 import {
     IRaidCompositionDocument,
@@ -88,7 +85,7 @@ export default class DB {
         return (await this._instance._db.raidCompositionModel
             .find(filter ? filter : {})
             .populate("categories")
-            .exec()) as IRaidCompositionPopulatedDocument[];
+            .exec()) as unknown as IRaidCompositionPopulatedDocument[];
     }
 
     /**
@@ -102,7 +99,7 @@ export default class DB {
         return (await this._instance._db.raidCompositionModel
             .findOne({ name: compName })
             .populate("categories")
-            .exec()) as IRaidCompositionPopulatedDocument;
+            .exec()) as unknown as IRaidCompositionPopulatedDocument;
     }
 
     /**
@@ -277,7 +274,7 @@ export default class DB {
         memberFilter?: FilterQuery<IMemberModel>,
         accountFilter?: FilterQuery<IAccountModel>,
         pagination?: { page: number; pageSize: number },
-    ): Promise<IMemberDocument[]> {
+    ): Promise<IMemberPopulatedDocument[]> {
         if (pagination) {
             return (
                 (await this._instance._db.memberModel
@@ -292,7 +289,7 @@ export default class DB {
                             limit: pagination.pageSize,
                         },
                     })
-                    .exec()) as IMemberPopulatedDocument[]
+                    .exec()) as unknown as IMemberPopulatedDocument[]
             ).filter((document) => !!document.account);
         } else {
             return (
@@ -304,7 +301,7 @@ export default class DB {
                         model: GlobalDatabase.instance.accountModel,
                         match: accountFilter ? accountFilter : {},
                     })
-                    .exec()) as IMemberPopulatedDocument[]
+                    .exec()) as unknown as IMemberPopulatedDocument[]
             ).filter((document) => !!document.account);
         }
     }
@@ -326,7 +323,9 @@ export default class DB {
                     match: { userId: discordId },
                 })
                 .exec()
-        ).find((document) => !!document.account) as IMemberPopulatedDocument;
+        ).find(
+            (document) => !!document.account,
+        ) as unknown as IMemberPopulatedDocument;
     }
 
     /**
@@ -351,7 +350,7 @@ export default class DB {
                     .exec()
             ).find(
                 (document) => !!document.account,
-            ) as IMemberPopulatedDocument;
+            ) as unknown as IMemberPopulatedDocument;
         } else {
             return (
                 await this._instance._db.memberModel
@@ -364,7 +363,7 @@ export default class DB {
                     .exec()
             ).find(
                 (document) => !!document.account,
-            ) as IMemberPopulatedDocument;
+            ) as unknown as IMemberPopulatedDocument;
         }
     }
 

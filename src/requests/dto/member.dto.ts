@@ -3,7 +3,6 @@ import { IMemberPopulatedDocument } from "@RTIBot-DB/documents/IMemberDocument";
 export class MemberDto {
     gw2Name: string;
     userId: string;
-    banned: boolean;
 
     discordName?: string;
     discordTag?: string;
@@ -20,7 +19,6 @@ export class MemberDto {
             discordTag: document.account.discordTag,
             approver: idMap.get(document.approverId),
             userId: document.account.userId,
-            banned: document.banned,
         };
     }
 }
