@@ -2,16 +2,15 @@
  * File for classes that handle requests for raids.
  */
 
+import { IRaidEventModel } from "@RTIBot-DB/schemas/RaidEventSchema";
 import { NextFunction, Request, Response } from "express";
+import { FilterQuery } from "mongoose";
 import BadSyntaxException from "../exceptions/BadSyntaxException";
 import ResourceNotFoundException from "../exceptions/ResourceNotFoundException";
 import DB from "../util/DB";
 import Utils, { PaginatedResponse } from "../util/Utils";
 import HTTPGetRequest from "./base/HTTPGetRequest";
-import escapeStringRegexp from "escape-string-regexp";
-import { RaidSummaryDto, RaidDto, RaidLogDto } from "./dto/raid.dto";
-import { FilterQuery } from "mongoose";
-import { IRaidEventModel } from "@RTIBot-DB/schemas/RaidEventSchema";
+import { RaidDto, RaidLogDto, RaidSummaryDto } from "./dto/raid.dto";
 
 export class ListRaids extends HTTPGetRequest {
     public validRequestQueryParameters: string[] = [
@@ -211,7 +210,7 @@ export class ListRaids extends HTTPGetRequest {
                     const strippedName: string = query
                         .replace(stripRegex, "")
                         .toLowerCase();
-                    return escapeStringRegexp(strippedName);
+                    return RegExp.escape(strippedName);
                 });
         if (this.filterQuery.status !== undefined) {
             const filterStatus: RegExp[] = Utils.getReqexListFromStringList(

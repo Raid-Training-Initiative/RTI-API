@@ -1,6 +1,5 @@
 import { IMemberPopulatedDocument } from "@RTIBot-DB/documents/IMemberDocument";
 import { IRaidCompositionCategoryDocument } from "@RTIBot-DB/documents/IRaidCompositionCategoryDocument";
-import escapeStringRegexp from "escape-string-regexp";
 import { Request } from "express";
 import { ObjectId } from "mongoose";
 import DB from "./DB";
@@ -62,8 +61,8 @@ export default class Utils {
         options?: { returnGW2Names: boolean },
     ): Promise<Map<string, string | undefined>> {
         const idMap = new Map<string, string | undefined>();
-        name = escapeStringRegexp(name);
-        const regex: RegExp = new RegExp(name, "gi");
+
+        const regex: RegExp = new RegExp(RegExp.escape(name), "gi");
         const documents = (await DB.queryMembers(
             undefined,
             options?.returnGW2Names
@@ -119,7 +118,7 @@ export default class Utils {
      */
     public static getReqexListFromStringList(elements: string[]): RegExp[] {
         return elements.map(
-            (query) => new RegExp(`^${escapeStringRegexp(query)}$`, "gi"),
+            (query) => new RegExp(`^${RegExp.escape(query)}$`, "gi"),
         );
     }
 
@@ -185,3 +184,29 @@ export default class Utils {
 export type PaginatedResponse<T, PropertyName extends string> = {
     totalElements: number;
 } & { [P in PropertyName]: T[] };
+
+/**
+ * Workaround for RegExp.escape not existing in typescript 5.9.3
+ * Node supports this as of 24.0.0
+ *
+ * // todo: remove me
+ * @see https://github.com/microsoft/TypeScript/issues/61321
+ * @see https://github.com/microsoft/TypeScript/pull/63046
+ * @see https://github.com/microsoft/TypeScript/blob/6cf81701bc9666957064dad013e938c9c5af2c33/src/lib/es2025.regexp.d.ts#L1
+ */
+declare global {
+    interface RegExpConstructor {
+        /**
+         * Escapes any RegExp syntax characters in the input string, returning a
+         * new string that can be safely interpolated into a RegExp as a literal
+         * string to match.
+         * @example
+         * ```ts
+         * const regExp = new RegExp(RegExp.escape("foo.bar"));
+         * regExp.test("foo.bar"); // true
+         * regExp.test("foo!bar"); // false
+         * ```
+         */
+        escape(str: string): string;
+    }
+}
